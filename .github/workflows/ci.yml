@@ -68,7 +68,7 @@ jobs:
     - name: Test with pytest
       run: |
         sqlite3 tests/podcast_analyzer.sqlite '.databases'
-        uv run --with Django~="${{ matrix.django-version }}.0" django-admin.py collectstatic --noinput
+        uv run --with Django~="${{ matrix.django-version }}.0" django-admin collectstatic --noinput
         uv run --with Django~="${{ matrix.django-version }}.0" -m pytest --cov-report= --cov-config=pyproject.toml --cov=src/podcast_analyzer
         uv run --with Django~="${{ matrix.django-version }}.0" -m coverage lcov
 
