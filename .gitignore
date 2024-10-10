@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.tox
+
+.python-version
+
+*.sqlite
+.coverage
+.env
+.envrc
+
+.idea/*
+.nova/*
