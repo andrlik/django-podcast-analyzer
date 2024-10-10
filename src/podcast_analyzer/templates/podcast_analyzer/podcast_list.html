@@ -1,0 +1,69 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% translate "Podcasts" %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li class="is-active"><a href="{% url 'podcast-list' %}" aria-current="page">{% translate "Podcasts" %}</a></li>
+  </ul>
+{% endblock %}
+{% block extra_controls %}
+  <div class="level-item">
+    <a class="button is-primary" href="{% url 'podcast-create' %}">{% translate "Add podcast" %}</a>
+  </div>
+{% endblock %}
+{% block content %}
+  <h1 class="title">{% translate "Podcasts" %}</h1>
+  <ul>
+    {% for podcast in page_obj %}
+      <li>
+        <article class="media">
+          <figure class="media-left">
+            <p class="image is-64x64">
+              <a href="{{ podcast.urls.view }}"><img src="{% if podcast.podcast_cached_cover_art %}{{ podcast.podcast_cached_cover_art.url }}{% else %}{% endif %}" alt="Podcast cover art for {{ podcast.title }}" /></a>
+            </p>
+          </figure>
+          <div class="media-content">
+            <div class="content">
+              <p>
+                <strong><a href="{{ podcast.urls.view }}">{{ podcast.title }}</a></strong> <small>{% blocktranslate count counter=podcast.total_episodes %}1 episodes{% plural %}{{ counter }} episodes{% endblocktranslate %}</small>
+                <br />
+                <small>{% if podcast.seasons.count > 0 %}<strong>Seasons:</strong> {{ podcast.seasons.count }} | {% endif %}<strong>Total duration:</strong> {{ podcast.total_duration_timedelta }}</small>
+              </p>
+            </div>
+          </div>
+        </article>
+      </li>
+    {% empty %}
+      <li>{% translate "There are no podcasts yet." %}</li>
+    {% endfor %}
+  </ul>
+
+  <section class="section">
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="pagination" role="pagination" aria-label="pagination">
+        <ul class="pagination-list">
+          {% if page_obj.has_previous %}
+            {% if page_obj.previous_page_number != 1 %}
+              <li><a class="pagination-link" href="?page=1">&laquo; 1</a></li>
+            {% endif %}
+            {% if page_obj.previous_page_number > 2 %}<li><span class="pagination-ellipsis">&hellip;</span></li>{% endif %}
+            <li><a class="pagination-link" href="?page={{page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
+          {% endif %}
+          <li>
+            <a class="pagination-link is-current" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li><a class="pagination-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+            {% if page_obj.next_page_number < page_obj.paginator.num_pages %}<li><span class="pagination-ellipsis">&hellip;</span></li>{% endif %}
+            {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
+              <li><a class="pagination-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }} &raquo;</a></li>
+            {% endif %}
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+    <p class="small">{% blocktranslate with visible=page_obj|length count pcounter=page_obj.paginator.object_list.count %}Displaying {{ visible }} podcast{% plural %}Displaying {{ visible }} of {{ pcounter }} podcasts{% endblocktranslate %}</p>
+  </section>
+
+{% endblock %}

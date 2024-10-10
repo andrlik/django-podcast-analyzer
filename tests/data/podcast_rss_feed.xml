@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns:atom="http://www.w3.org/2005/Atom/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"
+  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+  xmlns:podcast="https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md"
+  version="2.0"
+  encoding="UTF-8"
+>
+  <channel>
+    <atom:link
+      href="https://feeds.podbean.com/somepodcast/feed.xml"
+      rel="self"
+      type="application/rss+xml"
+    />
+    <title>Some Podcast</title>
+    <link>https://www.somepodcast.com</link>
+    <pubDate>Mon, 01 May 2023 01:00:00 -0700</pubDate>
+    <generator>https://podbean.com/?v=5.5</generator>
+    <language>en</language>
+    <copyright
+    >Copyright Some Podcast Company 2023. All Rights Reserved.</copyright>
+    <itunes:type>serial</itunes:type>
+    <itunes:subtitle>Some weekly podcast telling a story.</itunes:subtitle>
+    <itunes:author>Some Podcast Company</itunes:author>
+    <itunes:summary
+    >Some weekly podcast telling a story. Even more detail than before!</itunes:summary>
+    <itunes:image href="https://media.somepodcast.com/cover.jpg" />
+    <itunes:explicit>yes</itunes:explicit>
+    <itunes:keywords>games, fiction, unbearable opinions</itunes:keywords>
+    <itunes:owner>
+      <itunes:name>Some Podcast Company</itunes:name>
+      <itunes:email>contact@somepodcast.com</itunes:email>
+    </itunes:owner>
+    <podcast:locked email="contact@somepodcast.com">yes</podcast:locked>
+    <podcast:funding
+      url="https://www.patreonclone.com/somepodcast"
+    >Support the show!</podcast:funding>
+    <itunes:category text="Leisure">
+      <itunes:category text="Games" />
+    </itunes:category>
+    <itunes:category text="Fiction">
+      <itunes:category text="Comedy Fiction" />
+    </itunes:category>
+    <item>
+      <title>Our fifth episode</title>
+      <link>https://www.somepodcast.com/5</link>
+      <guid isPermaLink="false">280879ea-ecce-463b-a803-65b592427b02</guid>
+      <pubDate>Fri, 29 Apr 2023 06:00:00 -0400</pubDate>
+      <author>Some Podcast Company</author>
+      <enclosure
+        url="https://media.somepodcast.com/ep5.mp3"
+        length="2177712"
+        type="audio/mpeg"
+      />
+      <itunes:episode>5</itunes:episode>
+      <itunes:title>Our fifth episode</itunes:title>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:season>1</itunes:season>
+      <itunes:author>Some Podcast Company</itunes:author>
+      <itunes:subtitle>Here we go again all!</itunes:subtitle>
+      <itunes:duration>2:27</itunes:duration>
+      <itunes:explicit>yes</itunes:explicit>
+      <podcast:transcript
+        url="https://transcripts.somepodcast.com/5.txt"
+        type="text/plain"
+      />
+      <description
+      >Here we go again all! This time we delve into even more bland opinions! Content Note: Jump scare.</description>
+      <itunes:keywords>bad opinions, games</itunes:keywords>
+      <content:encoded>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> bland opinions!</p><p>Content Note: Jump scare.</p> ]]>
+      </content:encoded>
+      <itunes:summary>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> bland opinions!</p><p>Content Note: Jump scare.</p> ]]>
+      </itunes:summary>
+      <podcast:person
+        email=""
+        href="https://somepersonalwebsite.com"
+        role="host"
+        img="https://somepersonalwebsite.com/me.jpg"
+      >John Doe</podcast:person>
+      <podcast:person email="" href="" role="guest">Jane Smith</podcast:person>
+    </item>
+    <item>
+      <title>Our fourth episode</title>
+      <link>https://www.somepodcast.com/4</link>
+      <guid isPermaLink="false">d7d96377-17c4-46d4-83cc-1529b5f0b2c6</guid>
+      <pubDate>Fri, 22 Apr 2023 06:00:00 -0400</pubDate>
+      <author>Some Podcast Company</author>
+      <enclosure
+        url="https://media.somepodcast.com/ep4.mp3"
+        length="48192268"
+        type="audio/mpeg"
+      />
+      <itunes:episode>4</itunes:episode>
+      <itunes:title>Our fourth episode</itunes:title>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:season>1</itunes:season>
+      <itunes:author>Some Podcast Company</itunes:author>
+      <itunes:subtitle>Here we go again all!</itunes:subtitle>
+      <itunes:duration>1:05:09</itunes:duration>
+      <itunes:explicit>yes</itunes:explicit>
+      <podcast:transcript
+        url="https://transcr   ipts.somepodcast.com/4.txt"
+        type="text/plain"
+      />
+      <description
+      >Here we go again all! This time we delve into even more bland opinions!</description>
+      <itunes:keywords>bad opinions, games</itunes:keywords>
+      <content:encoded>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> bland opinions!</p> ]]>
+      </content:encoded>
+      <itunes:summary>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> bland opinions!</p> ]]>
+      </itunes:summary>
+      <podcast:person
+        email=""
+        href="https://somepersonalwebsite.com"
+        role="host"
+      >John Doe</podcast:person>
+      <podcast:person email="" href="" role="guest">Jane Smith</podcast:person>
+    </item>
+    <item>
+      <title>Our third episode</title>
+      <link>https://www.somepodcast.com/3</link>
+      <guid isPermaLink="false">8128763e-5642-45dd-9d3f-4e67e4fe643e</guid>
+      <pubDate>Fri, 15 Apr 2023 06:00:00 -0400</pubDate>
+      <author>Some Podcast Company</author>
+      <enclosure
+        url="https://media.somepodcast.com/ep3.mp3"
+        length="45254310"
+        type="audio/mpeg"
+      />
+      <itunes:episode>3</itunes:episode>
+      <itunes:title>Our third episode</itunes:title>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:season>1</itunes:season>
+      <itunes:author>Some Podcast Company</itunes:author>
+      <itunes:subtitle>Here we go again all!</itunes:subtitle>
+      <itunes:duration>1:02:13</itunes:duration>
+      <itunes:explicit>yes</itunes:explicit>
+      <podcast:transcript
+        url="https://transcripts.somepodcast.com/3.txt"
+        type="text/plain"
+      />
+      <description
+      >Here we go again all! This time we delve into even more bland opinions!</description>
+      <itunes:keywords>bad opinions, games</itunes:keywords>
+      <content:encoded>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> bland opinions!</p> ]]>
+      </content:encoded>
+      <itunes:summary>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> bland opinions!</p> ]]>
+      </itunes:summary>
+      <podcast:person
+        email=""
+        href="https://somepersonalwebsite.com"
+        role="host"
+      >John Doe</podcast:person>
+      <podcast:person email="" href="" role="guest">Jane Smith</podcast:person>
+    </item>
+    <item>
+      <title>Our second episode</title>
+      <link>https://www.somepodcast.com/2</link>
+      <guid isPermaLink="false">cad55bad-ee1c-44d7-9195-bcd443c84e6e</guid>
+      <pubDate>Fri, 08 Apr 2023 06:00:00 -0400</pubDate>
+      <author>Some Podcast Company</author>
+      <enclosure
+        url="https://media.somepodcast.com/ep2.mp3"
+        length="45880757"
+        type="audio/mpeg"
+      />
+      <itunes:episode>2</itunes:episode>
+      <itunes:title>Our second episode</itunes:title>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:season>1</itunes:season>
+      <itunes:author>Some Podcast Company</itunes:author>
+      <itunes:subtitle>Here we go again all!</itunes:subtitle>
+      <itunes:duration>1:02:22</itunes:duration>
+      <itunes:explicit>yes</itunes:explicit>
+      <podcast:transcript
+        url="https://transcripts.somepodcast.com/2.txt"
+        type="text/plain"
+      />
+      <description
+      >Here we go again all! This time we delve into even more bland opinions!</description>
+      <itunes:keywords>bad opinions, games</itunes:keywords>
+      <content:encoded>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> CW bland opinions!</p> ]]>
+      </content:encoded>
+      <itunes:summary>
+        <![CDATA[ <p>Here we go again all!</p><p>This time we delve into even <strong>more</strong> CW bland opinions!</p> ]]>
+      </itunes:summary>
+      <podcast:person
+        email=""
+        href="https://somepersonalwebsite.com"
+        role="host"
+      >John Doe</podcast:person>
+      <podcast:person email="" href="" role="guest">Jane Smith</podcast:person>
+    </item>
+    <item>
+      <title>Our first episode</title>
+      <link>https://www.somepodcast.com/2</link>
+      <guid isPermaLink="false">cad55bad-ee1c-44d7-9195-bcd443yi945e</guid>
+      <pubDate>Fri, 01 Apr 2023 06:00:00 -0400</pubDate>
+      <author>Some Podcast Company</author>
+      <enclosure
+        url="https://media.somepodcast.com/ep1.mp3"
+        length="50922329"
+        type="audio/mpeg"
+      />
+      <itunes:episode>1</itunes:episode>
+      <itunes:title>Our first episode</itunes:title>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:season>1</itunes:season>
+      <itunes:author>Some Podcast Company</itunes:author>
+      <itunes:subtitle>Here we are!</itunes:subtitle>
+      <itunes:duration>1:09:31</itunes:duration>
+      <itunes:explicit>yes</itunes:explicit>
+      <description
+      >Here we are! We have terrible opinions to share! You can download a transcript here.</description>
+      <itunes:keywords>bad opinions, games</itunes:keywords>
+      <content:encoded>
+        <![CDATA[ <p>Here we are!</p><p>We have terrible opinions to share! You can download a transcript here.</p> ]]>
+      </content:encoded>
+      <itunes:summary>
+        <![CDATA[ <p>Here we are!</p><p>We have terrible opinions to share! You can download a transcript here.</p> ]]>
+      </itunes:summary>
+      <podcast:chapters
+        url="https://www.somepodcast.com/chapters/1/json"
+        type="application/json"
+      />
+      <podcast:person
+        email=""
+        href="https://somepersonalwebsite.com"
+        role="host"
+      >John Doe</podcast:person>
+      <podcast:person email="" href="" role="guest">Jane Smith</podcast:person>
+    </item>
+  </channel>
+</rss>

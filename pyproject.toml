@@ -50,6 +50,7 @@ dev-dependencies = [
     "bandit>=1.7.10",
     "blessed>=1.20.0",
     "bump-my-version>=0.27.0",
+    "django-browser-reload>=1.15.0",
     "django-coverage-plugin>=3.1.0",
     "django-debug-toolbar>=4.4.6",
     "django-extensions>=3.2.3",
@@ -165,7 +166,7 @@ unfixable = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*.py" = ["S101", "FBT001", "ARG001", "ARG002", "E501", "PLR2004", "T201"]
+"tests/*.py" = ["S101", "FBT001", "FBT002", "ARG001", "ARG002", "E501", "PLR2004", "T201"]
 "tests/urls.py" = ["RUF005"]
 "src/podcast_analyzers/receivers.py" = ["ARG001"]
 "src/podcast_analyzer/rules.py" = ["ARG001"]
@@ -186,6 +187,7 @@ exclude = ["**/migrations/",
     ".tox",
     ".venv",
     "tests",
+    "conftest.py",
 ]
 reportIncompatibleVariableOverride = false
 reportIncompatibleMethodOverride = false

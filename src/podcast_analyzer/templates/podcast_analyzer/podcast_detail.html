@@ -1,0 +1,168 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{{ podcast.title }} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast-list' %}">{% translate "Podcasts" %}</a></li>
+    <li class='is-active'><a href="{{ podcast.urls.view}}" aria-current="page">{{ podcast.title }}</a> </li>
+  </ul>
+{% endblock %}
+{% block extra_controls %}
+  <div class="level-item"><a class="button is-primary" href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a></div>
+{% endblock %}
+{% block content %}
+  <h1 class="title">{{ podcast.title }}</h1>
+  <div class="section">
+    <article class="media">
+      <figure class="media-left">
+        <p class="image is-128x128">
+          {% if podcast.podcast_cached_cover_art %}
+            <img src="{{ podcast.podcast_cached_cover_art.url }}" alt="Podcast logo art" height=200 width=200 />
+          {% endif %}
+        </p>
+      </figure>
+      <div class="media-content">
+        <div class="content">
+          <p>{{ podcast.description|striptags|urlize }}</p>
+        </div>
+      </div>
+    </article>
+  </div>
+  <div class="section">
+
+    <div class="content">
+      <h2>{% translate "Metadata" %}</h2>
+      <dl class="metadata">
+        <div class="columns">
+          <div class="column">
+            <dt>{% translate "Author" %}</dt>
+            <dd>{{ podcast.author }}</dd>
+            <dt>{% translate "Type" %}</dt>
+            <dd>{{ podcast.itunes_feed_type }}</dd>
+            <dt>{% translate "Explicit" %}</dt>
+            <dd><span class="is-sr-only">{{ podcast.itunes_explicit|yesno:"Yes,No"}} </span>{{ podcast.itunes_explicit|yesno:"✅,🚫"}}</dd>
+            <dt>{% translate "Language" %}</dt>
+            <dd>{{ podcast.language }}</dd>
+            <dt>{% translate "Actively releasing?" %}</dt>
+            <dd><span class="is-sr-only">{{ podcast.is_dormant|yesno:"No,Yes"}} </span>{{ podcast.is_dormant|yesno:"🚫,✅"}}</dd>
+            <dt>{% translate "Site URL" %}</dt>
+            <dd>{{ podcast.site_url|urlize }}</dd>
+            <dt>{% translate "Funding URL" %}</dt>
+            <dd>{{ podcast.funding_url|urlize|default_if_none:"-"}}</dd>
+          </div>
+          <div class="column">
+
+            <dt>{% translate "iTunes Categories" %}</dt>
+            <dd>
+              <ul>
+                {% for category in podcast.itunes_categories.all %}
+                  <li>{% if category.parent_category %}{{ category.parent_category.name }} - {% endif %}{{ category.name }}</li>
+                {% empty %}
+                  <li>{% translate "No categories detected yet." %}</li>
+                {% endfor %}
+              </ul>
+            </dd>
+            <dt>{% translate "Generator" %}</dt>
+            <dd>{{ podcast.generator|urlize|default_if_none:"Unknown" }}</dd>
+            <dt>{% translate "Probable Feed Host" %}</dt>
+            <dd>{{ podcast.probable_feed_host }}</dd>
+            <dt>{% translate "Uses 3rd party download tracking?" %}</dt>
+            <dd><span class="is-sr-only">{{ podcast.feed_contains_tracking_data|yesno:"Yes,No"}} </span>{{ podcast.feed_contains_tracking_data|yesno:"✅,🚫"}}</dd>
+            <dt>{% translate "Last release date" %}</dt>
+            <dd>{{ podcast.last_release_date|date:"r"}}</dd>
+
+          </div>
+        </div>
+      </dl>
+    </div>
+  </div>
+  <div class="section">
+    <div class="content">
+      <h2>{% translate "Statistics" %}</h2>
+      <nav class="level">
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Release Frequency</p>
+            <p class="title">{{ podcast.get_release_frequency_display }}</p>
+          </div>
+        </div>
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Seasons</p>
+            <p class="title">{{ podcast.seasons.count|default_if_none:"N/A" }}</p>
+          </div>
+        </div>
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Episodes</p>
+            <p class="title">{{ podcast.total_episodes }}</p>
+          </div>
+        </div>
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Median episode length</p>
+            <p class="title">{{ podcast.median_episode_duration_timedelta }}</p>
+          </div>
+        </div>
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Total duration</p>
+            <p class="title">{{ podcast.total_duration_timedelta }}</p>
+          </div>
+        </div>
+      </nav>
+
+      {% if podcast.seasons.exists %}
+        <table class="table is-striped is-narrow-desktop">
+          <thead>
+            <tr>
+              <th>{% translate "Seasons" %}</th>
+              <th class='has-text-right'>{% translate "Episodes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for season in podcast.seasons.all %}
+              <tr>
+                <td>{% translate "Season" %} {{ season.season_number }}</td>
+                <td class='has-text-right'>{{ season.episodes.count }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>{% translate "Total" %}</th>
+              <td class='has-text-right'><strong>{{ podcast.episodes.count }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      {% endif %}
+    </div>
+  </div>
+  <div class="section">
+    <div class="content">
+      <h2>{% translate "Analysis Groups" %}</h2>
+      <p>{% translate "Belongs to the following analysis groups:" %}</p>
+      <ul>
+        {% for agroup in podcast.analysis_group.all %}
+          <li>{{ agroup.name }}</li>
+        {% empty %}
+          <li>{% translate "None" %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="level">
+    <div class="level-left">
+      <div class="level-item">
+        <a class="button is-primary" href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <a class="button is-danger" href="{{ podcast.urls.delete }}">{% translate "Delete podcast" %}</a>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}

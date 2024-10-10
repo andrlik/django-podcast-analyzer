@@ -1,0 +1,37 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% if not podcast %}{% translate "Add podcast" %}{% else %}{% translate "Edit" %} {{ podcast.title }}{% endif %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast-list' %}">{% translate "Podcasts" %}</a></li>
+    {% if not podcast %}
+      <li class="is-active"><a href="{% url 'podcast-create' %}" aria-current="page">{% translate "Add" %}</a></li>
+    {% else %}
+      <li><a href="{{ podcast.urls.view}}">{{ podcast.title }}</a> </li>
+      <li class='is-active'><a href="{{ podcast.urls.edit}}" aria-current="page">{% translate "Edit" %}</a> </li>
+    {% endif %}
+  </ul>
+{% endblock %}
+{% block content %}
+  <h1 class="title">{% if not podcast %}{% translate "Add podcast" %}{% else %}{% blocktranslate with title=podcast.title %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        {{ field.errors }}
+        {{ field.label_tag }}
+        <div class="control">{{ field }}</div>
+        {% if field.help_text %}
+          <p class="help" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+    {% if not podcast %}
+      <a class="button is-link" href="{% url 'podcast-list' %}">{% translate "Return to list without saving" %}</a>
+      <button class="button is-primary" type="submit">{% translate "Create" %}</button>
+    {% else %}
+      <a class="button is-link" href="{{ podcast.urls.view }}">{% translate "Return to podcast detail and discard changes" %}</a>
+      <button class="button is-primary" type="submit">{% translate "Save changes" %}</button>
+    {% endif %}
+  </form>
+{% endblock %}

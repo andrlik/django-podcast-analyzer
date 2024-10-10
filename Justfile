@@ -75,11 +75,11 @@ check-types: check
 # Run just formatter and rye formatter.
 fmt: check
     just --fmt --unstable
-    uvx run ruff format
+    uv run ruff format
 
 # Run ruff linting
-lint: check
-    uv run ruff check src
+lint *ARGS: check
+    uv run ruff check {{ ARGS }} src
 
 # Run the test suite
 test *ARGS: check

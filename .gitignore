@@ -14,8 +14,11 @@ wheels/
 
 *.sqlite
 .coverage
+.coverage*
 .env
 .envrc
 
 .idea/*
 .nova/*
+
+staticfiles/*
