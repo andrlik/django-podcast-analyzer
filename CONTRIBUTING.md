@@ -39,6 +39,12 @@ To run your test suite:
 just test
 ```
 
+Or you can run testing for linting and multiple supported Python versions via:
+
+```bash
+just tox
+```
+
 To use pyright for type checking run:
 ```bash
 just check-types

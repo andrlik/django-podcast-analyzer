@@ -219,6 +219,31 @@ addopts = [
   "--cov-report=term-missing", "--ds=tests.settings", "--reuse-db",
 ]
 
+[tool.tox]
+env_list = ["3.12", "3.13", "lint", "types"]
+
+[tool.tox.env_run_base]
+description = "Run tests under {base_python}"
+allowlist_externals = ["{change_dir}/.tox/{base_python}/bin/python"]
+runner = "uv-venv-lock-runner"
+with_dev = true
+commands = [["pytest"]]
+
+[tool.tox.env.lint]
+description = "Run linting via ruff"
+skip_install = true
+allowlist_externals = ["{change_dir}/.tox/{base_python}/bin/python"]
+with_dev = true
+runner = "uv-venv-lock-runner"
+commands = [["ruff", "check"]]
+
+[tool.tox.env.types]
+description = "Run type checks via pyright"
+allowlist_externals = ["{change_dir}/.tox/{base_python}/bin/python"]
+runner = "uv-venv-lock-runner"
+with_dev = true
+commands = [["pyright"]]
+
 [tool.check-wheel-contents]
 ignore = ["W004"]
 

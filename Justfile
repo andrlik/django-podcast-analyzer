@@ -87,7 +87,7 @@ test *ARGS: check
 
 # Run tox for code style, type checking, and multi-python tests. Uses run-parallel.
 tox *ARGS: check
-    uvx --with tox-uv tox run-parallel {{ ARGS }}
+    uvx --python 3.12 --with tox-uv tox run-parallel {{ ARGS }}
 
 # Runs bandit safety checks.
 safety: check
