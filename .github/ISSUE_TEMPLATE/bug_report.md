@@ -23,15 +23,14 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**How to reproduce**
-Please provide the information to reproduce the issue.
+**Technical Details**
+Please provide the following information
 
 - Version
 - Django version
 - Python version
 - Web server (e.g. gunicorn/uvicorn, Daphne, Waitress, etc)
 
-What steps occurred to trigger it.
 
 While not necessary, we would love you forever if you submit a failing test for it.
 
