@@ -3,8 +3,8 @@
 A simple [Django](https://www.djangoproject.com) app that allows you to follow the feeds of various podcasts and glean interesting information from them.
 
 [![PyPI](https://img.shields.io/pypi/v/django-podcast-analyzer)](https://pypi.org/project/django-podcast-analyzer/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/django-markov)
-![PyPI - Versions from Framework Classifiers](https://img.shields.io/pypi/frameworkversions/django/django-markov)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/django-podcast-analyzer)
+![PyPI - Versions from Framework Classifiers](https://img.shields.io/pypi/frameworkversions/django/django-podcast-analyzer)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/andrlik/django-podcast-analyzer/blob/main/.pre-commit-config.yaml)
 [![License](https://img.shields.io/github/license/andrlik/django-podcast-analyzer)](https://github.com/andrlik/django-podcast-analyzer/blob/main/LICENSE)
