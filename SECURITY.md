@@ -2,12 +2,11 @@
 
 ## 🔐 Reporting Security Issues
 
-> Do not open issues that might have security implications!
-> It is critical that security related issues are reported privately so we have time to address them before they become public knowledge.
+**Do not open issues that might have security implications!**
 
-Vulnerabilities can be reported by emailing core members:
+**It is critical that security related issues are reported privately so we have time to address them before they become public knowledge.**
 
-- Daniel Andrlik [django-podcast-analyzer-security@andrlik.org](mailto:django-podcast-analyzer-security@andrlik.org)
+Vulnerabilities can be reported by [submitting a private advisory via Github](https://github.com/andrlik/django-podcast-analyzer/security).
 
 Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
 
