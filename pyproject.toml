@@ -48,6 +48,7 @@ include = ["src/podcast_analyzer", "tests"]
 [tool.uv]
 dev-dependencies = [
     "bandit>=1.7.10",
+    "black>=24.10.0",
     "blessed>=1.20.0",
     "bump-my-version>=0.27.0",
     "django-browser-reload>=1.15.0",
