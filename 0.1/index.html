@@ -922,6 +922,11 @@ See the documentation for both of those projects to identify any additional conf
 <p>Then run your migrations.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>migrate
 </code></pre></div>
+<p>You'll also want to seed the database with the known iTunes categories for podcasts. You can
+do this via the provided management command. It will only do so if the respective tables are empty
+so you won't get duplicates.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>seed_database
+</code></pre></div>
 <p>In order to run the application, you will also need to spawn a django-q cluster using
 <code>python manage.py qcluster</code>. You can also use a runner like <a href="https://honcho.readthedocs.io/en/latest/">honcho</a>
 or a Supervisor app.</p>
