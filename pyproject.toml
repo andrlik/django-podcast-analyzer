@@ -1,6 +1,6 @@
 [project]
 name = "django-podcast-analyzer"
-version = "0.0.1"
+version = "0.1.0"
 description = "A simple Django app that tracks podcast feeds and provides some useful metrics about them."
 authors = [{ name = "Daniel Andrlik", email = "daniel@andrlik.org" }]
 license = "BSD-3-Clause"
@@ -225,7 +225,7 @@ ignore = ["W004"]
 image_alt = true
 
 [tool.bumpversion]
-current_version = "0.0.1"
+current_version = "0.1.0"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
