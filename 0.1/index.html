@@ -542,11 +542,11 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/podcast_analyzer/management/commands/seed_database/" class="md-nav__link">
+      <a href="reference/podcast_analyzer/management/commands/seed_database_itunes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    seed_database
+    seed_database_itunes
   </span>
   
 
@@ -856,8 +856,8 @@
 <h1 id="django-podcast-analyzer">Django Podcast Analyzer</h1>
 <p>A simple <a href="https://www.djangoproject.com/..">Django</a> app that allows you to follow the feeds of various podcasts and glean interesting information from them.</p>
 <p><a href="https://pypi.org/project/django-podcast-analyzer/"><img alt="PyPI" src="https://img.shields.io/pypi/v/django-podcast-analyzer" /></a>
-<img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/django-markov" />
-<img alt="PyPI - Versions from Framework Classifiers" src="https://img.shields.io/pypi/frameworkversions/django/django-markov" />
+<img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/django-podcast-analyzer" />
+<img alt="PyPI - Versions from Framework Classifiers" src="https://img.shields.io/pypi/frameworkversions/django/django-podcast-analyzer" />
 <a href="https://github.com/ambv/black"><img alt="Black code style" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
 <a href="https://github.com/andrlik/django-podcast-analyzer/blob/main/.pre-commit-config.yaml"><img alt="Pre-commit" src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white" /></a>
 <a href="https://github.com/andrlik/django-podcast-analyzer/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/andrlik/django-podcast-analyzer" /></a>
@@ -925,7 +925,7 @@ See the documentation for both of those projects to identify any additional conf
 <p>You'll also want to seed the database with the known iTunes categories for podcasts. You can
 do this via the provided management command. It will only do so if the respective tables are empty
 so you won't get duplicates.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>seed_database
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>seed_database_itunes
 </code></pre></div>
 <p>In order to run the application, you will also need to spawn a django-q cluster using
 <code>python manage.py qcluster</code>. You can also use a runner like <a href="https://honcho.readthedocs.io/en/latest/">honcho</a>

@@ -4,7 +4,7 @@
     * [exceptions](podcast_analyzer/exceptions.md)
     * management
         * commands
-            * [seed_database](podcast_analyzer/management/commands/seed_database.md)
+            * [seed_database_itunes](podcast_analyzer/management/commands/seed_database_itunes.md)
     * [models](podcast_analyzer/models.md)
     * [receivers](podcast_analyzer/receivers.md)
     * [tasks](podcast_analyzer/tasks.md)
