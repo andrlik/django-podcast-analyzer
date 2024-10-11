@@ -19,17 +19,26 @@ A simple [Django](https://www.djangoproject.com) app that allows you to follow t
 
 ## Warning
 
-This is pre-release software!
+This is early stage! Things that still need to be done:
+
+- Simplify templates so you can easily integrate them without a lot of styling opinions.
+- Analysis group reporting views.
+- Finish test coverage.
+- Improved docs.
 
 ## Installation
 
 Via pip:
 
-```python -m pip install django-podcast-analyzer```
+```bash
+python -m pip install django-podcast-analyzer
+```
 
 Via uv:
 
-```uv pip install django-podcast-analyzer```
+```bash
+uv pip install django-podcast-analyzer
+```
 
 Then add it and our dependencies to your list of installed apps.
 
@@ -70,15 +79,23 @@ urlpatterns = [
     ...,
     path("podcasts/", include("podcast_analyzer.urls", namespace="podcasts")),
     ...,
-    
 ]
 ```
 
 Then run your migrations.
 
-```
+```bash
 python manage.py migrate
 ```
+
+In order to run the application, you will also need to spawn a django-q cluster using
+`python manage.py qcluster`. You can also use a runner like [honcho](https://honcho.readthedocs.io/en/latest/)
+or a Supervisor app.
+
+### Other Recommendations
+
+For storage of podcast art and other media, it's recommended you consider using something like
+[django-storages](https://django-storages.readthedocs.io/en/latest/).
 
 # Development
 
