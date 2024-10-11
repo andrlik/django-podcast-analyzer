@@ -71,7 +71,6 @@ dev-dependencies = [
     "pytest-httpx>=0.32.0",
     "pytest-mock>=3.14.0",
     "pytest-sugar>=1.0.0",
-    "respx>=0.21.1",
     "ruff>=0.6.9",
     "werkzeug[watchdog]>=3.0.4",
 ]
