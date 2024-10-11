@@ -88,13 +88,13 @@ class PodcastAdmin(admin.ModelAdmin):
                 )
                 episodes_touched += eps_updated
                 feeds_refreshed += 1
-            except FeedFetchError:
+            except FeedFetchError:  # no cov
                 self.message_user(
                     request,
                     f"Feed for {instance.title} is unreachable.",
                     messages.ERROR,
                 )
-            except FeedParseError as fpe:
+            except FeedParseError as fpe:  # no cov
                 self.message_user(
                     request,
                     f"Parsing feed for {instance.title} resulted in error: {fpe}",

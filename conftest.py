@@ -15,6 +15,7 @@ from io import BytesIO
 from typing import Any
 
 import pytest
+from django.contrib.auth.models import User
 from django.db.models.signals import (
     m2m_changed,
     post_delete,
@@ -29,6 +30,15 @@ from podcast_analyzer.models import AnalysisGroup, Podcast, Season
 from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture
+def user():
+    u = User.objects.create_superuser(
+        username="mcp", email="me@example.com", password="Some generic password"
+    )
+    yield u
+    u.delete()
 
 
 @pytest.fixture

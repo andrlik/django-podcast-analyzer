@@ -17,5 +17,7 @@ pytestmark = pytest.mark.django_db(transaction=True)
 
 def test_podcast_create_receiver(mocker):
     mocker.patch("podcast_analyzer.receivers.async_task")
-    Podcast.objects.create(title="Some Techbros Chatting", rss_feed="https://example.com/podcast.rss")
+    Podcast.objects.create(
+        title="Some Techbros Chatting", rss_feed="https://example.com/podcast.rss"
+    )
     receivers.async_task.assert_called_once()
