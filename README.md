@@ -88,6 +88,14 @@ Then run your migrations.
 python manage.py migrate
 ```
 
+You'll also want to seed the database with the known iTunes categories for podcasts. You can
+do this via the provided management command. It will only do so if the respective tables are empty
+so you won't get duplicates.
+
+```bash
+python manage.py seed_database
+```
+
 In order to run the application, you will also need to spawn a django-q cluster using
 `python manage.py qcluster`. You can also use a runner like [honcho](https://honcho.readthedocs.io/en/latest/)
 or a Supervisor app.
