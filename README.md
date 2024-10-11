@@ -92,11 +92,11 @@ In order to run the application, you will also need to spawn a django-q cluster 
 `python manage.py qcluster`. You can also use a runner like [honcho](https://honcho.readthedocs.io/en/latest/)
 or a Supervisor app.
 
-### Other Recommendations
+## Other Recommendations
 
 For storage of podcast art and other media, it's recommended you consider using something like
 [django-storages](https://django-storages.readthedocs.io/en/latest/).
 
-# Development
+## Development
 
 Contributions are welcome! See our contributing guide for details.
