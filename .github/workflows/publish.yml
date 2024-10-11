@@ -26,13 +26,6 @@ jobs:
       - name: Set up Python
         run: uv python install 3.13
 
-      - name: Setup cache
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-publish-py313-${{ hashFiles('uv.lock') }}
-          restore-keys: venv-publish-py313-
-
       - name: Build
         run: uv build
 
