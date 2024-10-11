@@ -1,4 +1,4 @@
-# seed_database.py
+# seed_database_itunes.py
 #
 # Copyright (c) 2024 Daniel Andrlik
 # All rights reserved.

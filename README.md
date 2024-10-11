@@ -93,7 +93,7 @@ do this via the provided management command. It will only do so if the respectiv
 so you won't get duplicates.
 
 ```bash
-python manage.py seed_database
+python manage.py seed_database_itunes
 ```
 
 In order to run the application, you will also need to spawn a django-q cluster using
