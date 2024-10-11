@@ -99,4 +99,4 @@ For storage of podcast art and other media, it's recommended you consider using 
 
 ## Development
 
-Contributions are welcome! See our contributing guide for details.
+Contributions are welcome! See our [contributing guide](https://andrlik.github.io/django-podcast-analyzer/latest/contributing/) for details.
