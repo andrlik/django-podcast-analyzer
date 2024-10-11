@@ -17,6 +17,7 @@ import magic
 import podcastparser
 import urlman
 from asgiref.sync import sync_to_async
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.db import models
 from django.db.models import QuerySet
@@ -120,11 +121,11 @@ class UUIDTimeStampedModel(TimeStampedModel):
     class Meta:
         abstract = True
 
-    def refresh_from_db(self, using=None, fields=None):
+    def refresh_from_db(self, using=None, fields=None, **kwargs: Any):
         """
         Also clear out cached_properties.
         """
-        super().refresh_from_db(using, fields)
+        super().refresh_from_db(using, fields, **kwargs)
         for prop in self.cached_properties:
             try:
                 del self.__dict__[prop]
@@ -775,7 +776,7 @@ class Podcast(UUIDTimeStampedModel):
                     "next_run": next_run,
                 },
             )
-            if not created:
+            if not created:  # no cov, this is the same as above
                 refresh_schedule.schedule_type = frequency_schedule_matching[
                     self.release_frequency
                 ]
@@ -787,7 +788,11 @@ class Podcast(UUIDTimeStampedModel):
         Check if latest episode is less than 65 days old, and set
         `dormant` to true if so.
         """
-        latest_ep = await self.episodes.alatest("release_datetime")
+        latest_ep: Episode | None
+        try:
+            latest_ep = await self.episodes.alatest("release_datetime")
+        except ObjectDoesNotExist:
+            latest_ep = None
         if not latest_ep or latest_ep.release_datetime is None:
             logger.warning("No latest episode. Cannot calculate dormancy.")
             return
@@ -920,14 +925,14 @@ class Person(UUIDTimeStampedModel):
         """
         Counts the number of episodes where they have been listed as a host.
         """
-        return self.hosted_episodes.count()
+        return self.hosted_episodes.count()  # no cov
 
     @cached_property
     def has_guested(self) -> int:
         """
         Counting the number of guest appearances.
         """
-        return self.guest_appearances.count()
+        return self.guest_appearances.count()  # no cov
 
     def get_distinct_podcasts(self):
         """

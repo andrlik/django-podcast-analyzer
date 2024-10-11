@@ -7,10 +7,12 @@
 
 from datetime import datetime, timedelta
 from io import BytesIO
+from statistics import median_high
 
 import pytest
 from asgiref.sync import sync_to_async
 from django.utils import timezone
+from django_q.models import Schedule
 
 from podcast_analyzer.exceptions import FeedFetchError, FeedParseError
 from podcast_analyzer.models import Episode, Person
@@ -337,11 +339,35 @@ def test_duration_calculations(podcast_with_parsed_episodes):
     )
 
 
+def test_duration_empty_podcast(empty_podcast):
+    assert empty_podcast.total_duration_seconds == 0
+    assert empty_podcast.total_duration_timedelta is None
+
+
+def test_ep_count_active(active_podcast):
+    assert active_podcast.total_episodes == 10
+
+
+def test_median_duration_active(podcast_with_parsed_episodes):
+    ep_durations = [e.itunes_duration for e in podcast_with_parsed_episodes.episodes.all()]
+    assert median_high(ep_durations) == podcast_with_parsed_episodes.median_episode_duration
+    assert podcast_with_parsed_episodes.median_episode_duration_timedelta == timedelta(seconds=podcast_with_parsed_episodes.median_episode_duration)
+
+
+def test_median_duration_empty(empty_podcast):
+    assert empty_podcast.median_episode_duration == 0
+    assert empty_podcast.median_episode_duration_timedelta == timedelta(seconds=0)
+
+
 def test_sync_last_release(podcast_with_parsed_episodes):
     expected_release_datetime = datetime.strptime(
         "Fri, 29 Apr 2023 06:00:00 -0400", "%a, %d %b %Y %H:%M:%S %z"
     )
     assert podcast_with_parsed_episodes.last_release_date == expected_release_datetime
+
+
+def test_last_release_empty(empty_podcast):
+    assert empty_podcast.last_release_date is None
 
 
 @pytest.mark.asyncio
@@ -354,9 +380,28 @@ async def test_async_last_release(podcast_with_parsed_episodes):
 
 
 @pytest.mark.asyncio
+async def test_async_last_release_empty(empty_podcast):
+    assert await empty_podcast.alast_release_date() is None
+
+
+def test_schedule_next_refresh_empty(empty_podcast):
+    current_schedule_count = Schedule.objects.count()
+    empty_podcast.schedule_next_refresh(last_release_date=None)
+    assert current_schedule_count == Schedule.objects.count()
+
+
+@pytest.mark.asyncio
 async def test_detect_dormant(dormant_podcast):
     await dormant_podcast.set_dormant()
     assert dormant_podcast.dormant
+
+
+@pytest.mark.asyncio
+async def test_detect_dormant_empty(empty_podcast):
+    last_mod = empty_podcast.modified
+    await empty_podcast.set_dormant()
+    await empty_podcast.arefresh_from_db()
+    assert last_mod == empty_podcast.modified
 
 
 @pytest.mark.asyncio
