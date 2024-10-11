@@ -106,4 +106,4 @@ class PodcastDeleteView(LoginRequiredMixin, DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy("podcast_data:podcast_list")
+        return reverse_lazy("podcast_data:podcast_list")  # no cov
