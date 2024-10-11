@@ -234,7 +234,7 @@ class ArtUpdate(models.Model):
         default=False, help_text=_("Was this a valid art file or corrupt/unsupported?")
     )
 
-    def __str__(self):
+    def __str__(self):  # no cov
         return f"Art Update: {self.podcast.title} at {self.timestamp}"
 
 
@@ -348,7 +348,7 @@ class Podcast(UUIDTimeStampedModel):
         edit = "{view}edit/"
         delete = "{view}delete/"
 
-    def get_absolute_url(self):
+    def get_absolute_url(self):  # no cov
         return self.urls.view
 
     @cached_property

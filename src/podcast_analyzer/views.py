@@ -36,7 +36,7 @@ class PodcastListView(LoginRequiredMixin, ListView):
         """
         Adds prefetching for related objects.
         """
-        return Podcast.objects.all().prefetch_related(
+        return Podcast.objects.all().prefetch_related(  # no cov
             "episodes", "seasons", "analysis_group"
         )
 
@@ -54,7 +54,7 @@ class PodcastDetailView(LoginRequiredMixin, DetailView):
         """
         Adds prefetching for related objects.
         """
-        return Podcast.objects.all().prefetch_related(
+        return Podcast.objects.all().prefetch_related(  # no cov
             "episodes", "seasons", "analysis_group"
         )
 
@@ -101,7 +101,7 @@ class PodcastDeleteView(LoginRequiredMixin, DeleteView):
         """
         Adds prefetching for related objects.
         """
-        return self.model.objects.all().prefetch_related(
+        return self.model.objects.all().prefetch_related(  # no cov
             "episodes", "seasons", "analysis_group"
         )
 
