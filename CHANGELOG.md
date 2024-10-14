@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.1.1...v0.1.2)
 
