@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import os
 from datetime import datetime, timedelta
 from io import BytesIO
 from statistics import median_high
@@ -15,7 +16,7 @@ from django.utils import timezone
 from django_q.models import Schedule
 
 from podcast_analyzer.exceptions import FeedFetchError, FeedParseError
-from podcast_analyzer.models import Episode, Person
+from podcast_analyzer.models import Episode, ItunesCategory, Person, Podcast
 from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -79,6 +80,27 @@ def test_update_metadata_no_itunes_owner(empty_podcast):
     }
     empty_podcast.update_podcast_metadata_from_feed_data(feed_dict)
     assert empty_podcast.email is None
+
+
+def test_update_metadata_category_no_children(empty_podcast):
+    feed_dict = {
+        "title": "Some Podcast",
+        "episodes": [],
+        "link": "https://www.somepodcast.com",
+        "generator": "https://podbean.com/?v=5.5",
+        "language": "en",
+        "type": "serial",
+        "itunes_author": "Some Podcast Company",
+        "cover_url": "https://media.somepodcast.com/cover.jpg",
+        "explicit": True,
+        "itunes_keywords": ["games", "fiction", "unbearable opinions"],
+        "import_prohibited": True,
+        "funding_url": "https://www.patreonclone.com/somepodcast",
+        "itunes_categories": [["Leisure", "Games"], ["Fiction"]],
+    }
+    empty_podcast.update_podcast_metadata_from_feed_data(feed_dict)
+    fic_cat = ItunesCategory.objects.get(name="Fiction")
+    assert fic_cat in empty_podcast.itunes_categories.all()
 
 
 def test_update_metadata_no_podcast_index(empty_podcast):
@@ -262,6 +284,19 @@ async def test_async_fetch_cover_art(
         assert valid_podcast.podcast_cover_art_url is None
 
 
+def test_sync_fetch_cover_art_invalid_file(httpx_mock, valid_podcast):
+    file_size = 9067
+    random_file = BytesIO(initial_bytes=os.urandom(file_size))
+    cover_url = "https://media.somepodcast.com/cover.jpg?from=rss"
+    httpx_mock.add_response(url=cover_url, headers=[("Content-Type", "image/jpeg")], content=random_file.read())
+    valid_podcast.podcast_cover_art_url = cover_url
+    valid_podcast.podcast_art_cache_update_needed = True
+    valid_podcast.save()
+    valid_podcast.fetch_podcast_cover_art()
+    art_update = valid_podcast.art_updates.latest("timestamp")
+    assert not art_update.valid_file
+
+
 @pytest.mark.parametrize(
     "update_all_eps,expected_first_touch_count,expected_second_touch_count",
     [
@@ -287,10 +322,60 @@ def test_new_episodes_in_feed(
     assert second_touch == expected_second_touch_count
 
 
+def test_episodes_contain_funding_data(empty_podcast, parsed_rss):
+    assert not empty_podcast.feed_contains_structured_donation_data
+    parsed_rss["episodes"][0]["payment_url"] = "https://ko-fi.com/somepodcast"
+    empty_podcast.update_episodes_from_feed_data(episode_list=parsed_rss["episodes"], update_existing_episodes=True)
+    empty_podcast.refresh_from_db()
+    assert empty_podcast.feed_contains_structured_donation_data
+
+
 @pytest.mark.asyncio
 async def test_analyze_host(podcast_with_parsed_metadata):
     await podcast_with_parsed_metadata.analyze_host()
     assert podcast_with_parsed_metadata.probable_feed_host == "Podbean"
+
+
+@pytest.mark.asyncio
+async def test_analyze_host_known_generator(mute_signals):
+    new_podcast = await Podcast.objects.acreate(
+        title="Tech Bros BSing",
+        rss_feed="https://example.com",
+        generator="Fireside (https://fireside.fm)"
+    )
+    await new_podcast.analyze_host()
+    assert new_podcast.probable_feed_host == "Fireside.fm"
+    await new_podcast.adelete()
+
+
+@pytest.mark.asyncio
+async def test_analyze_empty_host(mute_signals):
+    new_podcast = await Podcast.objects.acreate(
+        title="Tech Bros BSing",
+        rss_feed="https://example.com",
+        generator="monkey"
+    )
+    await new_podcast.analyze_host()
+    assert new_podcast.probable_feed_host is None
+    await new_podcast.adelete()
+
+
+@pytest.mark.asyncio
+async def test_analyze_host_from_episodes(mute_signals):
+    new_podcast = await Podcast.objects.acreate(
+        title="Tech Bros BSing",
+        rss_feed="https://example.com",
+        generator="monkey"
+    )
+    for i in range(5):
+        await Episode.objects.acreate(
+            podcast=new_podcast,
+            guid=new_podcast.title.replace(" ", "-") + f"--{i}",
+            download_url=f"http://media.blubrry.com/somepodcast/{i}"
+        )
+    await new_podcast.analyze_host()
+    assert new_podcast.probable_feed_host == "Blubrry"
+    await new_podcast.adelete()
 
 
 @pytest.mark.asyncio
