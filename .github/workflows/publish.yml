@@ -4,11 +4,6 @@ on:
   release:
     types: ["published"]
 
-env:
-  PYTHONUNBUFFERED: "1"
-  FORCE_COLOR: "1"
-  DJANGO_DEBUG: "1"
-
 jobs:
   run:
     name: "Build and publish release"
