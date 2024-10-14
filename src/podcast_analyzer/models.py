@@ -572,49 +572,17 @@ class Podcast(UUIDTimeStampedModel):
             return  # URL is not retrievable
 
         if r.status_code == httpx.codes.OK:
-            reported_type = r.headers.get("Content-Type")
+            reported_type = r.headers.get("Content-Type", default=None)
             logger.debug(
                 "Retrieved a file with reported mimetype of "
                 f"{r.headers.get('Content-Type')}!"
             )
-            filename = self.podcast_cover_art_url.split("/")[-1]
-            if "?" in filename:
-                filename = filename.split("?")[0]
             file_bytes = BytesIO(r.content)
-            art_file = File(BytesIO(r.content), name=filename)
-            update_record = ArtUpdate(podcast=self, reported_mime_type=reported_type)
-            try:
-                actual_type = magic.from_buffer(file_bytes.read(2048), mime=True)
-                logger.debug(f"Actual mime type for file is {actual_type}")
-                update_record.actual_mime_type = actual_type
-                update_record.valid_file = True
-            except MagicException as m:
-                logger.error(f"Error parsing actual mime type: {m}")
-                update_record.valid_file = False
-            if update_record.valid_file and update_record.actual_mime_type in [
-                "image/png",
-                "image/jpeg",
-                "image/gif",
-                "image/webp",
-            ]:
-                logger.debug(
-                    "Updating cached cover art using new file "
-                    f"with mime type of {update_record.actual_mime_type}"
-                )
-                self.podcast_cached_cover_art.save(
-                    name=filename,
-                    content=art_file,
-                    save=False,
-                )
-                self.podcast_art_cache_update_needed = False
-                self.save()
-            else:
-                logger.error(
-                    f"File mime type of {update_record.actual_mime_type} is "
-                    "not in allowed set!"
-                )
-                update_record.valid_file = False
-            update_record.save()
+            self.process_cover_art_data(
+                file_bytes,
+                cover_art_url=self.podcast_cover_art_url,
+                reported_mime_type=reported_type
+            )
 
     async def afetch_podcast_cover_art(self) -> None:
         """
@@ -630,22 +598,66 @@ class Podcast(UUIDTimeStampedModel):
                 r = await client.get(self.podcast_cover_art_url)
             except httpx.RequestError:  # no cov
                 return  # URL is not retrievable.
-            if r.status_code == httpx.codes.OK and r.headers.get("Content-Type") in (
-                "image/png",
-                "image/jpeg",
-                "image/jpg",
-                "application/octet-stream",
-            ):
-                filename = self.podcast_cover_art_url.split("/")[-1]
-                if "?" in filename:
-                    filename = filename.split("?")[0]
-                await sync_to_async(self.podcast_cached_cover_art.save)(
-                    name=filename,
-                    content=File(BytesIO(r.content), name=filename),
-                    save=False,
-                )
-                self.podcast_art_cache_update_needed = False
-                await self.asave()
+        if r.status_code == httpx.codes.OK:
+            reported_mime_type = r.headers.get("Content-Type", default=None)
+            file_bytes = BytesIO(r.content)
+            await sync_to_async(self.process_cover_art_data)(
+                cover_art_data=file_bytes,
+                cover_art_url=self.podcast_cover_art_url,
+                reported_mime_type=reported_mime_type,
+            )
+
+    def process_cover_art_data(
+            self,
+            cover_art_data: BytesIO,
+            cover_art_url: str,
+            reported_mime_type: str | None
+    ) -> None:
+        """
+        Takes the received art from a given art update and then attempts to process it.
+
+        Args:
+            cover_art_data (BytesIO): the received art data.
+            cover_art_url (str): the file name of the art data.
+            reported_mime_type (str): Mime type reported by the server to be validated.
+        """
+        filename = cover_art_url.split("/")[-1]
+        if "?" in filename:
+            filename = filename.split("?")[0]
+        art_file = File(cover_art_data, name=filename)
+        update_record = ArtUpdate(podcast=self, reported_mime_type=reported_mime_type)
+        try:
+            actual_type = magic.from_buffer(cover_art_data.read(2048), mime=True)
+            logger.debug(f"Actual mime type is {actual_type}")
+            update_record.actual_mime_type = actual_type
+            update_record.valid_file = True
+        except MagicException as m:  # no cov
+            logger.error(f"Error parsing actual mime type: {m}")
+            update_record.valid_file = False
+        if update_record.valid_file and update_record.actual_mime_type in [
+            "image/png",
+            "image/jpeg",
+            "image/gif",
+            "image/webp",
+        ]:
+            logger.debug(
+                "Updating cached cover art using new file "
+                f"with mime type of {update_record.actual_mime_type}"
+            )
+            self.podcast_cached_cover_art.save(
+                name=filename,
+                content=art_file,
+                save=False,
+            )
+            self.podcast_art_cache_update_needed = False
+            self.save()
+        else:
+            logger.error(
+                f"File mime type of {update_record.actual_mime_type} is "
+                "not in allowed set!"
+            )
+            update_record.valid_file = False
+            update_record.save()
 
     def update_episodes_from_feed_data(
         self,
@@ -671,6 +683,7 @@ class Podcast(UUIDTimeStampedModel):
                 and not self.feed_contains_structured_donation_data
             ):
                 self.feed_contains_structured_donation_data = True
+                self.save()
             edits_made = Episode.create_or_update_episode_from_feed(
                 podcast=self,
                 episode_dict=episode,
@@ -939,23 +952,28 @@ class Person(UUIDTimeStampedModel):
         Return a queryset of the distinct podcasts this person has appeared in.
         """
         hosted_podcasts = Podcast.objects.filter(
-            id__in=[
-                e.podcast.id
-                for e in self.hosted_episodes.all()
-                .order_by("podcast")
-                .distinct("podcast")
-            ]
+            id__in=list(
+                self.hosted_episodes.all()
+                .values_list("podcast__id", flat=True)
+                .distinct()
+            )
         )
+        logger.debug(f"Found {hosted_podcasts.count()} unique hosted podcasts...")
         guested_podcasts = Podcast.objects.filter(
-            id__in=[
-                e.podcast.id
-                for e in self.guest_appearances.all()
-                .order_by("podcast")
-                .distinct("podcast")
-            ]
+            id__in=list(
+                self.guest_appearances.all()
+                .values_list("podcast__id", flat=True)
+                .distinct()
+            )
         )
-        combined_podcasts = hosted_podcasts.union(guested_podcasts)
-        return Podcast.objects.filter(id__in=[p.id for p in combined_podcasts])
+        logger.debug(f"Found {guested_podcasts.count()} unique guest podcasts...")
+        combined_podcast_ids = set(
+            [p.id for p in hosted_podcasts] + [p.id for p in guested_podcasts]
+        )
+        logger.debug(f"Found {len(combined_podcast_ids)} unique podcasts ids...")
+        combined_podcasts = Podcast.objects.filter(id__in=list(combined_podcast_ids))
+        logger.debug(f"Found {combined_podcasts.count()} unique podcasts...")
+        return combined_podcasts
 
     @cached_property
     def distinct_podcasts(self) -> int:
