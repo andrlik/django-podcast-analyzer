@@ -23,7 +23,6 @@ This is early stage! Things that still need to be done:
 
 - Simplify templates so you can easily integrate them without a lot of styling opinions.
 - Analysis group reporting views.
-- Finish test coverage.
 - Improved docs.
 
 ## Installation
