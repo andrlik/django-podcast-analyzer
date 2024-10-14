@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Tests for the admin actions."""
+
 from io import BytesIO
 
 import pytest
@@ -37,7 +38,9 @@ def test_get_new_episodes(
             episode.delete()
     ep_count = podcast_with_parsed_episodes.episodes.count()
     podcast_queryset = Podcast.objects.filter(id=podcast_with_parsed_episodes.id)
-    httpx_mock.add_response(url=podcast_with_parsed_episodes.rss_feed, content=datastream)
+    httpx_mock.add_response(
+        url=podcast_with_parsed_episodes.rss_feed, content=datastream
+    )
     admin_obj = PodcastAdmin(Podcast, admin.site)
     request = rf.get("/admin/podcast_analyzer/")
     request.user = user
@@ -47,11 +50,15 @@ def test_get_new_episodes(
     assert podcast_with_parsed_episodes.episodes.count() - ep_count == expected_new
 
 
-def test_get_all_episodes(rf, settings, httpx_mock, user, podcast_with_parsed_episodes) -> None:
+def test_get_all_episodes(
+    rf, settings, httpx_mock, user, podcast_with_parsed_episodes
+) -> None:
     settings.MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
     with open("tests/data/podcast_rss_feed.xml", "rb") as f:
         datastream = BytesIO(f.read())
-    httpx_mock.add_response(url=podcast_with_parsed_episodes.rss_feed, content=datastream)
+    httpx_mock.add_response(
+        url=podcast_with_parsed_episodes.rss_feed, content=datastream
+    )
     latest_ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
     original_duration = latest_ep.itunes_duration
     latest_ep.itunes_duration = 2460
@@ -66,11 +73,15 @@ def test_get_all_episodes(rf, settings, httpx_mock, user, podcast_with_parsed_ep
     assert latest_ep.itunes_duration == original_duration
 
 
-def test_feed_update(rf, settings, httpx_mock, user, podcast_with_parsed_episodes) -> None:
+def test_feed_update(
+    rf, settings, httpx_mock, user, podcast_with_parsed_episodes
+) -> None:
     settings.MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
     with open("tests/data/podcast_rss_feed.xml", "rb") as f:
         datastream = BytesIO(f.read())
-    httpx_mock.add_response(url=podcast_with_parsed_episodes.rss_feed, content=datastream)
+    httpx_mock.add_response(
+        url=podcast_with_parsed_episodes.rss_feed, content=datastream
+    )
     latest_ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
     original_duration = latest_ep.itunes_duration
     latest_ep.itunes_duration = 2460
@@ -80,14 +91,18 @@ def test_feed_update(rf, settings, httpx_mock, user, podcast_with_parsed_episode
     request.user = user
     request._messages = messages.storage.default_storage(request)
     admin_obj = PodcastAdmin(Podcast, admin.site)
-    eps, feeds = admin_obj.feed_update(request, podcast_queryset, update_existing_episodes=True)
+    eps, feeds = admin_obj.feed_update(
+        request, podcast_queryset, update_existing_episodes=True
+    )
     latest_ep.refresh_from_db()
     assert latest_ep.itunes_duration == original_duration
     assert eps == 5
     assert feeds == 1
 
 
-def test_feed_unreachable(rf, settings, httpx_mock, user, podcast_with_parsed_episodes) -> None:
+def test_feed_unreachable(
+    rf, settings, httpx_mock, user, podcast_with_parsed_episodes
+) -> None:
     settings.MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
     httpx_mock.add_response(url=podcast_with_parsed_episodes.rss_feed, status_code=404)
     podcast_queryset = Podcast.objects.filter(id=podcast_with_parsed_episodes.id)
@@ -95,21 +110,29 @@ def test_feed_unreachable(rf, settings, httpx_mock, user, podcast_with_parsed_ep
     request.user = user
     request._messages = messages.storage.default_storage(request)
     admin_obj = PodcastAdmin(Podcast, admin.site)
-    eps, feeds = admin_obj.feed_update(request, podcast_queryset, update_existing_episodes=True)
+    eps, feeds = admin_obj.feed_update(
+        request, podcast_queryset, update_existing_episodes=True
+    )
     assert eps == 0
     assert feeds == 1
 
 
-def test_feed_invalid(rf, settings, httpx_mock, user, podcast_with_parsed_episodes) -> None:
+def test_feed_invalid(
+    rf, settings, httpx_mock, user, podcast_with_parsed_episodes
+) -> None:
     settings.MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
     with open("tests/data/malformed_podcast_rss_feed.xml", "rb") as f:
         datastream = BytesIO(f.read())
-    httpx_mock.add_response(url=podcast_with_parsed_episodes.rss_feed, content=datastream)
+    httpx_mock.add_response(
+        url=podcast_with_parsed_episodes.rss_feed, content=datastream
+    )
     podcast_queryset = Podcast.objects.filter(id=podcast_with_parsed_episodes.id)
     request = rf.get("/admin/podcast_analyzer/")
     request.user = user
     request._messages = messages.storage.default_storage(request)
     admin_obj = PodcastAdmin(Podcast, admin.site)
-    eps, feeds = admin_obj.feed_update(request, podcast_queryset, update_existing_episodes=True)
+    eps, feeds = admin_obj.feed_update(
+        request, podcast_queryset, update_existing_episodes=True
+    )
     assert eps == 0
     assert feeds == 1

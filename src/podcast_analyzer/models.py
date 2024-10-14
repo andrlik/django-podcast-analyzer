@@ -939,23 +939,28 @@ class Person(UUIDTimeStampedModel):
         Return a queryset of the distinct podcasts this person has appeared in.
         """
         hosted_podcasts = Podcast.objects.filter(
-            id__in=[
-                e.podcast.id
-                for e in self.hosted_episodes.all()
-                .order_by("podcast")
-                .distinct("podcast")
-            ]
+            id__in=list(
+                self.hosted_episodes.all()
+                .values_list("podcast__id", flat=True)
+                .distinct()
+            )
         )
+        logger.debug(f"Found {hosted_podcasts.count()} unique hosted podcasts...")
         guested_podcasts = Podcast.objects.filter(
-            id__in=[
-                e.podcast.id
-                for e in self.guest_appearances.all()
-                .order_by("podcast")
-                .distinct("podcast")
-            ]
+            id__in=list(
+                self.guest_appearances.all()
+                .values_list("podcast__id", flat=True)
+                .distinct()
+            )
         )
-        combined_podcasts = hosted_podcasts.union(guested_podcasts)
-        return Podcast.objects.filter(id__in=[p.id for p in combined_podcasts])
+        logger.debug(f"Found {guested_podcasts.count()} unique guest podcasts...")
+        combined_podcast_ids = set(
+            [p.id for p in hosted_podcasts] + [p.id for p in guested_podcasts]
+        )
+        logger.debug(f"Found {len(combined_podcast_ids)} unique podcasts ids...")
+        combined_podcasts = Podcast.objects.filter(id__in=list(combined_podcast_ids))
+        logger.debug(f"Found {combined_podcasts.count()} unique podcasts...")
+        return combined_podcasts
 
     @cached_property
     def distinct_podcasts(self) -> int:

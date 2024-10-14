@@ -16,7 +16,7 @@ from django_q.models import Schedule
 
 from podcast_analyzer.exceptions import FeedFetchError, FeedParseError
 from podcast_analyzer.models import Episode, Person
-from tests.factories.podcast import generate_episodes_for_podcast
+from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -349,9 +349,16 @@ def test_ep_count_active(active_podcast):
 
 
 def test_median_duration_active(podcast_with_parsed_episodes):
-    ep_durations = [e.itunes_duration for e in podcast_with_parsed_episodes.episodes.all()]
-    assert median_high(ep_durations) == podcast_with_parsed_episodes.median_episode_duration
-    assert podcast_with_parsed_episodes.median_episode_duration_timedelta == timedelta(seconds=podcast_with_parsed_episodes.median_episode_duration)
+    ep_durations = [
+        e.itunes_duration for e in podcast_with_parsed_episodes.episodes.all()
+    ]
+    assert (
+        median_high(ep_durations)
+        == podcast_with_parsed_episodes.median_episode_duration
+    )
+    assert podcast_with_parsed_episodes.median_episode_duration_timedelta == timedelta(
+        seconds=podcast_with_parsed_episodes.median_episode_duration
+    )
 
 
 def test_median_duration_empty(empty_podcast):
@@ -557,6 +564,43 @@ def test_detect_person_img(podcast_with_parsed_episodes):
     guest = episode.guests_detected_from_feed.all()[0]
     assert guest.img_url is None
     assert host.img_url is not None
+
+
+@pytest.mark.parametrize(
+    "podcast_count,skip_podcasts,hosted_eps,guested_eps,expected_result",
+    [
+        (2, 0, 4, 3, 2),
+        (2, 1, 4, 0, 1),
+        (2, 1, 3, 0, 1),
+        (3, 1, 5, 2, 2),
+        (3, 2, 0, 1, 1),
+        (3, 3, 0, 0, 0),
+    ],
+)
+def test_person_distinct_podcasts(
+    mute_signals, podcast_count, skip_podcasts, hosted_eps, guested_eps, expected_result
+):
+    podcasts = [PodcastFactory() for _ in range(podcast_count)]
+    for podcast in podcasts:
+        generate_episodes_for_podcast(podcast)
+    person = Person.objects.create(name="John Smith")
+    if skip_podcasts < podcast_count:
+        hosting_done = False
+        for podcast in podcasts[skip_podcasts:]:
+            if guested_eps > 0 and hosting_done or hosted_eps == 0:
+                eps_to_edit = podcast.episodes.all()[:guested_eps]
+                for ep in eps_to_edit:
+                    ep.guests_detected_from_feed.add(person)
+            elif hosted_eps > 0 and not hosting_done:
+                eps_to_edit = podcast.episodes.all()[:hosted_eps]
+                for ep in eps_to_edit:
+                    ep.hosts_detected_from_feed.add(person)
+                hosting_done = True
+            else:
+                pass  # No person entries to add.
+    assert person.has_guested == guested_eps
+    assert person.has_hosted == hosted_eps
+    assert person.distinct_podcasts == expected_result
 
 
 def test_season_detection(podcast_with_parsed_metadata, parsed_rss):
