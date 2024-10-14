@@ -1373,13 +1373,13 @@ imported.</p>
 <a id="__codelineno-0-88" name="__codelineno-0-88"></a>            <span class="p">)</span>
 <a id="__codelineno-0-89" name="__codelineno-0-89"></a>            <span class="n">episodes_touched</span> <span class="o">+=</span> <span class="n">eps_updated</span>
 <a id="__codelineno-0-90" name="__codelineno-0-90"></a>            <span class="n">feeds_refreshed</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="k">except</span> <span class="n">FeedFetchError</span><span class="p">:</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="k">except</span> <span class="n">FeedFetchError</span><span class="p">:</span>  <span class="c1"># no cov</span>
 <a id="__codelineno-0-92" name="__codelineno-0-92"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span>
 <a id="__codelineno-0-93" name="__codelineno-0-93"></a>                <span class="n">request</span><span class="p">,</span>
 <a id="__codelineno-0-94" name="__codelineno-0-94"></a>                <span class="sa">f</span><span class="s2">&quot;Feed for </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> is unreachable.&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-95" name="__codelineno-0-95"></a>                <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
 <a id="__codelineno-0-96" name="__codelineno-0-96"></a>            <span class="p">)</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="k">except</span> <span class="n">FeedParseError</span> <span class="k">as</span> <span class="n">fpe</span><span class="p">:</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="k">except</span> <span class="n">FeedParseError</span> <span class="k">as</span> <span class="n">fpe</span><span class="p">:</span>  <span class="c1"># no cov</span>
 <a id="__codelineno-0-98" name="__codelineno-0-98"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span>
 <a id="__codelineno-0-99" name="__codelineno-0-99"></a>                <span class="n">request</span><span class="p">,</span>
 <a id="__codelineno-0-100" name="__codelineno-0-100"></a>                <span class="sa">f</span><span class="s2">&quot;Parsing feed for </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> resulted in error: </span><span class="si">{</span><span class="n">fpe</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
