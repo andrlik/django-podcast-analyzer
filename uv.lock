@@ -415,6 +415,7 @@ dev = [
     { name = "django-coverage-plugin" },
     { name = "django-debug-toolbar" },
     { name = "django-extensions" },
+    { name = "django-test-plus" },
     { name = "django-types" },
     { name = "django-watchfiles" },
     { name = "factory-boy" },
@@ -459,6 +460,7 @@ dev = [
     { name = "django-coverage-plugin", specifier = ">=3.1.0" },
     { name = "django-debug-toolbar", specifier = ">=4.4.6" },
     { name = "django-extensions", specifier = ">=3.2.3" },
+    { name = "django-test-plus", specifier = ">=2.2.4" },
     { name = "django-types", specifier = ">=0.19.1" },
     { name = "django-watchfiles", specifier = ">=0.2.0" },
     { name = "factory-boy", specifier = ">=3.3.1" },
@@ -515,6 +517,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5d/97/f9a157716e3ce00b9d0ae596d9452bc6bb993066337a885a94c96ac7169c/django_tagulous-2.1.0.tar.gz", hash = "sha256:f629b54ad720052092785b0dce056dc6a68c7b63f8126075af9c25848b250bfd", size = 291575 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dd/7b/14c1c0a8e5378ccebe906676084ada7c7679ad76659a44cb5a55413ba5bc/django_tagulous-2.1.0-py3-none-any.whl", hash = "sha256:5ebba5a51f049f6df5f9d2a30eef431c0bf7cd35758aa0a42fc3351be4d239cd", size = 286294 },
+]
+
+[[package]]
+name = "django-test-plus"
+version = "2.2.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/56/7d78cffc6d3b4240264d0ae34a86f6e2a1ce76e57ac40c2db437c80c5306/django-test-plus-2.2.4.tar.gz", hash = "sha256:06488209a07dca60dc2bbeaeae5ce340d17344163e0b121709cdac7405c6d9ef", size = 18869 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ea/5c/d1720506e57eac09f37c0731a0183982b03a6b76be2fbd364d784e75ca73/django_test_plus-2.2.4-py3-none-any.whl", hash = "sha256:96e4e16fabd3e0339a4b46e02a0a88c92c19800de38d00446571ea036614d332", size = 17485 },
 ]
 
 [[package]]

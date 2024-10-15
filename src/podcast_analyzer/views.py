@@ -101,9 +101,9 @@ class PodcastDeleteView(LoginRequiredMixin, DeleteView):
         """
         Adds prefetching for related objects.
         """
-        return self.model.objects.all().prefetch_related(  # no cov
+        return self.model.objects.all().prefetch_related(
             "episodes", "seasons", "analysis_group"
         )
 
     def get_success_url(self):
-        return reverse_lazy("podcast_data:podcast_list")  # no cov
+        return reverse_lazy("podcast_analyzer:podcast-list")

@@ -90,7 +90,7 @@ def podcast_art_directory_path(instance, filename):
     title = instance.title
     if len(title) > ART_TITLE_LENGTH_LIMIT:
         title = title[:ART_TITLE_LENGTH_LIMIT]
-    return f"{title}_{instance.id}/{filename}"
+    return f"{title.replace(" ", "_")}_{instance.id}/{filename}"
 
 
 class TimeStampedModel(models.Model):
@@ -581,7 +581,7 @@ class Podcast(UUIDTimeStampedModel):
             self.process_cover_art_data(
                 file_bytes,
                 cover_art_url=self.podcast_cover_art_url,
-                reported_mime_type=reported_type
+                reported_mime_type=reported_type,
             )
 
     async def afetch_podcast_cover_art(self) -> None:
@@ -608,10 +608,10 @@ class Podcast(UUIDTimeStampedModel):
             )
 
     def process_cover_art_data(
-            self,
-            cover_art_data: BytesIO,
-            cover_art_url: str,
-            reported_mime_type: str | None
+        self,
+        cover_art_data: BytesIO,
+        cover_art_url: str,
+        reported_mime_type: str | None,
     ) -> None:
         """
         Takes the received art from a given art update and then attempts to process it.

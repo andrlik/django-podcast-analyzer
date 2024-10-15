@@ -288,7 +288,11 @@ def test_sync_fetch_cover_art_invalid_file(httpx_mock, valid_podcast):
     file_size = 9067
     random_file = BytesIO(initial_bytes=os.urandom(file_size))
     cover_url = "https://media.somepodcast.com/cover.jpg?from=rss"
-    httpx_mock.add_response(url=cover_url, headers=[("Content-Type", "image/jpeg")], content=random_file.read())
+    httpx_mock.add_response(
+        url=cover_url,
+        headers=[("Content-Type", "image/jpeg")],
+        content=random_file.read(),
+    )
     valid_podcast.podcast_cover_art_url = cover_url
     valid_podcast.podcast_art_cache_update_needed = True
     valid_podcast.save()
@@ -325,7 +329,9 @@ def test_new_episodes_in_feed(
 def test_episodes_contain_funding_data(empty_podcast, parsed_rss):
     assert not empty_podcast.feed_contains_structured_donation_data
     parsed_rss["episodes"][0]["payment_url"] = "https://ko-fi.com/somepodcast"
-    empty_podcast.update_episodes_from_feed_data(episode_list=parsed_rss["episodes"], update_existing_episodes=True)
+    empty_podcast.update_episodes_from_feed_data(
+        episode_list=parsed_rss["episodes"], update_existing_episodes=True
+    )
     empty_podcast.refresh_from_db()
     assert empty_podcast.feed_contains_structured_donation_data
 
@@ -341,7 +347,7 @@ async def test_analyze_host_known_generator(mute_signals):
     new_podcast = await Podcast.objects.acreate(
         title="Tech Bros BSing",
         rss_feed="https://example.com",
-        generator="Fireside (https://fireside.fm)"
+        generator="Fireside (https://fireside.fm)",
     )
     await new_podcast.analyze_host()
     assert new_podcast.probable_feed_host == "Fireside.fm"
@@ -351,9 +357,7 @@ async def test_analyze_host_known_generator(mute_signals):
 @pytest.mark.asyncio
 async def test_analyze_empty_host(mute_signals):
     new_podcast = await Podcast.objects.acreate(
-        title="Tech Bros BSing",
-        rss_feed="https://example.com",
-        generator="monkey"
+        title="Tech Bros BSing", rss_feed="https://example.com", generator="monkey"
     )
     await new_podcast.analyze_host()
     assert new_podcast.probable_feed_host is None
@@ -363,15 +367,13 @@ async def test_analyze_empty_host(mute_signals):
 @pytest.mark.asyncio
 async def test_analyze_host_from_episodes(mute_signals):
     new_podcast = await Podcast.objects.acreate(
-        title="Tech Bros BSing",
-        rss_feed="https://example.com",
-        generator="monkey"
+        title="Tech Bros BSing", rss_feed="https://example.com", generator="monkey"
     )
     for i in range(5):
         await Episode.objects.acreate(
             podcast=new_podcast,
             guid=new_podcast.title.replace(" ", "-") + f"--{i}",
-            download_url=f"http://media.blubrry.com/somepodcast/{i}"
+            download_url=f"http://media.blubrry.com/somepodcast/{i}",
         )
     await new_podcast.analyze_host()
     assert new_podcast.probable_feed_host == "Blubrry"

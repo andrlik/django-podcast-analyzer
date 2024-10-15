@@ -8,7 +8,7 @@
 """Fixtures for testing."""
 
 # type: ignore
-
+import subprocess
 from collections.abc import Generator
 from datetime import timedelta
 from io import BytesIO
@@ -30,6 +30,16 @@ from podcast_analyzer.models import AnalysisGroup, Podcast, Season
 from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture(autouse=True)
+def use_test_media(request, settings):
+    settings.MEDIA_ROOT = str(settings.ROOT_DIR / "testmedia")
+
+    def remove_test_media():
+        subprocess.run(["rm", "-rf", settings.MEDIA_ROOT], check=False)  # noqa: S603 S607
+
+    request.addfinalizer(remove_test_media)
 
 
 @pytest.fixture

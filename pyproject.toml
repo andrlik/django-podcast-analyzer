@@ -55,6 +55,7 @@ dev-dependencies = [
     "django-coverage-plugin>=3.1.0",
     "django-debug-toolbar>=4.4.6",
     "django-extensions>=3.2.3",
+    "django-test-plus>=2.2.4",
     "django-types>=0.19.1",
     "django-watchfiles>=0.2.0",
     "factory-boy>=3.3.1",
@@ -77,7 +78,8 @@ dev-dependencies = [
 
 [tool.coverage.run]
 source = ["src/podcast_analyzer"]
-omit = ["*migrations*", "*tests*", "*staticfiles*"]
+omit = ["*migrations*", "*tests*", "*staticfiles*", "src/podcast_analyzer/templates/base.html"]
+plugins = ["django_coverage_plugin"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -171,7 +173,6 @@ unfixable = [
 "tests/*.py" = ["S101", "FBT001", "FBT002", "ARG001", "ARG002", "E501", "PLR2004", "T201"]
 "tests/urls.py" = ["RUF005"]
 "src/podcast_analyzers/receivers.py" = ["ARG001"]
-"src/podcast_analyzer/rules.py" = ["ARG001"]
 "src/podcast_analyzer/views.py" = ["A001"]
 "src/podcast_analyzer/management/commands/*.py" = ["ARG002"]
 "conftest.py" = ["ARG001"]

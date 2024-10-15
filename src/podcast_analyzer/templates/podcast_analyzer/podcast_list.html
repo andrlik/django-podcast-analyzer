@@ -3,12 +3,12 @@
 {% block extratitle %}{% translate "Podcasts" %} - {% endblock %}
 {% block breadcrumbs %}
   <ul>
-    <li class="is-active"><a href="{% url 'podcast-list' %}" aria-current="page">{% translate "Podcasts" %}</a></li>
+    <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-list' %}" aria-current="page">{% translate "Podcasts" %}</a></li>
   </ul>
 {% endblock %}
 {% block extra_controls %}
   <div class="level-item">
-    <a class="button is-primary" href="{% url 'podcast-create' %}">{% translate "Add podcast" %}</a>
+    <a class="button is-primary" href="{% url 'podcast_analyzer:podcast-create' %}">{% translate "Add podcast" %}</a>
   </div>
 {% endblock %}
 {% block content %}
