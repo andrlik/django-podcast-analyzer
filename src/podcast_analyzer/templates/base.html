@@ -8,31 +8,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A tool for tracking given podcasts and analyzing the publicly available feed data." />
     <meta name="author" content="Daniel Andrlik"/>
-    <link rel="stylesheet" href="{% static 'vendor/bulma.min.css' %}" />
     {% block css %}
-      <link rel="stylesheet" href="{% static 'css/project.css' %}" />
     {% endblock %}
     {% block javascript %}
     {% endblock %}
   </head>
   <body>
-    <section class="section">
-      <div class="container">
-        <section class="section">
-          <nav class="level">
-            <div class="level-left">
-              <div class="level-item">
-                <nav class="breadcrumb" aria-label="breadcrumbs">
+    <section>
+      <div>
+        <section>
+          <nav>
+            <div>
+              <div>
+                <nav aria-label="breadcrumbs">
                   {% block breadcrumbs %}
                   {% endblock %}
                 </nav>
               </div>
             </div>
-            <div class="level-right">
+            <div>
               {% block extra_controls %}{% endblock %}
             </div>
           </nav>
         </section>
+        {% if messages %}
+          <div>
+            <strong>{% trans "Messages:" %}</strong>
+            <ul>
+              {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+            </ul>
+          </div>
+        {% endif %}
         {% block content %}{% endblock %}
       </div>
     </section>

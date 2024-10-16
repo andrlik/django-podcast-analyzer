@@ -7,8 +7,8 @@
   </ul>
 {% endblock %}
 {% block extra_controls %}
-  <div class="level-item">
-    <a class="button is-primary" href="{% url 'podcast_analyzer:podcast-create' %}">{% translate "Add podcast" %}</a>
+  <div>
+    <a href="{% url 'podcast_analyzer:podcast-create' %}">{% translate "Add podcast" %}</a>
   </div>
 {% endblock %}
 {% block content %}
@@ -16,14 +16,14 @@
   <ul>
     {% for podcast in page_obj %}
       <li>
-        <article class="media">
-          <figure class="media-left">
-            <p class="image is-64x64">
+        <article>
+          <figure>
+            <p>
               <a href="{{ podcast.urls.view }}"><img src="{% if podcast.podcast_cached_cover_art %}{{ podcast.podcast_cached_cover_art.url }}{% else %}{% endif %}" alt="Podcast cover art for {{ podcast.title }}" /></a>
             </p>
           </figure>
-          <div class="media-content">
-            <div class="content">
+          <div>
+            <div>
               <p>
                 <strong><a href="{{ podcast.urls.view }}">{{ podcast.title }}</a></strong> <small>{% blocktranslate count counter=podcast.total_episodes %}1 episodes{% plural %}{{ counter }} episodes{% endblocktranslate %}</small>
                 <br />

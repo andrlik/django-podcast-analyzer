@@ -24,6 +24,6 @@
       </ul>
     </nav>
   {% endif %}
-  <p class="small">{% blocktranslate with visible=page_obj|length count pcounter=page_obj.paginator.object_list.count %}Displaying {{ visible }}
-    record{% plural %}Displaying {{ visible }} of {{ pcounter }} records{% endblocktranslate %}</p>
+  <p><small>{% blocktranslate with visible=page_obj|length count pcounter=page_obj.paginator.object_list.count %}Displaying {{ visible }}
+    record{% plural %}Displaying {{ visible }} of {{ pcounter }} records{% endblocktranslate %}</small></p>
 </section>
