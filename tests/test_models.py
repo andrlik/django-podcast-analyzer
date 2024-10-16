@@ -276,7 +276,7 @@ async def test_async_fetch_cover_art(
         if expect_success:
             assert not valid_podcast.podcast_art_cache_update_needed
             assert valid_podcast.podcast_cached_cover_art
-            assert valid_podcast.podcast_cached_cover_art.name[-3:] == "jpg"
+            assert valid_podcast.podcast_cached_cover_art.name[-3:] == "png"
         else:
             assert valid_podcast.podcast_art_cache_update_needed
             assert not valid_podcast.podcast_cached_cover_art

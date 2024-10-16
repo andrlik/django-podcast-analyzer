@@ -37,6 +37,7 @@ from magic import MagicException
 from tagulous.models import TagField
 
 from podcast_analyzer import FeedFetchError, FeedParseError
+from podcast_analyzer.utils import update_file_extension_from_mime_type
 
 logger = logging.getLogger("podcast_analyzer")
 
@@ -640,6 +641,9 @@ class Podcast(UUIDTimeStampedModel):
             "image/gif",
             "image/webp",
         ]:
+            filename = update_file_extension_from_mime_type(
+                mime_type=update_record.actual_mime_type, filename=filename
+            )
             logger.debug(
                 "Updating cached cover art using new file "
                 f"with mime type of {update_record.actual_mime_type}"
