@@ -72,6 +72,11 @@ check: _check-env _check-pre-commit
 check-types: check
     uv run pyright
 
+# Run a devserver and worker cluster
+server:
+    #!/usr/bin/env bash
+    DJANGO_SETTINGS_MODULE="tests.settings" PYTHONPATH="$PYTHONPATH:$(pwd)" uv run honcho -f Procfile.dev start
+
 # Run just formatter and rye formatter.
 fmt: check
     just --fmt --unstable

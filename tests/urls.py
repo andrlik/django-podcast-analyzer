@@ -37,6 +37,7 @@ urlpatterns = [
         kwargs={"exception": Exception("Server Error!")},
     ),
     path("podcasts/", include("podcast_analyzer.urls", namespace="podcast_analyzer")),
+    path("__reload__/", include("django_browser_reload.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

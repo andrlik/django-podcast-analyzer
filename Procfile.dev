@@ -1,0 +1,2 @@
+web: uv run django-admin runserver
+worker: uv run django-admin qcluster

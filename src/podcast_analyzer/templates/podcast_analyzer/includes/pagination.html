@@ -1,0 +1,29 @@
+{% load i18n %}
+<section class="section">
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination" role="pagination" aria-label="pagination">
+      <ul class="pagination-list">
+        {% if page_obj.has_previous %}
+          {% if page_obj.previous_page_number != 1 %}
+            <li><a class="pagination-link" href="?page=1">&laquo; 1</a></li>
+          {% endif %}
+          {% if page_obj.previous_page_number > 2 %}<li><span class="pagination-ellipsis">&hellip;</span></li>{% endif %}
+          <li><a class="pagination-link" href="?page={{page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
+        {% endif %}
+        <li>
+          <a class="pagination-link is-current" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a>
+        </li>
+
+        {% if page_obj.has_next %}
+          <li><a class="pagination-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+          {% if page_obj.next_page_number < page_obj.paginator.num_pages %}<li><span class="pagination-ellipsis">&hellip;</span></li>{% endif %}
+          {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
+            <li><a class="pagination-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }} &raquo;</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+  <p><small>{% blocktranslate with visible=page_obj|length count pcounter=page_obj.paginator.object_list.count %}Displaying {{ visible }}
+    record{% plural %}Displaying {{ visible }} of {{ pcounter }} records{% endblocktranslate %}</small></p>
+</section>

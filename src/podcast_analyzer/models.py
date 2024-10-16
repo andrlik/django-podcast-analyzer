@@ -454,7 +454,7 @@ class Podcast(UUIDTimeStampedModel):
         )
         if self.podcast_art_cache_update_needed:
             async_task(self.fetch_podcast_cover_art)
-        async_task("django_podcast_analyzer.podcast_data.tasks.run_feed_analysis", self)
+        async_task("podcast_analyzer.tasks.run_feed_analysis", self)
         return episodes_touched
 
     def get_feed_data(self) -> dict[str, Any]:
