@@ -24,3 +24,4 @@ site/
 .nova/*
 
 staticfiles/*
+media/*
