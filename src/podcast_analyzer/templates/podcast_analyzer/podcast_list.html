@@ -19,7 +19,7 @@
         <article>
           <figure>
             <p>
-              <a href="{{ podcast.urls.view }}"><img src="{% if podcast.podcast_cached_cover_art %}{{ podcast.podcast_cached_cover_art.url }}{% else %}{% endif %}" alt="Podcast cover art for {{ podcast.title }}" /></a>
+              <a href="{{ podcast.urls.view }}"><img src="{% if podcast.podcast_cached_cover_art %}{{ podcast.podcast_cached_cover_art.url }}{% else %}{% endif %}" alt="Podcast cover art for {{ podcast.title }}"  width="200" height="200"/></a>
             </p>
           </figure>
           <div>
