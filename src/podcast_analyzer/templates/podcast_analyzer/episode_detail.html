@@ -1,0 +1,76 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{{ episode.title }} - {% translate "Episodes" %} - {{ podcast.title }} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+    <li><a href="{{ podcast.urls.view}}" aria-current="page">{{ podcast.title }}</a> </li>
+    <li><a href="{{ podcast.urls.episodes }}">{% translate "Episodes" %}</a></li>
+    <li class="is-active"><a href="{{ episode.urls.view }}">{{ episode.title }}</a></li>
+  </ul>
+{% endblock %}
+{% block extra_controls %}
+{% endblock %}
+{% block content %}
+  <h1>{{ episode.title }}</h1>
+  <p><small>{% translate "Released" %}: {{ episode.release_datetime|date:"F j, Y" }}</small></p>
+  <h2>{% translate "Show Notes" %}</h2>
+  <p>{{ episode.show_notes|truncatewords:50 }}</p>
+  <h2>{% translate "People" %}</h2>
+  {% if episode.hosts_detected_from_feed.exists or episode.guests_detected_from_feed.exists %}
+    <ul>
+      <li>
+        <strong>{% translate "Hosts" %}</strong>
+        <ul>
+          {% for host in episode.hosts_detected_from_feed.all %}
+            <li><a href="{{ host.urls.view }}">{{ host.name }}</a></li>
+          {% empty %}
+            <li>{% translate "No hosts detected in feed." %}</li>
+          {% endfor %}
+        </ul>
+      </li>
+      <li>
+        <strong>{% translate "Guests" %}</strong>
+        <ul>
+          {% for guest in episode.guests_detected_from_feed.all %}
+            <li><a href="{{ guest.urls.view }}">{{ guest.name }}</a></li>
+          {% empty %}
+            <li>{% translate "No guests detected." %}</li>
+          {% endfor %}
+        </ul>
+      </li>
+    </ul>
+  {% else %}
+    <p>{% translate "No hosts or guests detected in feed." %}</p>
+  {% endif %}
+
+  <h2>{% translate "Metadata" %}</h2>
+  <dl>
+    <dt>{% translate "Episode Number" %}</dt>
+    <dd>{{ episode.ep_num }}</dd>
+    <dt>{% translate "Season" %}</dt>
+    <dd>{% if episode.season %}{{ episode.season.number }}{% else %}{% translate "N/A" %}{% endif %}</dd>
+    <dt>{% translate "Episode Type" %}</dt>
+    <dd>{{ episode.ep_type }}</dd>
+    <dt>{% translate "Duration" %}</dt>
+    <dd>{{ episode.duration }}</dd>
+    <dt>{% translate "Episode URL" %}</dt>
+    <dd>{{ episode.episode_url|urlizetrunc:35 }}</dd>
+    <dt>{% translate "Download URL" %}</dt>
+    <dd>{{ episode.download_url|urlizetrunc:35 }}</dd>
+    <dt>{% translate "File size" %}</dt>
+    <dd>{{ episode.get_file_size_in_mb|floatformat }} MB</dd>
+    <dt>{% translate "MIME type" %}</dt>
+    <dd>{{ episode.mime_type }}</dd>
+    <dt>{% translate "Explicit" %}</dt>
+    <dd>{{ episode.itunes_explicit|yesno:"✅,🚫" }}</dd>
+    <dt>{% translate "Content Warning present" %}</dt>
+    <dd>{{ episode.cw_present|yesno:"✅,🚫" }}</dd>
+    <dt>{% translate "Transcript detected" %}</dt>
+    <dd>{{ episode.transcript_detected|yesno:"✅,🚫" }}</dd>
+  </dl>
+  <div>
+    <div><a href="{{ episode.urls.edit }}">{% translate "Edit" %}</a></div>
+    <div><a href="{{ episode.urls.delete }}">{% translate "Delete" %}</a></div>
+  </div>
+{% endblock %}

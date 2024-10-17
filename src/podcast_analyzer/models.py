@@ -348,6 +348,7 @@ class Podcast(UUIDTimeStampedModel):
         """
 
         view = "/podcasts/{self.id}/"
+        episodes = "{view}episodes/"
         edit = "{view}edit/"
         delete = "{view}delete/"
 
@@ -1138,6 +1139,15 @@ class Episode(UUIDTimeStampedModel):
     def __str__(self):  # no cov
         return f"{self.title}"
 
+    class urls(urlman.Urls):  # noqa: N801
+        """
+        CRUD URLs
+        """
+
+        view = "{self.podcast.urls.view}episodes/{self.id}/"
+        edit = "{view}edit/"
+        delete = "{view}delete/"
+
     @property
     def duration(self) -> datetime.timedelta | None:
         """
@@ -1147,6 +1157,12 @@ class Episode(UUIDTimeStampedModel):
         if self.itunes_duration is not None:
             return datetime.timedelta(seconds=self.itunes_duration)
         return None
+
+    def get_file_size_in_mb(self) -> float:
+        """Convert the size of the file in bytes to MB."""
+        if self.file_size:
+            return self.file_size / 1000000
+        return 0.0
 
     @classmethod
     def create_or_update_episode_from_feed(
