@@ -13,6 +13,20 @@ app_name = "podcast_analyzer"
 
 urlpatterns = [
     path("", view=views.PodcastListView.as_view(), name="podcast-list"),
+    path("people/", view=views.PersonListView.as_view(), name="person-list"),
+    path(
+        "people/<uuid:id>/", view=views.PersonDetailView.as_view(), name="person-detail"
+    ),
+    path(
+        "people/<uuid:id>/edit/",
+        view=views.PersonUpdateView.as_view(),
+        name="person-edit",
+    ),
+    path(
+        "people/<uuid:id>/delete/",
+        view=views.PersonDeleteView.as_view(),
+        name="person-delete",
+    ),
     path("add/", view=views.PodcastCreateView.as_view(), name="podcast-create"),
     path(
         "<uuid:id>/",

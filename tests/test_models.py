@@ -690,6 +690,55 @@ def test_person_distinct_podcasts(
     assert person.distinct_podcasts == expected_result
 
 
+@pytest.mark.parametrize(
+    "podcast_count,hosted_eps,guested_eps", [(0, 0, 0), (2, 4, 0), (2, 5, 5), (1, 0, 5)]
+)
+def test_person_total_episodes(mute_signals, podcast_count, hosted_eps, guested_eps):
+    podcasts = [PodcastFactory() for _ in range(podcast_count)]
+    for podcast in podcasts:
+        generate_episodes_for_podcast(podcast)
+    person = Person.objects.create(name="John Smith", url="https://www.example.com")
+    hosting_done = False
+    for podcast in podcasts:
+        if guested_eps > 0 and hosting_done or hosted_eps == 0:
+            eps_to_edit = podcast.episodes.all()[:guested_eps]
+            for ep in eps_to_edit:
+                ep.guests_detected_from_feed.add(person)
+        elif hosted_eps > 0 and not hosting_done:
+            eps_to_edit = podcast.episodes.all()[:hosted_eps]
+            for ep in eps_to_edit:
+                ep.hosts_detected_from_feed.add(person)
+            hosting_done = True
+        else:
+            pass  # No entries to add
+    assert person.get_total_episodes() == guested_eps + hosted_eps
+
+
+def test_person_podcast_appearance_data(mute_signals):
+    generated_podcasts = [PodcastFactory().id for _ in range(3)]
+    person = Person.objects.create(name="John Smith", url="https://www.example.com")
+    podcasts = Podcast.objects.filter(pk__in=generated_podcasts).order_by("title")
+    for podcast in podcasts:
+        generate_episodes_for_podcast(podcast)
+    for ep in podcasts[0].episodes.all():
+        ep.hosts_detected_from_feed.add(person)
+    for ep in podcasts[1].episodes.all()[:5]:
+        ep.guests_detected_from_feed.add(person)
+    pod3_eps = podcasts[2].episodes.all()
+    for ep in pod3_eps[:2]:
+        ep.hosts_detected_from_feed.add(person)
+    for ep in pod3_eps[4:6]:
+        ep.guests_detected_from_feed.add(person)
+    pod_data = person.get_podcasts_with_appearance_counts()
+    assert len(pod_data) == 3
+    assert pod_data[0].hosted_episodes.count() == 10
+    assert pod_data[0].guested_episodes.count() == 0
+    assert pod_data[1].hosted_episodes.count() == 0
+    assert pod_data[1].guested_episodes.count() == 5
+    assert pod_data[2].hosted_episodes.count() == 2
+    assert pod_data[2].guested_episodes.count() == 2
+
+
 def test_season_detection(podcast_with_parsed_metadata, parsed_rss):
     """
     Checks that seasons don't exist for the podcast in initial state

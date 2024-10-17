@@ -18,7 +18,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from podcast_analyzer.models import Podcast
+from podcast_analyzer.models import Person, Podcast
 
 # Create your views here.
 
@@ -107,3 +107,45 @@ class PodcastDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy("podcast_analyzer:podcast-list")
+
+
+class PersonListView(LoginRequiredMixin, ListView):
+    """View all people in a list"""
+
+    model = Person
+    pk_url_kwarg = "id"
+    context_object_name = "people"
+    paginate_by = 25
+    prefetch_related = ["hosted_episodes", "guest_appearances"]
+    ordering = ["name"]
+
+
+class PersonDetailView(LoginRequiredMixin, DetailView):
+    """View a specific person's details."""
+
+    model = Person
+    pk_url_kwarg = "id"
+    context_object_name = "person"
+    prefetch_related = ["hosted_episodes", "guest_appearances"]
+
+
+class PersonUpdateView(LoginRequiredMixin, UpdateView):
+    """Edit a given person's details."""
+
+    model = Person
+    fields: ClassVar[list[str]] = ["name", "url", "img_url"]
+    context_object_name = "person"
+    pk_url_kwarg = "id"
+
+
+class PersonDeleteView(LoginRequiredMixin, DeleteView):
+    """Delete a person from the database."""
+
+    model = Person
+    pk_url_kwarg = "id"
+    context_object_name = "person"
+    prefetch_related = ["hosted_episodes", "guest_appearances"]
+    object: Person
+
+    def get_success_url(self):
+        return reverse_lazy("podcast_analyzer:person-list")
