@@ -12,7 +12,7 @@
 {% endblock %}
 {% block content %}
   <h1>{{ podcast.title }}</h1>
-  <div class="section">
+  <div>
     <article>
       <figure>
         <p>
@@ -30,87 +30,83 @@
   </div>
   <div>
 
-    <div>
-      <h2>{% translate "Metadata" %}</h2>
-      <dl>
-        <div>
-          <div>
-            <dt>{% translate "Author" %}</dt>
-            <dd>{{ podcast.author }}</dd>
-            <dt>{% translate "Type" %}</dt>
-            <dd>{{ podcast.itunes_feed_type }}</dd>
-            <dt>{% translate "Explicit" %}</dt>
-            <dd><span class="is-sr-only">{{ podcast.itunes_explicit|yesno:"Yes,No"}} </span>{{ podcast.itunes_explicit|yesno:"✅,🚫"}}</dd>
-            <dt>{% translate "Language" %}</dt>
-            <dd>{{ podcast.language }}</dd>
-            <dt>{% translate "Actively releasing?" %}</dt>
-            <dd><span class="is-sr-only">{{ podcast.is_dormant|yesno:"No,Yes"}} </span>{{ podcast.is_dormant|yesno:"🚫,✅"}}</dd>
-            <dt>{% translate "Site URL" %}</dt>
-            <dd>{{ podcast.site_url|urlize }}</dd>
-            <dt>{% translate "Funding URL" %}</dt>
-            <dd>{{ podcast.funding_url|urlize|default_if_none:"-"}}</dd>
-          </div>
-          <div>
 
-            <dt>{% translate "iTunes Categories" %}</dt>
-            <dd>
-              <ul>
-                {% for category in podcast.itunes_categories.all %}
-                  <li>{% if category.parent_category %}{{ category.parent_category.name }} - {% endif %}{{ category.name }}</li>
-                {% empty %}
-                  <li>{% translate "No categories detected yet." %}</li>
-                {% endfor %}
-              </ul>
-            </dd>
-            <dt>{% translate "Generator" %}</dt>
-            <dd>{{ podcast.generator|urlize|default_if_none:"Unknown" }}</dd>
-            <dt>{% translate "Probable Feed Host" %}</dt>
-            <dd>{{ podcast.probable_feed_host }}</dd>
-            <dt>{% translate "Uses 3rd party download tracking?" %}</dt>
-            <dd><span class="is-sr-only">{{ podcast.feed_contains_tracking_data|yesno:"Yes,No"}} </span>{{ podcast.feed_contains_tracking_data|yesno:"✅,🚫"}}</dd>
-            <dt>{% translate "Last release date" %}</dt>
-            <dd>{{ podcast.last_release_date|date:"r"}}</dd>
+    <h2>{% translate "Metadata" %}</h2>
+    <dl>
+      <dt>{% translate "Author" %}</dt>
+      <dd>{{ podcast.author }}</dd>
+      <dt>{% translate "Type" %}</dt>
+      <dd>{{ podcast.itunes_feed_type }}</dd>
+      <dt>{% translate "Explicit" %}</dt>
+      <dd><span class="is-sr-only">{{ podcast.itunes_explicit|yesno:"Yes,No"}} </span>{{ podcast.itunes_explicit|yesno:"✅,🚫"}}</dd>
+      <dt>{% translate "Language" %}</dt>
+      <dd>{{ podcast.language }}</dd>
+      <dt>{% translate "Actively releasing?" %}</dt>
+      <dd><span class="is-sr-only">{{ podcast.is_dormant|yesno:"No,Yes"}} </span>{{ podcast.is_dormant|yesno:"🚫,✅"}}</dd>
+      <dt>{% translate "Site URL" %}</dt>
+      <dd>{{ podcast.site_url|urlize }}</dd>
+      <dt>{% translate "Funding URL" %}</dt>
+      <dd>{{ podcast.funding_url|urlize|default_if_none:"-"}}</dd>
 
-          </div>
-        </div>
-      </dl>
-    </div>
+
+      <dt>{% translate "iTunes Categories" %}</dt>
+      <dd>
+        <ul>
+          {% for category in podcast.itunes_categories.all %}
+            <li>{% if category.parent_category %}{{ category.parent_category.name }} - {% endif %}{{ category.name }}</li>
+          {% empty %}
+            <li>{% translate "No categories detected yet." %}</li>
+          {% endfor %}
+        </ul>
+      </dd>
+      <dt>{% translate "Generator" %}</dt>
+      <dd>{{ podcast.generator|urlize|default_if_none:"Unknown" }}</dd>
+      <dt>{% translate "Probable Feed Host" %}</dt>
+      <dd>{{ podcast.probable_feed_host }}</dd>
+      <dt>{% translate "Uses 3rd party download tracking?" %}</dt>
+      <dd><span class="is-sr-only">{{ podcast.feed_contains_tracking_data|yesno:"Yes,No"}} </span>{{ podcast.feed_contains_tracking_data|yesno:"✅,🚫"}}</dd>
+      <dt>{% translate "Last release date" %}</dt>
+      <dd>{{ podcast.last_release_date|date:"r"}}</dd>
+
+
+    </dl>
+
   </div>
   <div>
-    <div class="content">
+    <div>
       <h2>{% translate "Statistics" %}</h2>
-      <nav>
+
+      <div>
         <div>
-          <div>
-            <p><strong>Release Frequency</strong></p>
-            <p>{{ podcast.get_release_frequency_display }}</p>
-          </div>
+          <p><strong>Release Frequency</strong></p>
+          <p>{{ podcast.get_release_frequency_display }}</p>
         </div>
+      </div>
+      <div>
         <div>
-          <div>
-            <p><strong>Seasons</strong></p>
-            <p>{{ podcast.seasons.count|default_if_none:"N/A" }}</p>
-          </div>
+          <p><strong>Seasons</strong></p>
+          <p>{{ podcast.seasons.count|default_if_none:"N/A" }}</p>
         </div>
+      </div>
+      <div>
         <div>
-          <div>
-            <p><strong>Episodes</strong></p>
-            <p>{{ podcast.total_episodes }}</p>
-          </div>
+          <p><strong>Episodes</strong></p>
+          <p>{{ podcast.total_episodes }}</p>
         </div>
+      </div>
+      <div>
         <div>
-          <div>
-            <p><strong>Median episode length</strong></p>
-            <p>{{ podcast.median_episode_duration_timedelta }}</p>
-          </div>
+          <p><strong>Median episode length</strong></p>
+          <p>{{ podcast.median_episode_duration_timedelta }}</p>
         </div>
+      </div>
+      <div>
         <div>
-          <div>
-            <p><strong>Total duration</strong></p>
-            <p>{{ podcast.total_duration_timedelta }}</p>
-          </div>
+          <p><strong>Total duration</strong></p>
+          <p>{{ podcast.total_duration_timedelta }}</p>
         </div>
-      </nav>
+      </div>
+
 
       {% if podcast.seasons.exists %}
         <table>
@@ -139,28 +135,24 @@
     </div>
   </div>
   <div>
-    <div>
-      <h2>{% translate "Analysis Groups" %}</h2>
-      <p>{% translate "Belongs to the following analysis groups:" %}</p>
-      <ul>
-        {% for agroup in podcast.analysis_group.all %}
-          <li>{{ agroup.name }}</li>
-        {% empty %}
-          <li>{% translate "None" %}</li>
-        {% endfor %}
-      </ul>
-    </div>
+    <h2>{% translate "Analysis Groups" %}</h2>
+    <p>{% translate "Belongs to the following analysis groups:" %}</p>
+    <ul>
+      {% for agroup in podcast.analysis_group.all %}
+        <li>{{ agroup.name }}</li>
+      {% empty %}
+        <li>{% translate "None" %}</li>
+      {% endfor %}
+    </ul>
   </div>
   <div>
     <div>
-      <div>
-        <a href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a>
-      </div>
+
+      <a href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a>
     </div>
     <div>
-      <div>
-        <a href="{{ podcast.urls.delete }}">{% translate "Delete podcast" %}</a>
-      </div>
+
+      <a href="{{ podcast.urls.delete }}">{% translate "Delete podcast" %}</a>
     </div>
 
   </div>
