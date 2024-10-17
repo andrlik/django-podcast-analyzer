@@ -1,0 +1,31 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% blocktranslate with name=person.name %}Delete {{ title }}?{% endblocktranslate %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
+    <li><a href="{{ person.urls.view}}">{{ person.name }}</a> </li>
+    <li class='is-active'><a href="{{ person.urls.delete}}" aria-current="page">{% translate "Delete" %}</a> </li>
+  </ul>
+{% endblock %}
+{% block content %}
+  <h1>{% blocktranslate with name=person.name %}Delete {{ name }}?{% endblocktranslate %}</h1>
+  <p><strong>{% translate "Are you sure you want to delete this person?" %}</strong></p>
+  <p>{% translate "This will not prevent this person from being recreated if they appear in a tracked feed." %}</p>
+  <p>
+    {% blocktranslate count counter=person.get_total_episodes %}Deleting this person will also remove them from one episode.
+    {% plural %}
+      Deleting this person will also remove them from {{ counter }} episodes.
+    {% endblocktranslate %}
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <div>
+      <a href="{{ person.urls.view }}">{% translate "Nevermind! Take me back." %}</a>
+    </div>
+    <div>
+      <button type="submit">{% translate "Delete" %}</button>
+    </div>
+  </form>
+{% endblock %}

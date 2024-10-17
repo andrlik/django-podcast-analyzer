@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import dataclasses
 import datetime
 import logging
 import uuid
@@ -910,6 +911,13 @@ class Podcast(UUIDTimeStampedModel):
         await self.asave()
 
 
+@dataclasses.dataclass
+class PodcastAppearanceData:
+    podcast: Podcast
+    hosted_episodes: QuerySet["Episode"]
+    guested_episodes: QuerySet["Episode"]
+
+
 class Person(UUIDTimeStampedModel):
     """
     People detected from structured data in podcast feed.
@@ -927,8 +935,12 @@ class Person(UUIDTimeStampedModel):
         guest_appearances: ManyToManyRelatedManager["Episode", "Episode"]
 
     name = models.CharField(max_length=250)
-    url = models.URLField(null=True, blank=True)
-    img_url = models.URLField(null=True, blank=True)
+    url = models.URLField(
+        null=True, blank=True, help_text=_("Website link for the person")
+    )
+    img_url = models.URLField(
+        null=True, blank=True, help_text=_("URL of the person's avatar image.")
+    )
 
     class Meta:
         verbose_name_plural = "People"
@@ -936,6 +948,18 @@ class Person(UUIDTimeStampedModel):
 
     def __str__(self):  # no cov
         return self.name
+
+    class urls(urlman.Urls):  # noqa: N801
+        """
+        CRUD urls.
+        """
+
+        view = "/podcasts/people/{self.id}/"
+        edit = "{view}edit/"
+        delete = "{view}delete/"
+
+    def get_absolute_url(self) -> str:
+        return self.urls.view
 
     @cached_property
     def has_hosted(self) -> int:
@@ -950,6 +974,10 @@ class Person(UUIDTimeStampedModel):
         Counting the number of guest appearances.
         """
         return self.guest_appearances.count()  # no cov
+
+    def get_total_episodes(self) -> int:
+        """Get the total number of episodes this person appeared on."""
+        return self.hosted_episodes.count() + self.guest_appearances.count()
 
     def get_distinct_podcasts(self):
         """
@@ -975,9 +1003,27 @@ class Person(UUIDTimeStampedModel):
             [p.id for p in hosted_podcasts] + [p.id for p in guested_podcasts]
         )
         logger.debug(f"Found {len(combined_podcast_ids)} unique podcasts ids...")
-        combined_podcasts = Podcast.objects.filter(id__in=list(combined_podcast_ids))
+        combined_podcasts = Podcast.objects.filter(
+            id__in=list(combined_podcast_ids)
+        ).order_by("title")
         logger.debug(f"Found {combined_podcasts.count()} unique podcasts...")
         return combined_podcasts
+
+    def get_podcasts_with_appearance_counts(self) -> list[PodcastAppearanceData]:
+        """
+        Provide podcast appearance data for each distinct podcast they have appeared on.
+        """
+        podcasts = []
+        if self.hosted_episodes.exists() or self.guest_appearances.exists():
+            for podcast in self.get_distinct_podcasts():
+                podcasts.append(
+                    PodcastAppearanceData(
+                        podcast=podcast,
+                        hosted_episodes=self.hosted_episodes.filter(podcast=podcast),
+                        guested_episodes=self.guest_appearances.filter(podcast=podcast),
+                    )
+                )
+        return podcasts
 
     @cached_property
     def distinct_podcasts(self) -> int:

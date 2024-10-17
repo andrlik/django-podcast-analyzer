@@ -1,0 +1,29 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% translate "People" %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-list' %}" aria-current="page">{% translate "People" %}</a></li>
+  </ul>
+{% endblock %}
+{% block content %}
+  <h1>{% translate "People" %}</h1>
+  <ul>
+    {% for person in page_obj %}
+      <li>
+        <article>
+          <figure>
+            <p>
+              <a href="{{ person.urls.view }}">{% if person.img_url %}<img src="{{ person.img_url }}" alt="Avatar for {{ person.name }}"  width="200" height="200"/> {% endif %}{{ person.name }}</a>
+            </p>
+          </figure>
+        </article>
+      </li>
+    {% empty %}
+      <li>{% translate "There are no people yet." %}</li>
+    {% endfor %}
+  </ul>
+
+  {% include "podcast_analyzer/includes/pagination.html" %}
+
+{% endblock %}
