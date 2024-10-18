@@ -7,8 +7,8 @@
     {% if not podcast %}
       <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-create' %}" aria-current="page">{% translate "Add" %}</a></li>
     {% else %}
-      <li><a href="{{ podcast.urls.view}}">{{ podcast.title }}</a> </li>
-      <li class='is-active'><a href="{{ podcast.urls.edit}}" aria-current="page">{% translate "Edit" %}</a> </li>
+      <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
+      <li class='is-active'><a href="{% url 'podcast_analyzer:podcast-edit' id=podcast.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
     {% endif %}
   </ul>
 {% endblock %}
@@ -30,7 +30,7 @@
       <a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Return to list without saving" %}</a>
       <button type="submit">{% translate "Create" %}</button>
     {% else %}
-      <a href="{{ podcast.urls.view }}">{% translate "Return to podcast detail and discard changes" %}</a>
+      <a href="{{ podcast.get_absolute_url }}">{% translate "Return to podcast detail and discard changes" %}</a>
       <button type="submit">{% translate "Save changes" %}</button>
     {% endif %}
   </form>

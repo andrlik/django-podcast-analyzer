@@ -1,0 +1,37 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% if not group %}{% translate "Add analysis group" %}{% else %}{% translate "Edit" %} {{ group.name }}{% endif %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
+    {% if not group %}
+      <li class="is-active"><a href="{% url 'podcast_analyzer:ag-create' %}" aria-current="page">{% translate "Add" %}</a></li>
+    {% else %}
+      <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
+      <li class='is-active'><a href="{% url 'podcast_analyzer:ag-edit' id=group.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
+    {% endif %}
+  </ul>
+{% endblock %}
+{% block content %}
+  <h1>{% if not group %}{% translate "Add analysis group" %}{% else %}{% blocktranslate with title=group.name %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        {{ field.errors }}
+        {{ field.label_tag }}
+        <div>{{ field }}</div>
+        {% if field.help_text %}
+          <p id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+    {% if not group %}
+      <a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Return to list without saving" %}</a>
+      <button type="submit">{% translate "Create" %}</button>
+    {% else %}
+      <a href="{{ group.get_absolute_url }}">{% translate "Return to analysis group detail and discard changes" %}</a>
+      <button type="submit">{% translate "Save changes" %}</button>
+    {% endif %}
+  </form>
+{% endblock %}

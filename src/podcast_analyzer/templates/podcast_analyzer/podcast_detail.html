@@ -4,12 +4,12 @@
 {% block breadcrumbs %}
   <ul>
     <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-    <li class='is-active'><a href="{{ podcast.urls.view}}" aria-current="page">{{ podcast.title }}</a> </li>
+    <li class='is-active'><a href="{{ podcast.get_absolute_url }}" aria-current="page">{{ podcast.title }}</a> </li>
   </ul>
 {% endblock %}
 {% block extra_controls %}
-  <div><a href="{{ podcast.urls.episodes }}">{% translate "See episodes" %}</a></div>
-  <div><a href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a></div>
+  <div><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "See episodes" %}</a></div>
+  <div><a href="{% url 'podcast_analyzer:podcast-edit' id=podcast.id %}">{% translate "Edit" %}</a></div>
 {% endblock %}
 {% block content %}
   <h1>{{ podcast.title }}</h1>
@@ -140,7 +140,7 @@
     <p>{% translate "Belongs to the following analysis groups:" %}</p>
     <ul>
       {% for agroup in podcast.analysis_group.all %}
-        <li>{{ agroup.name }}</li>
+        <li><a href="{{ agroup.get_absolute_url }}">{{ agroup.name }}</a></li>
       {% empty %}
         <li>{% translate "None" %}</li>
       {% endfor %}
@@ -149,11 +149,11 @@
   <div>
     <div>
 
-      <a href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a>
+      <a href="{% url 'podcast_analyzer:podcast-edit' id=podcast.id %}">{% translate "Edit" %}</a>
     </div>
     <div>
 
-      <a href="{{ podcast.urls.delete }}">{% translate "Delete podcast" %}</a>
+      <a href="{% url 'podcast_analyzer:podcast-delete' id=podcast.id %}">{% translate "Delete podcast" %}</a>
     </div>
 
   </div>

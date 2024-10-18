@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, Any, ClassVar
 import httpx
 import magic
 import podcastparser
-import urlman
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
@@ -29,6 +28,7 @@ if TYPE_CHECKING:
         ManyToManyRelatedManager,
         RelatedManager,
     )
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -177,6 +177,9 @@ class AnalysisGroup(UUIDTimeStampedModel):
 
     def __str__(self):  # no cov
         return self.name
+
+    def get_absolute_url(self):
+        return reverse_lazy("podcast_analyzer:ag-detail", kwargs={"id": self.pk})
 
     @cached_property
     def num_feeds(self) -> int:
@@ -342,18 +345,8 @@ class Podcast(UUIDTimeStampedModel):
     def __str__(self):  # no cov
         return self.title
 
-    class urls(urlman.Urls):  # noqa: N801
-        """
-        CRUD urls.
-        """
-
-        view = "/podcasts/{self.id}/"
-        episodes = "{view}episodes/"
-        edit = "{view}edit/"
-        delete = "{view}delete/"
-
     def get_absolute_url(self):  # no cov
-        return self.urls.view
+        return reverse_lazy("podcast_analyzer:podcast-detail", kwargs={"id": self.id})
 
     @cached_property
     def total_duration_seconds(self) -> int:
@@ -950,17 +943,8 @@ class Person(UUIDTimeStampedModel):
     def __str__(self):  # no cov
         return self.name
 
-    class urls(urlman.Urls):  # noqa: N801
-        """
-        CRUD urls.
-        """
-
-        view = "/podcasts/people/{self.id}/"
-        edit = "{view}edit/"
-        delete = "{view}delete/"
-
     def get_absolute_url(self) -> str:
-        return self.urls.view
+        return reverse_lazy("podcast_analyzer:person-detail", kwargs={"id": self.id})
 
     @cached_property
     def has_hosted(self) -> int:
@@ -1139,17 +1123,11 @@ class Episode(UUIDTimeStampedModel):
     def __str__(self):  # no cov
         return f"{self.title}"
 
-    class urls(urlman.Urls):  # noqa: N801
-        """
-        CRUD URLs
-        """
-
-        view = "{self.podcast.urls.view}episodes/{self.id}/"
-        edit = "{view}edit/"
-        delete = "{view}delete/"
-
     def get_absolute_url(self):
-        return self.urls.view
+        return reverse_lazy(
+            "podcast_analyzer:episode-detail",
+            kwargs={"podcast_id": self.podcast.id, "id": self.id},
+        )
 
     @property
     def duration(self) -> datetime.timedelta | None:

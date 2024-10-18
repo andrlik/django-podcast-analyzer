@@ -4,8 +4,8 @@
 {% block breadcrumbs %}
   <ul>
     <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-    <li><a href="{{ podcast.urls.view}}">{{ podcast.title }}</a> </li>
-    <li class='is-active'><a href="{{ podcast.urls.delete}}" aria-current="page">{% translate "Delete" %}</a> </li>
+    <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
+    <li class='is-active'><a href="{% url 'podcast_analyzer:podcast-delete' id=podcast.id %}" aria-current="page">{% translate "Delete" %}</a> </li>
   </ul>
 {% endblock %}
 {% block content %}
@@ -25,7 +25,7 @@
     {% csrf_token %}
     {{ form }}
     <div>
-      <a href="{{ podcast.urls.view }}">{% translate "Nevermind! Take me back." %}</a>
+      <a href="{{ podcast.get_absolute_url }}">{% translate "Nevermind! Take me back." %}</a>
     </div>
     <div>
       <button type="submit">{% translate "Delete" %}</button>

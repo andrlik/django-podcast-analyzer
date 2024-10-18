@@ -12,7 +12,29 @@ from podcast_analyzer import views
 app_name = "podcast_analyzer"
 
 urlpatterns = [
-    path("", view=views.PodcastListView.as_view(), name="podcast-list"),
+    path(
+        "analysis-groups/", view=views.AnalysisGroupListView.as_view(), name="ag-list"
+    ),
+    path(
+        "analysis-groups/create/",
+        view=views.AnalysisGroupCreateView.as_view(),
+        name="ag-create",
+    ),
+    path(
+        "analysis-groups/<uuid:id>/",
+        view=views.AnalysisGroupDetailView.as_view(),
+        name="ag-detail",
+    ),
+    path(
+        "analysis-groups/<uuid:id>/edit/",
+        view=views.AnalysisGroupUpdateView.as_view(),
+        name="ag-edit",
+    ),
+    path(
+        "analysis-groups/<uuid:id>/delete/",
+        view=views.AnalysisGroupDeleteView.as_view(),
+        name="ag-delete",
+    ),
     path("people/", view=views.PersonListView.as_view(), name="person-list"),
     path(
         "people/<uuid:id>/", view=views.PersonDetailView.as_view(), name="person-detail"
@@ -27,39 +49,42 @@ urlpatterns = [
         view=views.PersonDeleteView.as_view(),
         name="person-delete",
     ),
-    path("add/", view=views.PodcastCreateView.as_view(), name="podcast-create"),
+    path("podcasts/", view=views.PodcastListView.as_view(), name="podcast-list"),
     path(
-        "<uuid:id>/",
+        "podcasts/add/", view=views.PodcastCreateView.as_view(), name="podcast-create"
+    ),
+    path(
+        "podcasts/<uuid:id>/",
         view=views.PodcastDetailView.as_view(),
         name="podcast-detail",
     ),
-path(
-        "<uuid:podcast_id>/episodes/",
+    path(
+        "podcasts/<uuid:podcast_id>/episodes/",
         view=views.EpisodeListView.as_view(),
         name="episode-list",
     ),
     path(
-        "<uuid:podcast_id>/episodes/<uuid:id>/",
+        "podcasts/<uuid:podcast_id>/episodes/<uuid:id>/",
         view=views.EpisodeDetailView.as_view(),
         name="episode-detail",
     ),
     path(
-        "<uuid:podcast_id>/episodes/<uuid:id>/edit/",
+        "podcasts/<uuid:podcast_id>/episodes/<uuid:id>/edit/",
         view=views.EpisodeUpdateView.as_view(),
         name="episode-edit",
     ),
     path(
-        "<uuid:podcast_id>/episodes/<uuid:id>/delete/",
+        "podcasts/<uuid:podcast_id>/episodes/<uuid:id>/delete/",
         view=views.EpisodeDeleteView.as_view(),
         name="episode-delete",
     ),
     path(
-        "<uuid:id>/edit/",
+        "podcasts/<uuid:id>/edit/",
         view=views.PodcastUpdateView.as_view(),
         name="podcast-edit",
     ),
     path(
-        "<uuid:id>/delete/",
+        "podcasts/<uuid:id>/delete/",
         view=views.PodcastDeleteView.as_view(),
         name="podcast-delete",
     ),

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, ClassVar
 # from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -23,7 +23,8 @@ from django.views.generic import (
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-from podcast_analyzer.models import Episode, Person, Podcast
+from podcast_analyzer.forms import AnalysisGroupForm
+from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 
 # Create your views here.
 
@@ -256,3 +257,81 @@ class EpisodeDeleteView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, Delet
         return reverse_lazy(
             "podcast_analyzer:episode-list", kwargs={"podcast_id": self.podcast.pk}
         )
+
+
+class AnalysisGroupListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):
+    """List of all analysis groups."""
+
+    model = AnalysisGroup
+    context_object_name = "groups"
+    paginate_by = 25
+    prefetch_related = ["podcasts", "seasons", "episodes"]
+    ordering = ["name", "-created"]
+
+
+class AnalysisGroupDetailView(
+    LoginRequiredMixin, SelectPrefetchRelatedMixin, DetailView
+):
+    """Details for a given analysis group."""
+
+    model = AnalysisGroup
+    pk_url_kwarg = "id"
+    context_object_name = "group"
+    prefetch_related = ["podcasts", "seasons", "episodes"]
+
+
+class AnalysisGroupUpdateView(
+    LoginRequiredMixin, SelectPrefetchRelatedMixin, UpdateView
+):
+    """Update a given analysis group."""
+
+    model = AnalysisGroup
+    pk_url_kwarg = "id"
+    context_object_name = "group"
+    form_class = AnalysisGroupForm
+    prefetch_related = ["podcasts", "seasons", "episodes"]
+    object: AnalysisGroup
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"]["podcasts"] = self.object.podcasts.all()
+        kwargs["initial"]["seasons"] = self.object.seasons.all()
+        kwargs["initial"]["episodes"] = self.object.episodes.all()
+        return kwargs
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.podcasts.set(form.cleaned_data["podcasts"])
+        self.object.seasons.set(form.cleaned_data["seasons"])
+        self.object.episodes.set(form.cleaned_data["episodes"])
+        return super().form_valid(form)
+
+
+class AnalysisGroupCreateView(LoginRequiredMixin, CreateView):
+    """Create a new analysis group."""
+
+    model = AnalysisGroup
+    form_class = AnalysisGroupForm
+    object: AnalysisGroup
+
+    def form_valid(self, form):
+        self.object = AnalysisGroup.objects.create(name=form.cleaned_data["name"])
+        self.object.podcasts.set(form.cleaned_data["podcasts"])
+        self.object.seasons.set(form.cleaned_data["seasons"])
+        self.object.episodes.set(form.cleaned_data["episodes"])
+        return HttpResponseRedirect(self.object.get_absolute_url())
+
+
+class AnalysisGroupDeleteView(
+    LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteView
+):
+    """Delete a given analysis group."""
+
+    model = AnalysisGroup
+    pk_url_kwarg = "id"
+    context_object_name = "group"
+    object: AnalysisGroup
+    prefetch_related = ["podcasts", "seasons", "episodes"]
+
+    def get_success_url(self):
+        return reverse_lazy("podcast_analyzer:ag-list")

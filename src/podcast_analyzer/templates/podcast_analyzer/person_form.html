@@ -4,8 +4,8 @@
 {% block breadcrumbs %}
   <ul>
     <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
-    <li><a href="{{ person.urls.view}}">{{ person.name }}</a> </li>
-    <li class='is-active'><a href="{{ person.urls.edit }}" aria-current="page">{% translate "Edit" %}</a> </li>
+    <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a> </li>
+    <li class='is-active'><a href="{% url 'podcast_analyzer:person-edit' id=person.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
   </ul>
 {% endblock %}
 {% block content %}
@@ -22,7 +22,7 @@
         {% endif %}
       </div>
     {% endfor %}
-    <a href="{{ person.urls.view }}">{% translate "Return to person detail and discard changes" %}</a>
+    <a href="{{ person.get_absolute_url }}">{% translate "Return to person detail and discard changes" %}</a>
     <button type="submit">{% translate "Save changes" %}</button>
   </form>
 {% endblock %}

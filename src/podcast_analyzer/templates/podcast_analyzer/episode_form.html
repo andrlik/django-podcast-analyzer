@@ -5,9 +5,9 @@
   <ul>
     <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
     <li><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "Episodes" %}</a></li>
-    <li><a href="{{ podcast.urls.view}}">{{ podcast.title }}</a> </li>
-    <li><a href="{{ episode.urls.view }}">{{ episode.title }}</a></li>
-    <li class='is-active'><a href="{{ episode.urls.edit}}" aria-current="page">{% translate "Edit" %}</a> </li>
+    <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
+    <li><a href="{{ episode.get_absolute_url }}">{{ episode.title }}</a></li>
+    <li class='is-active'><a href="{% url 'podcast_analyzer:episode-edit' podcast_id=podcast.id id=episode.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
   </ul>
 {% endblock %}
 {% block content %}
@@ -24,7 +24,7 @@
         {% endif %}
       </div>
     {% endfor %}
-    <a href="{{ episode.urls.view }}">{% translate "Return to episode detail and discard changes" %}</a>
+    <a href="{{ episode.get_absolute_url }}">{% translate "Return to episode detail and discard changes" %}</a>
     <button type="submit">{% translate "Save changes" %}</button>
   </form>
 {% endblock %}
