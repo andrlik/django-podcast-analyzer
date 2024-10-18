@@ -253,6 +253,9 @@ ignore = ["W004"]
 [tool.curlylint.rules]
 image_alt = true
 
+[tool.bandit]
+exclude_dirs = ["tests"]
+
 [tool.bumpversion]
 current_version = "0.1.2"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"

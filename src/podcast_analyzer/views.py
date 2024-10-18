@@ -5,10 +5,12 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 # from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.http import Http404
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -18,12 +20,50 @@ from django.views.generic import (
     UpdateView,
 )
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
 from podcast_analyzer.models import Episode, Person, Podcast
 
 # Create your views here.
 
 
-class PodcastListView(LoginRequiredMixin, ListView):
+class SelectPrefetchRelatedMixin:
+    """
+    Adds two class variables:
+        prefetch_related: list[str]
+        select_related: list[str]
+    If they are populated, it will use them in the queryset.
+    """
+
+    model = None
+    queryset = None
+    ordering = None
+    prefetch_related: ClassVar[list[str] | None] = None
+    select_related: ClassVar[list[str] | None] = None
+
+    def get_queryset(self):
+        if not self.queryset:
+            if self.model:
+                qs = self.model._default_manager.all()
+            else:  # no cov
+                msg = "View does not have a queryset or model defined!"
+                raise ImproperlyConfigured(msg)
+        else:
+            qs = self.queryset
+        if self.select_related:
+            qs = qs.select_related(*self.select_related)
+        if self.prefetch_related:
+            qs = qs.prefetch_related(*self.prefetch_related)
+        if self.ordering:
+            if isinstance(self.ordering, str):
+                qs = qs.order_by(self.ordering)  # no cov, we're just mimicking Django
+            else:
+                qs = qs.order_by(*self.ordering)
+        return qs
+
+
+class PodcastListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):
     """
     View all podcasts in a list.
     """
@@ -31,17 +71,10 @@ class PodcastListView(LoginRequiredMixin, ListView):
     model = Podcast
     ordering = ["title"]
     paginate_by = 25
-
-    def get_queryset(self):
-        """
-        Adds prefetching for related objects.
-        """
-        return Podcast.objects.all().prefetch_related(  # no cov
-            "episodes", "seasons", "analysis_group"
-        )
+    prefetch_related = ["episodes", "seasons", "analysis_group"]
 
 
-class PodcastDetailView(LoginRequiredMixin, DetailView):
+class PodcastDetailView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DetailView):
     """
     A view to see a given podcasts data.
     """
@@ -49,14 +82,7 @@ class PodcastDetailView(LoginRequiredMixin, DetailView):
     model = Podcast
     pk_url_kwarg = "id"
     context_object_name = "podcast"
-
-    def get_queryset(self):
-        """
-        Adds prefetching for related objects.
-        """
-        return Podcast.objects.all().prefetch_related(  # no cov
-            "episodes", "seasons", "analysis_group"
-        )
+    prefetch_related = ["episodes", "seasons", "analysis_group"]
 
 
 class PodcastCreateView(LoginRequiredMixin, CreateView):
@@ -87,7 +113,7 @@ class PodcastUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "podcast"
 
 
-class PodcastDeleteView(LoginRequiredMixin, DeleteView):
+class PodcastDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteView):
     """
     For deleting a podcast record.
     """
@@ -96,48 +122,30 @@ class PodcastDeleteView(LoginRequiredMixin, DeleteView):
     context_object_name = "podcast"
     pk_url_kwarg = "id"
     object: Podcast
-
-    def get_queryset(self):
-        """
-        Adds prefetching for related objects.
-        """
-        return self.model.objects.all().prefetch_related(
-            "episodes", "seasons", "analysis_group"
-        )
+    prefetch_related = ["episodes", "seasons", "analysis_group"]
 
     def get_success_url(self):
         return reverse_lazy("podcast_analyzer:podcast-list")
 
 
-class PersonListView(LoginRequiredMixin, ListView):
+class PersonListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):
     """View all people in a list"""
 
     model = Person
     pk_url_kwarg = "id"
     context_object_name = "people"
     paginate_by = 25
-
-    def get_queryset(self):
-        qs = (
-            Person.objects.all()
-            .prefetch_related("hosted_episodes", "guest_appearances")
-            .order_by("name")
-        )
-        return qs
+    ordering = ["name"]
+    prefetch_related = ["hosted_episodes", "guest_appearances"]
 
 
-class PersonDetailView(LoginRequiredMixin, DetailView):
+class PersonDetailView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DetailView):
     """View a specific person's details."""
 
     model = Person
     pk_url_kwarg = "id"
     context_object_name = "person"
-
-    def get_queryset(self):
-        qs = Person.objects.all().prefetch_related(
-            "hosted_episodes", "guest_appearances"
-        )
-        return qs
+    prefetch_related = ["hosted_episodes", "guest_appearances"]
 
 
 class PersonUpdateView(LoginRequiredMixin, UpdateView):
@@ -149,7 +157,7 @@ class PersonUpdateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = "id"
 
 
-class PersonDeleteView(LoginRequiredMixin, DeleteView):
+class PersonDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteView):
     """Delete a person from the database."""
 
     model = Person
@@ -158,17 +166,37 @@ class PersonDeleteView(LoginRequiredMixin, DeleteView):
     prefetch_related = ["hosted_episodes", "guest_appearances"]
     object: Person
 
-    def get_queryset(self):
-        qs = Person.objects.all().prefetch_related(
-            "hosted_episodes", "guest_appearances"
-        )
-        return qs
-
     def get_success_url(self):
         return reverse_lazy("podcast_analyzer:person-list")
 
 
-class EpisodeListView(LoginRequiredMixin, ListView):
+class PodcastEpisodeDescendantMixin(SelectPrefetchRelatedMixin):
+    """
+    Allows the episode queryset to be filtered by the podcast it comes from.
+    """
+
+    podcast: Podcast | None = None
+    if TYPE_CHECKING:
+        queryset: QuerySet[Episode] | None
+
+    def get_queryset(self):
+        podcast_id = self.kwargs.get("podcast_id", None)  # type: ignore
+        if not podcast_id:  # no cov
+            raise Http404
+        try:
+            self.podcast = Podcast.objects.get(pk=podcast_id)
+        except ObjectDoesNotExist as ode:  # no cov
+            raise Http404 from ode
+        self.queryset = Episode.objects.filter(podcast=self.podcast)
+        return super().get_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)  # type: ignore
+        context["podcast"] = self.podcast
+        return context
+
+
+class EpisodeListView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, ListView):
     """View all episodes for given podcast"""
 
     model = Episode
@@ -177,20 +205,9 @@ class EpisodeListView(LoginRequiredMixin, ListView):
     paginate_by = 50
     ordering = ["-ep_num"]
     select_related = ["podcast", "season"]
-    podcast: Podcast
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["podcast"] = self.podcast
-        return context
-
-    def get_queryset(self):
-        self.podcast = Podcast.objects.get(pk=self.kwargs["id"])
-        qs = Episode.objects.filter(podcast=self.podcast)
-        return qs.select_related(*self.select_related).order_by(*self.ordering)
 
 
-class EpisodeDetailView(LoginRequiredMixin, DetailView):
+class EpisodeDetailView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, DetailView):
     """View a given episode's details."""
 
     model = Episode
@@ -202,25 +219,9 @@ class EpisodeDetailView(LoginRequiredMixin, DetailView):
         "hosts_detected_from_feed",
         "guests_detected_from_feed",
     ]
-    podcast: Podcast
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["podcast"] = self.podcast
-        return context
-
-    def get_queryset(self):
-        self.podcast = Podcast.objects.get(pk=self.kwargs["podcast_id"])
-        qs = Episode.objects.filter(
-            podcast=Podcast.objects.get(pk=self.kwargs["podcast_id"])
-        )
-        qs = qs.select_related(*self.select_related).prefetch_related(
-            *self.prefetch_related
-        )
-        return qs
 
 
-class EpisodeUpdateView(LoginRequiredMixin, UpdateView):
+class EpisodeUpdateView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, UpdateView):
     """Edit a given episode's details."""
 
     model = Episode
@@ -234,51 +235,24 @@ class EpisodeUpdateView(LoginRequiredMixin, UpdateView):
         "hosts_detected_from_feed",
         "guests_detected_from_feed",
     ]
-    select_related = ["podcast", "season"]
-    prefetch_related = [
-        "analysis_group",
-        "hosts_detected_from_feed",
-        "guests_detected_from_feed",
-    ]
-    podcast: Podcast
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["podcast"] = self.podcast
-        return context
-
-    def get_queryset(self):
-        self.podcast = Podcast.objects.get(pk=self.kwargs["podcast_id"])
-        qs = Episode.objects.filter(podcast=self.podcast)
-        qs = qs.select_related(*self.select_related).prefetch_related(
-            *self.prefetch_related
-        )
-        return qs
 
 
-class EpisodeDeleteView(LoginRequiredMixin, DeleteView):
+class EpisodeDeleteView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, DeleteView):
     """Delete a given episode."""
 
     model = Episode
     pk_url_kwarg = "id"
     context_object_name = "episode"
     object: Episode
-    podcast: Podcast
     select_related = ["podcast", "season"]
     prefetch_related = [
         "analysis_group",
         "hosts_detected_from_feed",
         "guests_detected_from_feed",
     ]
+    podcast: Podcast
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["podcast"] = self.podcast
-        return context
-
-    def get_queryset(self):
-        qs = Episode.objects.filter(podcast=self.podcast)
-        qs = qs.select_related(*self.select_related).prefetch_related(
-            *self.prefetch_related
+    def get_success_url(self):
+        return reverse_lazy(
+            "podcast_analyzer:episode-list", kwargs={"podcast_id": self.podcast.pk}
         )
-        return qs

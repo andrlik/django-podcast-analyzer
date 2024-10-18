@@ -1,0 +1,31 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% blocktranslate with title=episode.title %}Delete {{ title }}?{% endblocktranslate %} -  {{ podcast.title }}{% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+    <li><a href="{{ podcast.urls.view}}">{{ podcast.title }}</a></li>
+    <li><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "Episodes" %}</a></li>
+    <li><a href="{{ episode.urls.view }}">{{ episode.title }}</a></li>
+    <li class='is-active'><a href="{{ episode.urls.delete}}" aria-current="page">{% translate "Delete" %}</a> </li>
+  </ul>
+{% endblock %}
+{% block content %}
+  <h1>{% blocktranslate with title=episode.title %}Delete {{ title }}?{% endblocktranslate %}</h1>
+  <p><strong>{% translate "Are you sure you want to delete this episode?" %}</strong></p>
+  <p>{% blocktranslate count counter=episode.analysis_group.count %}
+    It will also disassociate this episode with one analysis group.
+  {% plural %}
+    It will also disassociate this episode with {{ counter }} analysis groups.
+  {% endblocktranslate %}</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <div>
+      <a href="{{ episode.urls.view }}">{% translate "Nevermind! Take me back." %}</a>
+    </div>
+    <div>
+      <button type="submit">{% translate "Delete" %}</button>
+    </div>
+  </form>
+{% endblock %}

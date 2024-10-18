@@ -35,7 +35,7 @@
           {% for guest in episode.guests_detected_from_feed.all %}
             <li><a href="{{ guest.urls.view }}">{{ guest.name }}</a></li>
           {% empty %}
-            <li>{% translate "No guests detected." %}</li>
+            <li>{% translate "No guests detected in feed." %}</li>
           {% endfor %}
         </ul>
       </li>
