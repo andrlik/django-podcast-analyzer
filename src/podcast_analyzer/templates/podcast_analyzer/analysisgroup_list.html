@@ -1,0 +1,38 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% translate "Analysis Groups" %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li class="is-active"><a href="{% url 'podcast_analyzer:ag-list' %}" aria-current="page">{% translate "Analysis Groups" %}</a></li>
+  </ul>
+{% endblock %}
+{% block extra_controls %}
+  <div>
+    <a href="{% url 'podcast_analyzer:ag-create' %}">{% translate "Add analysis group" %}</a>
+  </div>
+{% endblock %}
+{% block content %}
+  <h1>{% translate "Analysis Groups" %}</h1>
+  <ul>
+    {% for agroup in page_obj %}
+      <li>
+        <article>
+          <div>
+            <div>
+              <p>
+                <strong><a href="{{ agroup.urls.view }}">{{ agroup.title }}</a></strong> <small>{% blocktranslate count counter=agroup.num_feeds %}1 podcast feed{% plural %}{{ counter }} podcast feeds{% endblocktranslate %}</small>
+                <br />
+                <small><strong>{% translate "Seasons" %}:</strong> {{ agroup.num_seasons }} | <strong>{% translate "Episodes" %}:</strong> {{ agroup.num_episodes }}</small>
+              </p>
+            </div>
+          </div>
+        </article>
+      </li>
+    {% empty %}
+      <li>{% translate "There are no analysis groups yet." %}</li>
+    {% endfor %}
+  </ul>
+
+  {% include "podcast_analyzer/includes/pagination.html" %}
+
+{% endblock %}

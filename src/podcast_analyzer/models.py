@@ -29,6 +29,7 @@ if TYPE_CHECKING:
         ManyToManyRelatedManager,
         RelatedManager,
     )
+
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -177,6 +178,14 @@ class AnalysisGroup(UUIDTimeStampedModel):
 
     def __str__(self):  # no cov
         return self.name
+
+    class urls(urlman.Urls):  # noqa: N801
+        view = "analysis-groups/{self.id}/"
+        edit = "{view}edit/"
+        delete = "{view}delete/"
+
+    def get_absolute_url(self):
+        return self.urls.view
 
     @cached_property
     def num_feeds(self) -> int:
@@ -347,7 +356,7 @@ class Podcast(UUIDTimeStampedModel):
         CRUD urls.
         """
 
-        view = "/podcasts/{self.id}/"
+        view = "podcasts/{self.id}/"
         episodes = "{view}episodes/"
         edit = "{view}edit/"
         delete = "{view}delete/"
@@ -955,12 +964,12 @@ class Person(UUIDTimeStampedModel):
         CRUD urls.
         """
 
-        view = "/podcasts/people/{self.id}/"
+        view = "people/{self.id}/"
         edit = "{view}edit/"
         delete = "{view}delete/"
 
     def get_absolute_url(self) -> str:
-        return self.urls.view
+        return str(self.urls.view)
 
     @cached_property
     def has_hosted(self) -> int:

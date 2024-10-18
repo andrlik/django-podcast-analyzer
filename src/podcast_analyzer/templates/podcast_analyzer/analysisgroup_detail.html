@@ -1,0 +1,44 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{{ group.name }} - {% translate "Analysis Groups" %} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
+    <li class='is-active'><a href="{{ group.urls.view}}" aria-current="page">{{ group.name }}</a> </li>
+  </ul>
+{% endblock %}
+{% block extra_controls %}
+  <div><a href="{{ group.urls.edit }}">{% translate "Edit" %}</a></div>
+{% endblock %}
+{% block content %}
+  <h1>{{ group.name }}</h1>
+
+  <div>
+    <h2>{% translate "Metadata" %}</h2>
+    <dl>
+      <dt>{% translate "Podcast feeds" %}</dt>
+      <dd>{{ group.num_feeds }}</dd>
+      <dt>{% translate "Seasons" %}</dt>
+      <dd>{{ group.num_seasons }}</dd>
+      <dt>{% translate "Episodes" %}</dt>
+      <dd>{{ group.num_episodes }}</dd>
+      <dt>{% translate "Created" %}</dt>
+      <dd>{{ group.created|date:"F j, Y H:i" }}</dd>
+      <dt>{% translate "Modified" %}</dt>
+      <dd>{{ group.modified|date:"F j, Y H:i" }}</dd>
+    </dl>
+  </div>
+
+  <div>
+    <div>
+
+      <a href="{{ group.urls.edit }}">{% translate "Edit" %}</a>
+    </div>
+    <div>
+
+      <a href="{{ group.urls.delete }}">{% translate "Delete podcast" %}</a>
+    </div>
+
+  </div>
+
+{% endblock %}

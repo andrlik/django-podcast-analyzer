@@ -13,7 +13,7 @@ import uuid
 import pytest
 from django.core.exceptions import ObjectDoesNotExist
 
-from podcast_analyzer.models import Episode, Person, Podcast
+from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 from tests.factories.person import PersonFactory
 from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
@@ -157,6 +157,44 @@ def test_authenticated_delete(
     assert response["Location"] == tp.reverse("podcast_analyzer:podcast-list")
     with pytest.raises(ObjectDoesNotExist):
         Podcast.objects.get(id=podcast_with_parsed_episodes.id)
+
+
+@pytest.mark.parametrize("has_art", [True, False])
+def test_podcast_list_conditional_art(
+    mute_signals,
+    client,
+    django_assert_max_num_queries,
+    httpx_mock,
+    cover_art,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    has_art,
+):
+    if has_art:
+        podcast_with_parsed_episodes.podcast_art_cache_update_needed = True
+        podcast_with_parsed_episodes.save()
+        httpx_mock.add_response(
+            url=podcast_with_parsed_episodes.podcast_cover_art_url,
+            headers=[("Content-Type", "image/jpeg")],
+            content=cover_art,
+        )
+        podcast_with_parsed_episodes.fetch_podcast_cover_art()
+        podcast_with_parsed_episodes.refresh_from_db()
+    client.force_login(user)
+    with django_assert_max_num_queries(25):
+        response = client.get(tp.reverse("podcast_analyzer:podcast-list"))
+    assert response.status_code == 200
+    if has_art:
+        assert (
+            f'<img src="{podcast_with_parsed_episodes.podcast_cached_cover_art.url}" alt="Podcast cover art for {podcast_with_parsed_episodes.title}"'
+            in response.content.decode("utf-8")
+        )
+    else:
+        assert (
+            f'alt="Podcast cover art for {podcast_with_parsed_episodes.title}"'
+            not in response.content.decode("utf-8")
+        )
 
 
 def test_podcast_detail_template_no_art(
@@ -687,3 +725,145 @@ def test_episode_list_art_detection(
         )
     else:
         assert 'alt="Podcast logo art"' not in response.content.decode("utf-8")
+
+
+@pytest.mark.parametrize(
+    "view_name,is_detail",
+    [
+        ("ag-list", False),
+        ("ag-create", False),
+        ("ag-detail", True),
+        ("ag-edit", True),
+        ("ag-delete", True),
+    ],
+)
+def test_unauthorized_analysis_group_get_views(
+    client, django_assert_max_num_queries, tp, analysis_group, view_name, is_detail
+):
+    if is_detail:
+        url = tp.reverse(f"podcast_analyzer:{view_name}", id=analysis_group.id)
+    else:
+        url = tp.reverse(f"podcast_analyzer:{view_name}")
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+
+
+def test_unauthorized_analysis_group_post_views(
+    mute_signals, client, django_assert_max_num_queries, tp, analysis_group
+):
+    podcast = PodcastFactory()
+    generate_episodes_for_podcast(podcast)
+    current_podcasts = analysis_group.num_feeds
+    ag_id = analysis_group.id
+    data = {
+        "name": "A better name",
+        "podcasts": [podcast.id],
+        "seasons": [],
+        "episodes": [],
+    }
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:ag-edit", id=analysis_group.id), data=data
+        )
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+    analysis_group.refresh_from_db()
+    assert analysis_group.name != "A better name"
+    assert analysis_group.num_feeds == current_podcasts
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:ag-delete", id=analysis_group.id), data={}
+        )
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+    assert AnalysisGroup.objects.get(id=ag_id)
+
+
+@pytest.mark.parametrize(
+    "view_name,is_detail",
+    [
+        ("ag-list", False),
+        ("ag-create", False),
+        ("ag-detail", True),
+        ("ag-edit", True),
+        ("ag-delete", True),
+    ],
+)
+def test_authorized_analysis_group_get_views(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    analysis_group,
+    view_name,
+    is_detail,
+):
+    if is_detail:
+        url = tp.reverse(f"podcast_analyzer:{view_name}", id=analysis_group.id)
+    else:
+        url = tp.reverse(f"podcast_analyzer:{view_name}")
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+
+
+def test_authorized_analysis_group_create_view(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    url = tp.reverse("podcast_analyzer:ag-create")
+    data = {
+        "name": "The test generated analysis group",
+        "podcasts": [podcast_with_parsed_episodes.id],
+        "seasons": [],
+        "episodes": [],
+    }
+    current_group_count = AnalysisGroup.objects.count()
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.post(url, data=data)
+    print(response.content.decode("utf-8"))
+    assert response.status_code == 302
+    assert AnalysisGroup.objects.count() == current_group_count + 1
+    group = AnalysisGroup.objects.latest("created")
+    assert group.name == "The test generated analysis group"
+    assert group.num_feeds == 1
+
+
+def test_authorized_analysis_group_edit_delete_views(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    analysis_group,
+):
+    ag_id = analysis_group.id
+    data = {
+        "name": "The test generated analysis group",
+        "podcasts": [podcast_with_parsed_episodes.id],
+        "seasons": [],
+        "episodes": [],
+    }
+    current_group_count = AnalysisGroup.objects.count()
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:ag-edit", id=ag_id), data=data
+        )
+    assert response.status_code == 302
+    assert analysis_group.urls.view == response["Location"]
+    analysis_group.refresh_from_db()
+    assert analysis_group.name == "The test generated analysis group"
+    assert analysis_group.num_feeds == 1
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:ag-delete", id=analysis_group.id), data={}
+        )
+    assert response.status_code == 302
+    assert tp.reverse("podcast_analyzer:ag-list") == response["Location"]
+    assert AnalysisGroup.objects.count() == current_group_count - 1
+    with pytest.raises(ObjectDoesNotExist):
+        AnalysisGroup.objects.get(id=analysis_group.id)
