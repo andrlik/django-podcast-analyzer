@@ -7,8 +7,8 @@
     {% if not group %}
       <li class="is-active"><a href="{% url 'podcast_analyzer:ag-create' %}" aria-current="page">{% translate "Add" %}</a></li>
     {% else %}
-      <li><a href="{{ group.urls.view}}">{{ group.name }}</a> </li>
-      <li class='is-active'><a href="{{ group.urls.edit}}" aria-current="page">{% translate "Edit" %}</a> </li>
+      <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
+      <li class='is-active'><a href="{% url 'podcast_analyzer:ag-edit' id=group.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
     {% endif %}
   </ul>
 {% endblock %}
@@ -30,7 +30,7 @@
       <a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Return to list without saving" %}</a>
       <button type="submit">{% translate "Create" %}</button>
     {% else %}
-      <a href="{{ group.urls.view }}">{% translate "Return to analysis group detail and discard changes" %}</a>
+      <a href="{{ group.get_absolute_url }}">{% translate "Return to analysis group detail and discard changes" %}</a>
       <button type="submit">{% translate "Save changes" %}</button>
     {% endif %}
   </form>

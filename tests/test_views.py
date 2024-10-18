@@ -112,7 +112,7 @@ def test_authenticated_create(mute_signals, client, tp, user):
     assert response.status_code == 302
     assert current_podcast_count + 1 == Podcast.objects.count()
     new_pod = Podcast.objects.get(rss_feed="https://www.example.com/yatp/feeds/rss.xml")
-    assert response["Location"] == new_pod.urls.view
+    assert response["Location"] == new_pod.get_absolute_url()
 
 
 def test_authenticated_edit(
@@ -282,7 +282,10 @@ def test_podcast_detail_with_analysis_group(
             )
         )
     assert response.status_code == 200
-    assert f"<li>{analysis_group.name}</li>" in response.content.decode("utf-8")
+    assert (
+        f'<li><a href="{analysis_group.get_absolute_url()}">{analysis_group.name}</a></li>'
+        in response.content.decode("utf-8")
+    )
 
 
 def test_pagination(mute_signals, django_assert_max_num_queries, client, tp, user):
@@ -382,7 +385,7 @@ def test_authenticated_person_edit(client, django_assert_max_num_queries, tp, us
             },
         )
     assert response.status_code == 302
-    assert response["Location"] == person.urls.view
+    assert response["Location"] == person.get_absolute_url()
     person.refresh_from_db()
     assert person.url == "https://example.com"
 
@@ -411,12 +414,13 @@ def test_person_list_img_detection(client, tp, user, img_appears):
     assert response.status_code == 200
     if img_appears:
         assert (
-            f'<a href="{person.urls.view}"><img src="{person.img_url}"'
+            f'<a href="{person.get_absolute_url()}"><img src="{person.img_url}"'
             in response.content.decode("utf-8")
         )
     else:
-        assert f'<a href="{person.urls.view}"><img src=' not in response.content.decode(
-            "utf-8"
+        assert (
+            f'<a href="{person.get_absolute_url()}"><img src='
+            not in response.content.decode("utf-8")
         )
 
 
@@ -542,6 +546,39 @@ def test_authenticated_episode_get_views(
     assert response.status_code == 200
 
 
+@pytest.mark.parametrize("has_group", [True, False])
+def test_episode_detail_analysis_group(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    analysis_group,
+    has_group,
+):
+    ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+    if has_group:
+        ep.analysis_group.add(analysis_group)
+    client.force_login(user)
+    print(ep.get_absolute_url())
+    with django_assert_max_num_queries(40):
+        response = client.get(
+            tp.reverse(
+                "podcast_analyzer:episode-detail",
+                podcast_id=podcast_with_parsed_episodes.id,
+                id=ep.id,
+            )
+        )
+    assert response.status_code == 200
+    if has_group:
+        assert (
+            f'<li><a href="{analysis_group.get_absolute_url()}">{analysis_group.name}</a></li>'
+            in response.content.decode("utf-8")
+        )
+    else:
+        assert "No analysis groups." in response.content.decode("utf-8")
+
+
 def test_authenticated_episode_post_views(
     client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
 ):
@@ -563,7 +600,7 @@ def test_authenticated_episode_post_views(
             data=data,
         )
     assert response.status_code == 302
-    assert ep.urls.view == response["Location"]
+    assert ep.get_absolute_url() == response["Location"]
     ep.refresh_from_db()
     assert ep.title == data["title"]
     with django_assert_max_num_queries(40):
@@ -666,7 +703,7 @@ def test_conditional_episode_list_view_season_detection(
     ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
     content_with_ws_stripped = re.sub(r"\s", "", response.content.decode("utf-8"))
     assert (
-        f'<tr><td>{ep.ep_num}</td><td>{ep.season.season_number}</td><td><ahref="{ep.urls.view}">{ep.title.replace(" ", "")}</a></td>'
+        f'<tr><td>{ep.ep_num}</td><td>{ep.season.season_number}</td><td><ahref="{ep.get_absolute_url()}">{ep.title.replace(" ", "")}</a></td>'
         in content_with_ws_stripped
     )
 
@@ -854,7 +891,7 @@ def test_authorized_analysis_group_edit_delete_views(
             tp.reverse("podcast_analyzer:ag-edit", id=ag_id), data=data
         )
     assert response.status_code == 302
-    assert analysis_group.urls.view == response["Location"]
+    assert analysis_group.get_absolute_url() == response["Location"]
     analysis_group.refresh_from_db()
     assert analysis_group.name == "The test generated analysis group"
     assert analysis_group.num_feeds == 1

@@ -69,8 +69,17 @@
     <dt>{% translate "Transcript detected" %}</dt>
     <dd>{{ episode.transcript_detected|yesno:"✅,🚫" }}</dd>
   </dl>
+  <h2>{% translate "Analysis Groups" %}</h2>
+  <p>{% translate "This episode is also in the following analysis groups" %}:</p>
+  <ul>
+    {% for group in episode.analysis_group.all %}
+      <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a></li>
+    {% empty %}
+      <li>{% translate "No analysis groups." %}</li>
+    {% endfor %}
+  </ul>
   <div>
-    <div><a href="{{ episode.urls.edit }}">{% translate "Edit" %}</a></div>
-    <div><a href="{{ episode.urls.delete }}">{% translate "Delete" %}</a></div>
+    <div><a href="{% url 'podcast_analyzer:episode-edit' podcast_id=podcast.id id=episode.id %}">{% translate "Edit" %}</a></div>
+    <div><a href="{% url 'podcast_analyzer:episode-delete' podcast_id=podcast.id id=episode.id %}">{% translate "Delete" %}</a></div>
   </div>
 {% endblock %}

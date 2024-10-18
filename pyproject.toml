@@ -16,7 +16,6 @@ dependencies = [
     "pillow>=10.4.0",
     "podcastparser>=0.6.10",
     "python-magic>=0.4.27",
-    "urlman>=2.0.2",
 ]
 classifiers = [
     "Framework :: Django :: 5.0",

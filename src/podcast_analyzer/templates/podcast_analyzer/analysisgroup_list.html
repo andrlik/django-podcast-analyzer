@@ -20,7 +20,7 @@
           <div>
             <div>
               <p>
-                <strong><a href="{{ agroup.urls.view }}">{{ agroup.title }}</a></strong> <small>{% blocktranslate count counter=agroup.num_feeds %}1 podcast feed{% plural %}{{ counter }} podcast feeds{% endblocktranslate %}</small>
+                <strong><a href="{{ agroup.get_absolute_url }}">{{ agroup.name }}</a></strong> <small>{% blocktranslate count counter=agroup.num_feeds %}1 podcast feed{% plural %}{{ counter }} podcast feeds{% endblocktranslate %}</small>
                 <br />
                 <small><strong>{% translate "Seasons" %}:</strong> {{ agroup.num_seasons }} | <strong>{% translate "Episodes" %}:</strong> {{ agroup.num_episodes }}</small>
               </p>

@@ -3,7 +3,7 @@
 {% block extratitle %}{% translate "People" %} - {% endblock %}
 {% block breadcrumbs %}
   <ul>
-    <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-list' %}" aria-current="page">{% translate "People" %}</a></li>
+    <li class="is-active"><a href="{% url 'podcast_analyzer:person-list' %}" aria-current="page">{% translate "People" %}</a></li>
   </ul>
 {% endblock %}
 {% block content %}
@@ -14,7 +14,7 @@
         <article>
           <figure>
             <p>
-              <a href="{{ person.urls.view }}">{% if person.img_url %}<img src="{{ person.img_url }}" alt="Avatar for {{ person.name }}"  width="200" height="200"/> {% endif %}{{ person.name }}</a>
+              <a href="{{ person.get_absolute_url }}">{% if person.img_url %}<img src="{{ person.img_url }}" alt="Avatar for {{ person.name }}"  width="200" height="200"/> {% endif %}{{ person.name }}</a>
             </p>
           </figure>
         </article>

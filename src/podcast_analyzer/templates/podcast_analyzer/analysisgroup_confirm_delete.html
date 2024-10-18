@@ -4,8 +4,8 @@
 {% block breadcrumbs %}
   <ul>
     <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
-    <li><a href="{{ group.urls.view}}">{{ group.name }}</a> </li>
-    <li class='is-active'><a href="{{ group.urls.delete}}" aria-current="page">{% translate "Delete" %}</a> </li>
+    <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
+    <li class='is-active'><a href="{% url 'podcast_analyzer:ag-delete' id=group.id %}" aria-current="page">{% translate "Delete" %}</a> </li>
   </ul>
 {% endblock %}
 {% block content %}
@@ -21,7 +21,7 @@
     {% csrf_token %}
     {{ form }}
     <div>
-      <a href="{{ group.urls.view }}">{% translate "Nevermind! Take me back." %}</a>
+      <a href="{{ group.get_absolute_url }}">{% translate "Nevermind! Take me back." %}</a>
     </div>
     <div>
       <button type="submit">{% translate "Delete" %}</button>
