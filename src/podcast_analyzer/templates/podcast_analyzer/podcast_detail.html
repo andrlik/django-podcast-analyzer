@@ -8,6 +8,7 @@
   </ul>
 {% endblock %}
 {% block extra_controls %}
+  <div><a href="{{ podcast.urls.episodes }}">{% translate "See episodes" %}</a></div>
   <div><a href="{{ podcast.urls.edit }}">{% translate "Edit" %}</a></div>
 {% endblock %}
 {% block content %}
@@ -78,31 +79,31 @@
 
       <div>
         <div>
-          <p><strong>Release Frequency</strong></p>
+          <p><strong>{% translate "Release Frequency" %}</strong></p>
           <p>{{ podcast.get_release_frequency_display }}</p>
         </div>
       </div>
       <div>
         <div>
-          <p><strong>Seasons</strong></p>
+          <p><strong>{% translate "Seasons" %}</strong></p>
           <p>{{ podcast.seasons.count|default_if_none:"N/A" }}</p>
         </div>
       </div>
       <div>
         <div>
-          <p><strong>Episodes</strong></p>
+          <p><strong>{% translate "Episodes" %}</strong></p>
           <p>{{ podcast.total_episodes }}</p>
         </div>
       </div>
       <div>
         <div>
-          <p><strong>Median episode length</strong></p>
+          <p><strong>{% translate "Median episode length" %}</strong></p>
           <p>{{ podcast.median_episode_duration_timedelta }}</p>
         </div>
       </div>
       <div>
         <div>
-          <p><strong>Total duration</strong></p>
+          <p><strong>{% translate "Total duration" %}</strong></p>
           <p>{{ podcast.total_duration_timedelta }}</p>
         </div>
       </div>

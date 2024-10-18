@@ -348,6 +348,7 @@ class Podcast(UUIDTimeStampedModel):
         """
 
         view = "/podcasts/{self.id}/"
+        episodes = "{view}episodes/"
         edit = "{view}edit/"
         delete = "{view}delete/"
 
@@ -466,7 +467,7 @@ class Podcast(UUIDTimeStampedModel):
             A dict from the `podcastparser` library representing all the feed data.
         """
         true_url: str = self.rss_feed
-        with httpx.Client() as client:
+        with httpx.Client(timeout=5) as client:
             try:
                 r = client.get(
                     self.rss_feed,
@@ -566,7 +567,7 @@ class Podcast(UUIDTimeStampedModel):
         ):  # no cov
             return
         try:
-            r = httpx.get(self.podcast_cover_art_url)
+            r = httpx.get(self.podcast_cover_art_url, timeout=5)
             logger.debug(
                 f"Fetched document with content type: {r.headers.get('Content-Type')}"
             )
@@ -595,7 +596,7 @@ class Podcast(UUIDTimeStampedModel):
             or self.podcast_cover_art_url is None
         ):  # no cov
             return
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=5) as client:
             try:
                 r = await client.get(self.podcast_cover_art_url)
             except httpx.RequestError:  # no cov
@@ -1138,6 +1139,18 @@ class Episode(UUIDTimeStampedModel):
     def __str__(self):  # no cov
         return f"{self.title}"
 
+    class urls(urlman.Urls):  # noqa: N801
+        """
+        CRUD URLs
+        """
+
+        view = "{self.podcast.urls.view}episodes/{self.id}/"
+        edit = "{view}edit/"
+        delete = "{view}delete/"
+
+    def get_absolute_url(self):
+        return self.urls.view
+
     @property
     def duration(self) -> datetime.timedelta | None:
         """
@@ -1147,6 +1160,12 @@ class Episode(UUIDTimeStampedModel):
         if self.itunes_duration is not None:
             return datetime.timedelta(seconds=self.itunes_duration)
         return None
+
+    def get_file_size_in_mb(self) -> float:
+        """Convert the size of the file in bytes to MB."""
+        if self.file_size:
+            return self.file_size / 1048597
+        return 0.0
 
     @classmethod
     def create_or_update_episode_from_feed(

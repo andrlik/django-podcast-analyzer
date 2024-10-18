@@ -7,10 +7,13 @@
 
 """Tests for views."""
 
+import re
+import uuid
+
 import pytest
 from django.core.exceptions import ObjectDoesNotExist
 
-from podcast_analyzer.models import Person, Podcast
+from podcast_analyzer.models import Episode, Person, Podcast
 from tests.factories.person import PersonFactory
 from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
@@ -408,3 +411,279 @@ def test_person_detail_with_appearances(
         )
     assert response.status_code == 200
     assert "No appearances yet." not in response.content.decode("utf-8")
+
+
+@pytest.mark.parametrize(
+    "view_name,is_detail",
+    [
+        ("episode-list", False),
+        ("episode-detail", True),
+        ("episode-edit", True),
+        ("episode-delete", True),
+    ],
+)
+def test_unauthenticated_episode_get_views(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    podcast_with_parsed_episodes,
+    view_name,
+    is_detail,
+):
+    pod_id = podcast_with_parsed_episodes.id
+    if is_detail:
+        ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+        url = tp.reverse(f"podcast_analyzer:{view_name}", podcast_id=pod_id, id=ep.id)
+    else:
+        url = tp.reverse(f"podcast_analyzer:{view_name}", podcast_id=pod_id)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+
+
+def test_unauthenticated_episode_post_views(
+    client, django_assert_max_num_queries, tp, podcast_with_parsed_episodes
+):
+    pod_id = podcast_with_parsed_episodes.id
+    ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+    url = tp.reverse("podcast_analyzer:episode-edit", podcast_id=pod_id, id=ep.id)
+    original_title = ep.title
+    ep_id = ep.id
+    data = {
+        "title": f"{ep.title} with an edit",
+        "ep_num": ep.ep_num,
+        "ep_type": ep.ep_type,
+        "analysis_group": [],
+        "hosts_detected_from_feed": [],
+        "guests_detected_from_feed": [],
+    }
+    with django_assert_max_num_queries(40):
+        response = client.post(url, data=data)
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+    ep.refresh_from_db()
+    assert ep.title == original_title
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:episode-delete", podcast_id=pod_id, id=ep.id),
+            data={},
+        )
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+    assert Episode.objects.get(pk=ep_id)
+
+
+@pytest.mark.parametrize(
+    "view_name,is_detail",
+    [
+        ("episode-list", False),
+        ("episode-detail", True),
+        ("episode-edit", True),
+        ("episode-delete", True),
+    ],
+)
+def test_authenticated_episode_get_views(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    view_name,
+    is_detail,
+):
+    pod_id = podcast_with_parsed_episodes.id
+    if is_detail:
+        ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+        url = tp.reverse(f"podcast_analyzer:{view_name}", podcast_id=pod_id, id=ep.id)
+    else:
+        url = tp.reverse(f"podcast_analyzer:{view_name}", podcast_id=pod_id)
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+
+
+def test_authenticated_episode_post_views(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    pod_id = podcast_with_parsed_episodes.id
+    ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+    ep_id = ep.id
+    data = {
+        "title": f"{ep.title} with an edit",
+        "ep_num": ep.ep_num,
+        "ep_type": ep.ep_type,
+        "analysis_group": [],
+        "hosts_detected_from_feed": [],
+        "guests_detected_from_feed": [],
+    }
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:episode-edit", podcast_id=pod_id, id=ep_id),
+            data=data,
+        )
+    assert response.status_code == 302
+    assert ep.urls.view == response["Location"]
+    ep.refresh_from_db()
+    assert ep.title == data["title"]
+    with django_assert_max_num_queries(40):
+        response = client.post(
+            tp.reverse("podcast_analyzer:episode-delete", podcast_id=pod_id, id=ep_id),
+            data={},
+        )
+    assert response.status_code == 302
+    assert (
+        tp.reverse("podcast_analyzer:episode-list", podcast_id=pod_id)
+        == response["Location"]
+    )
+    with pytest.raises(ObjectDoesNotExist):
+        Episode.objects.get(pk=ep_id)
+
+
+def test_authenticated_episode_detail_for_fake_podcast(
+    client, django_assert_max_num_queries, user, podcast_with_parsed_episodes
+):
+    fake_pod_id = uuid.uuid4()
+    while fake_pod_id in Podcast.objects.all().values_list("id", flat=True):
+        fake_pod_id = uuid.uuid4()
+    ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+    client.force_login(user)
+
+    with django_assert_max_num_queries(40):
+        response = client.get(f"/podcasts/{fake_pod_id}/episodes/{ep.id}/")
+    assert response.status_code == 404
+
+
+def test_conditional_episode_person_views(
+    mute_signals, client, django_assert_max_num_queries, tp, user
+):
+    podcast = PodcastFactory()
+    generate_episodes_for_podcast(podcast)
+    person1 = PersonFactory()
+    person2 = PersonFactory()
+    episodes_to_test = list(podcast.episodes.all()[:4])
+    episodes_to_test[0].hosts_detected_from_feed.add(person1)
+    episodes_to_test[1].hosts_detected_from_feed.add(person1)
+    episodes_to_test[1].guests_detected_from_feed.add(person2)
+    episodes_to_test[2].guests_detected_from_feed.add(person2)
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(
+            tp.reverse(
+                "podcast_analyzer:episode-detail",
+                podcast_id=podcast.id,
+                id=episodes_to_test[0].id,
+            )
+        )
+    assert response.status_code == 200
+    assert "No guests detected in feed." in response.content.decode("utf-8")
+    assert "No hosts detected in feed." not in response.content.decode("utf-8")
+    with django_assert_max_num_queries(40):
+        response = client.get(
+            tp.reverse(
+                "podcast_analyzer:episode-detail",
+                podcast_id=podcast.id,
+                id=episodes_to_test[1].id,
+            )
+        )
+    assert response.status_code == 200
+    assert "No hosts detected in feed." not in response.content.decode("utf-8")
+    assert "No guests detected in feed." not in response.content.decode("utf-8")
+    with django_assert_max_num_queries(40):
+        response = client.get(
+            tp.reverse(
+                "podcast_analyzer:episode-detail",
+                podcast_id=podcast.id,
+                id=episodes_to_test[2].id,
+            )
+        )
+    assert response.status_code == 200
+    assert "No hosts detected in feed." in response.content.decode("utf-8")
+    assert "No guests detected in feed." not in response.content.decode("utf-8")
+    with django_assert_max_num_queries(40):
+        response = client.get(
+            tp.reverse(
+                "podcast_analyzer:episode-detail",
+                podcast_id=podcast.id,
+                id=episodes_to_test[3].id,
+            )
+        )
+    assert response.status_code == 200
+    assert "No hosts or guests detected in feed." in response.content.decode("utf-8")
+
+
+def test_conditional_episode_list_view_season_detection(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    url = tp.reverse(
+        "podcast_analyzer:episode-list", podcast_id=podcast_with_parsed_episodes.id
+    )
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert "<td>Season</td>" in response.content.decode("utf-8")
+    ep = podcast_with_parsed_episodes.episodes.latest("release_datetime")
+    content_with_ws_stripped = re.sub(r"\s", "", response.content.decode("utf-8"))
+    assert (
+        f'<tr><td>{ep.ep_num}</td><td>{ep.season.season_number}</td><td><ahref="{ep.urls.view}">{ep.title.replace(" ", "")}</a></td>'
+        in content_with_ws_stripped
+    )
+
+
+def test_conditional_episode_list_view_no_episodes(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_metadata
+):
+    url = tp.reverse(
+        "podcast_analyzer:episode-list", podcast_id=podcast_with_parsed_metadata.id
+    )
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+    content_with_ws_stripped = re.sub(r"\s", "", response.content.decode("utf-8"))
+    assert "<tbody></tbody>" in content_with_ws_stripped
+    assert "No episodes found." in response.content.decode("utf-8")
+
+
+@pytest.mark.parametrize("with_art", [True, False])
+def test_episode_list_art_detection(
+    mute_signals,
+    httpx_mock,
+    client,
+    django_assert_max_num_queries,
+    tp,
+    cover_art,
+    user,
+    podcast_with_parsed_episodes,
+    with_art,
+):
+    if with_art:
+        podcast = podcast_with_parsed_episodes
+        httpx_mock.add_response(
+            url=podcast_with_parsed_episodes.podcast_cover_art_url,
+            content=cover_art,
+            headers=[("Content-Type", "image/jpeg")],
+        )
+        podcast_with_parsed_episodes.podcast_art_cache_update_needed = True
+        podcast_with_parsed_episodes.save()
+        podcast_with_parsed_episodes.fetch_podcast_cover_art()
+        podcast_with_parsed_episodes.refresh_from_db()
+    else:
+        podcast = PodcastFactory()
+        generate_episodes_for_podcast(podcast)
+    url = tp.reverse("podcast_analyzer:episode-list", podcast_id=podcast.id)
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+    print(response.content.decode("utf-8"))
+    if with_art:
+        assert (
+            f'<img src="{podcast.podcast_cached_cover_art.url}" alt="Podcast logo art"'
+            in response.content.decode("utf-8")
+        )
+    else:
+        assert 'alt="Podcast logo art"' not in response.content.decode("utf-8")

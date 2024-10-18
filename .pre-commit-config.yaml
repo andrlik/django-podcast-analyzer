@@ -89,6 +89,12 @@ repos:
         language: system
         files: \.py$
 
+      - id: bandit
+        name: Run bandit safety checks
+        entry: uv run -m bandit -c pyproject.toml -r src
+        language: system
+        files: \.py$
+
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.19.0
     hooks:

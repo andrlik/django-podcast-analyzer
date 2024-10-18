@@ -33,6 +33,26 @@ urlpatterns = [
         view=views.PodcastDetailView.as_view(),
         name="podcast-detail",
     ),
+path(
+        "<uuid:podcast_id>/episodes/",
+        view=views.EpisodeListView.as_view(),
+        name="episode-list",
+    ),
+    path(
+        "<uuid:podcast_id>/episodes/<uuid:id>/",
+        view=views.EpisodeDetailView.as_view(),
+        name="episode-detail",
+    ),
+    path(
+        "<uuid:podcast_id>/episodes/<uuid:id>/edit/",
+        view=views.EpisodeUpdateView.as_view(),
+        name="episode-edit",
+    ),
+    path(
+        "<uuid:podcast_id>/episodes/<uuid:id>/delete/",
+        view=views.EpisodeDeleteView.as_view(),
+        name="episode-delete",
+    ),
     path(
         "<uuid:id>/edit/",
         view=views.PodcastUpdateView.as_view(),

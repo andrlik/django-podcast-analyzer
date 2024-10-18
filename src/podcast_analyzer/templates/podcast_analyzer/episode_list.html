@@ -1,0 +1,67 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% translate "Episodes" %} - {{ podcast.title }} - {% endblock %}
+{% block breadcrumbs %}
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+    <li><a href="{{ podcast.urls.view}}" aria-current="page">{{ podcast.title }}</a> </li>
+    <li class="is-active"><a href="{{ podcast.urls.episodes }}">{% translate "Episodes" %}</a></li>
+  </ul>
+{% endblock %}
+{% block extra_controls %}
+{% endblock %}
+{% block content %}
+  <h1>{{ podcast.title }}</h1>
+  <div>
+    <article>
+      <figure>
+        <p>
+          {% if podcast.podcast_cached_cover_art %}
+            <img src="{{ podcast.podcast_cached_cover_art.url }}" alt="Podcast logo art" height="200" width="200" />
+          {% endif %}
+        </p>
+      </figure>
+      <div>
+        <div>
+          <p>{{ podcast.description|striptags|urlize }}</p>
+        </div>
+      </div>
+    </article>
+  </div>
+  <h2>{% translate "Episodes" %}</h2>
+  {% with has_seasons=podcast.seasons.exists %}
+    <table>
+      <thead>
+        <tr>
+          <td>{% translate "Ep #" %}</td>
+          {% if has_seasons %}<td>{% translate "Season" %}</td>{% endif %}
+          <td>{% translate "Title" %}</td>
+          <td>{% translate "Summary" %}</td>
+          <td>{% translate "Release Date" %}</td>
+          <td>{% translate "Duration" %}</td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for episode in page_obj %}
+          <tr>
+            <td>{{ episode.ep_num }}</td>
+            {% if has_seasons %}
+              <td>{% if episode.season %}{{ episode.season.season_number }}{% endif %}</td>
+            {% endif %}
+            <td><a href="{{ episode.urls.view }}">{{ episode.title }}</a></td>
+            <td>{{ episode.show_notes|truncatewords:10|default_if_none:"N/A" }}</td>
+            <td>{{ episode.release_datetime|date:"F j, Y" }}</td>
+            <td>{{ episode.duration }}</td>
+          </tr>
+        {% empty %}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endwith %}
+  {% if not podcast.episodes.exists %}
+    <p>{% translate "No episodes found." %}</p>
+  {% endif %}
+
+  {% include "podcast_analyzer/includes/pagination.html" %}
+
+{% endblock %}
