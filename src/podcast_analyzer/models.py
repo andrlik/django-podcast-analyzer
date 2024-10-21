@@ -1301,7 +1301,6 @@ class Episode(UUIDTimeStampedModel):
     guests_detected_from_feed = models.ManyToManyField(
         Person, related_name="guest_appearances", blank=True
     )
-    tags = TagField(blank=True)  # type: ignore
     analysis_group = models.ManyToManyField(
         AnalysisGroup, related_name="episodes", blank=True
     )
