@@ -1109,6 +1109,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.models.PodcastAppearanceData" class="md-nav__link">
+    <span class="md-ellipsis">
+      PodcastAppearanceData
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#src.podcast_analyzer.models.Season" class="md-nav__link">
     <span class="md-ellipsis">
       Season
@@ -1935,6 +1944,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.models.PodcastAppearanceData" class="md-nav__link">
+    <span class="md-ellipsis">
+      PodcastAppearanceData
+    </span>
+  </a>
   
 </li>
       
@@ -3385,18 +3403,7 @@ and return a bool indicating if a record was touched.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1429">1429</a></span>
-<span class="normal"><a href="#__codelineno-0-1430">1430</a></span>
-<span class="normal"><a href="#__codelineno-0-1431">1431</a></span>
-<span class="normal"><a href="#__codelineno-0-1432">1432</a></span>
-<span class="normal"><a href="#__codelineno-0-1433">1433</a></span>
-<span class="normal"><a href="#__codelineno-0-1434">1434</a></span>
-<span class="normal"><a href="#__codelineno-0-1435">1435</a></span>
-<span class="normal"><a href="#__codelineno-0-1436">1436</a></span>
-<span class="normal"><a href="#__codelineno-0-1437">1437</a></span>
-<span class="normal"><a href="#__codelineno-0-1438">1438</a></span>
-<span class="normal"><a href="#__codelineno-0-1439">1439</a></span>
-<span class="normal"><a href="#__codelineno-0-1440">1440</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1440">1440</a></span>
 <span class="normal"><a href="#__codelineno-0-1441">1441</a></span>
 <span class="normal"><a href="#__codelineno-0-1442">1442</a></span>
 <span class="normal"><a href="#__codelineno-0-1443">1443</a></span>
@@ -3462,84 +3469,95 @@ and return a bool indicating if a record was touched.</p>
 <span class="normal"><a href="#__codelineno-0-1503">1503</a></span>
 <span class="normal"><a href="#__codelineno-0-1504">1504</a></span>
 <span class="normal"><a href="#__codelineno-0-1505">1505</a></span>
-<span class="normal"><a href="#__codelineno-0-1506">1506</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1429" name="__codelineno-0-1429"></a><span class="nd">@classmethod</span>
-<a id="__codelineno-0-1430" name="__codelineno-0-1430"></a><span class="k">def</span> <span class="nf">create_or_update_episode_from_feed</span><span class="p">(</span>
-<a id="__codelineno-0-1431" name="__codelineno-0-1431"></a>    <span class="bp">cls</span><span class="p">,</span>
-<a id="__codelineno-0-1432" name="__codelineno-0-1432"></a>    <span class="n">podcast</span><span class="p">:</span> <span class="n">Podcast</span><span class="p">,</span>
-<a id="__codelineno-0-1433" name="__codelineno-0-1433"></a>    <span class="n">episode_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-<a id="__codelineno-0-1434" name="__codelineno-0-1434"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-1435" name="__codelineno-0-1435"></a>    <span class="n">update_existing_episodes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-1436" name="__codelineno-0-1436"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<a id="__codelineno-0-1437" name="__codelineno-0-1437"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1438" name="__codelineno-0-1438"></a><span class="sd">    Given a dict of episode data from podcastparser, create or update the episode</span>
-<a id="__codelineno-0-1439" name="__codelineno-0-1439"></a><span class="sd">    and return a bool indicating if a record was touched.</span>
-<a id="__codelineno-0-1440" name="__codelineno-0-1440"></a>
-<a id="__codelineno-0-1441" name="__codelineno-0-1441"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-1442" name="__codelineno-0-1442"></a><span class="sd">        podcast (Podcast): The instance of the podcast being updated.</span>
-<a id="__codelineno-0-1443" name="__codelineno-0-1443"></a><span class="sd">        episode_dict (dict[str, Any]): A dict representing the episode as created by `podcastparser`.</span>
-<a id="__codelineno-0-1444" name="__codelineno-0-1444"></a><span class="sd">        update_existing_episodes (bool): Update data in existing records? Default: False</span>
-<a id="__codelineno-0-1445" name="__codelineno-0-1445"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-1446" name="__codelineno-0-1446"></a><span class="sd">        True or False if a record was created or updated.</span>
-<a id="__codelineno-0-1447" name="__codelineno-0-1447"></a><span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
-<a id="__codelineno-0-1448" name="__codelineno-0-1448"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enclosures&quot;</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-1449" name="__codelineno-0-1449"></a>        <span class="k">return</span> <span class="kc">False</span>
-<a id="__codelineno-0-1450" name="__codelineno-0-1450"></a>    <span class="n">ep</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
-<a id="__codelineno-0-1451" name="__codelineno-0-1451"></a>        <span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="n">episode_dict</span><span class="p">[</span><span class="s2">&quot;guid&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-1452" name="__codelineno-0-1452"></a>    <span class="p">)</span>
-<a id="__codelineno-0-1453" name="__codelineno-0-1453"></a>    <span class="k">if</span> <span class="n">update_existing_episodes</span> <span class="ow">or</span> <span class="n">created</span><span class="p">:</span>
-<a id="__codelineno-0-1454" name="__codelineno-0-1454"></a>        <span class="n">description</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1455" name="__codelineno-0-1455"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-1456" name="__codelineno-0-1456"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">itunes_explicit</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;explicit&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-0-1457" name="__codelineno-0-1457"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">ep_type</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1458" name="__codelineno-0-1458"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">show_notes</span> <span class="o">=</span> <span class="n">description</span>
-<a id="__codelineno-0-1459" name="__codelineno-0-1459"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">episode_url</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;link&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-0-1460" name="__codelineno-0-1460"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">release_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
-<a id="__codelineno-0-1461" name="__codelineno-0-1461"></a>            <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;published&quot;</span><span class="p">,</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()),</span>
-<a id="__codelineno-0-1462" name="__codelineno-0-1462"></a>            <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">get_fixed_timezone</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-<a id="__codelineno-0-1463" name="__codelineno-0-1463"></a>        <span class="p">)</span>
-<a id="__codelineno-0-1464" name="__codelineno-0-1464"></a>        <span class="n">enclosure</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="p">[</span><span class="s2">&quot;enclosures&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-<a id="__codelineno-0-1465" name="__codelineno-0-1465"></a>        <span class="k">if</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;file_size&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-1466" name="__codelineno-0-1466"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">file_size</span> <span class="o">=</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;file_size&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-1467" name="__codelineno-0-1467"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">mime_type</span> <span class="o">=</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;mime_type&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-1468" name="__codelineno-0-1468"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">download_url</span> <span class="o">=</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-1469" name="__codelineno-0-1469"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">ep_num</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-0-1470" name="__codelineno-0-1470"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">itunes_duration</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-0-1471" name="__codelineno-0-1471"></a>        <span class="n">season</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;season&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-0-1472" name="__codelineno-0-1472"></a>        <span class="k">if</span> <span class="n">season</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-1473" name="__codelineno-0-1473"></a>            <span class="n">season</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Season</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
-<a id="__codelineno-0-1474" name="__codelineno-0-1474"></a>                <span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">,</span> <span class="n">season_number</span><span class="o">=</span><span class="n">season</span>
-<a id="__codelineno-0-1475" name="__codelineno-0-1475"></a>            <span class="p">)</span>
-<a id="__codelineno-0-1476" name="__codelineno-0-1476"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">season</span> <span class="o">=</span> <span class="n">season</span>
-<a id="__codelineno-0-1477" name="__codelineno-0-1477"></a>        <span class="k">if</span> <span class="p">(</span>
-<a id="__codelineno-0-1478" name="__codelineno-0-1478"></a>            <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transcript_url&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<a id="__codelineno-0-1479" name="__codelineno-0-1479"></a>            <span class="ow">or</span> <span class="s2">&quot;transcript&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-<a id="__codelineno-0-1480" name="__codelineno-0-1480"></a>        <span class="p">):</span>
-<a id="__codelineno-0-1481" name="__codelineno-0-1481"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">transcript_detected</span> <span class="o">=</span> <span class="kc">True</span>
-<a id="__codelineno-0-1482" name="__codelineno-0-1482"></a>        <span class="k">if</span> <span class="p">(</span>
-<a id="__codelineno-0-1483" name="__codelineno-0-1483"></a>            <span class="s2">&quot;CW&quot;</span> <span class="ow">in</span> <span class="n">description</span>
-<a id="__codelineno-0-1484" name="__codelineno-0-1484"></a>            <span class="ow">or</span> <span class="s2">&quot;content warning&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-<a id="__codelineno-0-1485" name="__codelineno-0-1485"></a>            <span class="ow">or</span> <span class="s2">&quot;trigger warning&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-<a id="__codelineno-0-1486" name="__codelineno-0-1486"></a>            <span class="ow">or</span> <span class="s2">&quot;content note&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-<a id="__codelineno-0-1487" name="__codelineno-0-1487"></a>        <span class="p">):</span>
-<a id="__codelineno-0-1488" name="__codelineno-0-1488"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">cw_present</span> <span class="o">=</span> <span class="kc">True</span>
-<a id="__codelineno-0-1489" name="__codelineno-0-1489"></a>        <span class="n">people</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span> <span class="p">[])</span>
-<a id="__codelineno-0-1490" name="__codelineno-0-1490"></a>        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
-<a id="__codelineno-0-1491" name="__codelineno-0-1491"></a>            <span class="n">role</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1492" name="__codelineno-0-1492"></a>            <span class="k">if</span> <span class="n">role</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;guest&quot;</span><span class="p">):</span>
-<a id="__codelineno-0-1493" name="__codelineno-0-1493"></a>                <span class="n">persona</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
-<a id="__codelineno-0-1494" name="__codelineno-0-1494"></a>                    <span class="n">name</span><span class="o">=</span><span class="n">person</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">url</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-0-1495" name="__codelineno-0-1495"></a>                <span class="p">)</span>
-<a id="__codelineno-0-1496" name="__codelineno-0-1496"></a>                <span class="n">img</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-0-1497" name="__codelineno-0-1497"></a>                <span class="k">if</span> <span class="n">persona</span><span class="o">.</span><span class="n">img_url</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-1498" name="__codelineno-0-1498"></a>                    <span class="n">persona</span><span class="o">.</span><span class="n">img_url</span> <span class="o">=</span> <span class="n">img</span>
-<a id="__codelineno-0-1499" name="__codelineno-0-1499"></a>                    <span class="n">persona</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-<a id="__codelineno-0-1500" name="__codelineno-0-1500"></a>                <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s2">&quot;guest&quot;</span><span class="p">:</span>
-<a id="__codelineno-0-1501" name="__codelineno-0-1501"></a>                    <span class="n">ep</span><span class="o">.</span><span class="n">guests_detected_from_feed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
-<a id="__codelineno-0-1502" name="__codelineno-0-1502"></a>                <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-1503" name="__codelineno-0-1503"></a>                    <span class="n">ep</span><span class="o">.</span><span class="n">hosts_detected_from_feed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
-<a id="__codelineno-0-1504" name="__codelineno-0-1504"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-<a id="__codelineno-0-1505" name="__codelineno-0-1505"></a>        <span class="k">return</span> <span class="kc">True</span>
-<a id="__codelineno-0-1506" name="__codelineno-0-1506"></a>    <span class="k">return</span> <span class="kc">False</span>
+<span class="normal"><a href="#__codelineno-0-1506">1506</a></span>
+<span class="normal"><a href="#__codelineno-0-1507">1507</a></span>
+<span class="normal"><a href="#__codelineno-0-1508">1508</a></span>
+<span class="normal"><a href="#__codelineno-0-1509">1509</a></span>
+<span class="normal"><a href="#__codelineno-0-1510">1510</a></span>
+<span class="normal"><a href="#__codelineno-0-1511">1511</a></span>
+<span class="normal"><a href="#__codelineno-0-1512">1512</a></span>
+<span class="normal"><a href="#__codelineno-0-1513">1513</a></span>
+<span class="normal"><a href="#__codelineno-0-1514">1514</a></span>
+<span class="normal"><a href="#__codelineno-0-1515">1515</a></span>
+<span class="normal"><a href="#__codelineno-0-1516">1516</a></span>
+<span class="normal"><a href="#__codelineno-0-1517">1517</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1440" name="__codelineno-0-1440"></a><span class="nd">@classmethod</span>
+<a id="__codelineno-0-1441" name="__codelineno-0-1441"></a><span class="k">def</span> <span class="nf">create_or_update_episode_from_feed</span><span class="p">(</span>
+<a id="__codelineno-0-1442" name="__codelineno-0-1442"></a>    <span class="bp">cls</span><span class="p">,</span>
+<a id="__codelineno-0-1443" name="__codelineno-0-1443"></a>    <span class="n">podcast</span><span class="p">:</span> <span class="n">Podcast</span><span class="p">,</span>
+<a id="__codelineno-0-1444" name="__codelineno-0-1444"></a>    <span class="n">episode_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<a id="__codelineno-0-1445" name="__codelineno-0-1445"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-1446" name="__codelineno-0-1446"></a>    <span class="n">update_existing_episodes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-1447" name="__codelineno-0-1447"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-0-1448" name="__codelineno-0-1448"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1449" name="__codelineno-0-1449"></a><span class="sd">    Given a dict of episode data from podcastparser, create or update the episode</span>
+<a id="__codelineno-0-1450" name="__codelineno-0-1450"></a><span class="sd">    and return a bool indicating if a record was touched.</span>
+<a id="__codelineno-0-1451" name="__codelineno-0-1451"></a>
+<a id="__codelineno-0-1452" name="__codelineno-0-1452"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-1453" name="__codelineno-0-1453"></a><span class="sd">        podcast (Podcast): The instance of the podcast being updated.</span>
+<a id="__codelineno-0-1454" name="__codelineno-0-1454"></a><span class="sd">        episode_dict (dict[str, Any]): A dict representing the episode as created by `podcastparser`.</span>
+<a id="__codelineno-0-1455" name="__codelineno-0-1455"></a><span class="sd">        update_existing_episodes (bool): Update data in existing records? Default: False</span>
+<a id="__codelineno-0-1456" name="__codelineno-0-1456"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-1457" name="__codelineno-0-1457"></a><span class="sd">        True or False if a record was created or updated.</span>
+<a id="__codelineno-0-1458" name="__codelineno-0-1458"></a><span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+<a id="__codelineno-0-1459" name="__codelineno-0-1459"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enclosures&quot;</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-1460" name="__codelineno-0-1460"></a>        <span class="k">return</span> <span class="kc">False</span>
+<a id="__codelineno-0-1461" name="__codelineno-0-1461"></a>    <span class="n">ep</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+<a id="__codelineno-0-1462" name="__codelineno-0-1462"></a>        <span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="n">episode_dict</span><span class="p">[</span><span class="s2">&quot;guid&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-1463" name="__codelineno-0-1463"></a>    <span class="p">)</span>
+<a id="__codelineno-0-1464" name="__codelineno-0-1464"></a>    <span class="k">if</span> <span class="n">update_existing_episodes</span> <span class="ow">or</span> <span class="n">created</span><span class="p">:</span>
+<a id="__codelineno-0-1465" name="__codelineno-0-1465"></a>        <span class="n">description</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1466" name="__codelineno-0-1466"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-1467" name="__codelineno-0-1467"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">itunes_explicit</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;explicit&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-0-1468" name="__codelineno-0-1468"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">ep_type</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1469" name="__codelineno-0-1469"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">show_notes</span> <span class="o">=</span> <span class="n">description</span>
+<a id="__codelineno-0-1470" name="__codelineno-0-1470"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">episode_url</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;link&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-1471" name="__codelineno-0-1471"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">release_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
+<a id="__codelineno-0-1472" name="__codelineno-0-1472"></a>            <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;published&quot;</span><span class="p">,</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()),</span>
+<a id="__codelineno-0-1473" name="__codelineno-0-1473"></a>            <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">get_fixed_timezone</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<a id="__codelineno-0-1474" name="__codelineno-0-1474"></a>        <span class="p">)</span>
+<a id="__codelineno-0-1475" name="__codelineno-0-1475"></a>        <span class="n">enclosure</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="p">[</span><span class="s2">&quot;enclosures&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-0-1476" name="__codelineno-0-1476"></a>        <span class="k">if</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;file_size&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-1477" name="__codelineno-0-1477"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">file_size</span> <span class="o">=</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;file_size&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-1478" name="__codelineno-0-1478"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">mime_type</span> <span class="o">=</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;mime_type&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-1479" name="__codelineno-0-1479"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">download_url</span> <span class="o">=</span> <span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-1480" name="__codelineno-0-1480"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">ep_num</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-1481" name="__codelineno-0-1481"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">itunes_duration</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-1482" name="__codelineno-0-1482"></a>        <span class="n">season</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;season&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-1483" name="__codelineno-0-1483"></a>        <span class="k">if</span> <span class="n">season</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-1484" name="__codelineno-0-1484"></a>            <span class="n">season</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Season</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+<a id="__codelineno-0-1485" name="__codelineno-0-1485"></a>                <span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">,</span> <span class="n">season_number</span><span class="o">=</span><span class="n">season</span>
+<a id="__codelineno-0-1486" name="__codelineno-0-1486"></a>            <span class="p">)</span>
+<a id="__codelineno-0-1487" name="__codelineno-0-1487"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">season</span> <span class="o">=</span> <span class="n">season</span>
+<a id="__codelineno-0-1488" name="__codelineno-0-1488"></a>        <span class="k">if</span> <span class="p">(</span>
+<a id="__codelineno-0-1489" name="__codelineno-0-1489"></a>            <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transcript_url&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-0-1490" name="__codelineno-0-1490"></a>            <span class="ow">or</span> <span class="s2">&quot;transcript&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-0-1491" name="__codelineno-0-1491"></a>        <span class="p">):</span>
+<a id="__codelineno-0-1492" name="__codelineno-0-1492"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">transcript_detected</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-1493" name="__codelineno-0-1493"></a>        <span class="k">if</span> <span class="p">(</span>
+<a id="__codelineno-0-1494" name="__codelineno-0-1494"></a>            <span class="s2">&quot;CW&quot;</span> <span class="ow">in</span> <span class="n">description</span>
+<a id="__codelineno-0-1495" name="__codelineno-0-1495"></a>            <span class="ow">or</span> <span class="s2">&quot;content warning&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-0-1496" name="__codelineno-0-1496"></a>            <span class="ow">or</span> <span class="s2">&quot;trigger warning&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-0-1497" name="__codelineno-0-1497"></a>            <span class="ow">or</span> <span class="s2">&quot;content note&quot;</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-0-1498" name="__codelineno-0-1498"></a>        <span class="p">):</span>
+<a id="__codelineno-0-1499" name="__codelineno-0-1499"></a>            <span class="n">ep</span><span class="o">.</span><span class="n">cw_present</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-1500" name="__codelineno-0-1500"></a>        <span class="n">people</span> <span class="o">=</span> <span class="n">episode_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span> <span class="p">[])</span>
+<a id="__codelineno-0-1501" name="__codelineno-0-1501"></a>        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+<a id="__codelineno-0-1502" name="__codelineno-0-1502"></a>            <span class="n">role</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1503" name="__codelineno-0-1503"></a>            <span class="k">if</span> <span class="n">role</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;guest&quot;</span><span class="p">):</span>
+<a id="__codelineno-0-1504" name="__codelineno-0-1504"></a>                <span class="n">persona</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+<a id="__codelineno-0-1505" name="__codelineno-0-1505"></a>                    <span class="n">name</span><span class="o">=</span><span class="n">person</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">url</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-1506" name="__codelineno-0-1506"></a>                <span class="p">)</span>
+<a id="__codelineno-0-1507" name="__codelineno-0-1507"></a>                <span class="n">img</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-1508" name="__codelineno-0-1508"></a>                <span class="k">if</span> <span class="n">persona</span><span class="o">.</span><span class="n">img_url</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-1509" name="__codelineno-0-1509"></a>                    <span class="n">persona</span><span class="o">.</span><span class="n">img_url</span> <span class="o">=</span> <span class="n">img</span>
+<a id="__codelineno-0-1510" name="__codelineno-0-1510"></a>                    <span class="n">persona</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<a id="__codelineno-0-1511" name="__codelineno-0-1511"></a>                <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s2">&quot;guest&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-1512" name="__codelineno-0-1512"></a>                    <span class="n">ep</span><span class="o">.</span><span class="n">guests_detected_from_feed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
+<a id="__codelineno-0-1513" name="__codelineno-0-1513"></a>                <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-1514" name="__codelineno-0-1514"></a>                    <span class="n">ep</span><span class="o">.</span><span class="n">hosts_detected_from_feed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
+<a id="__codelineno-0-1515" name="__codelineno-0-1515"></a>        <span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<a id="__codelineno-0-1516" name="__codelineno-0-1516"></a>        <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-0-1517" name="__codelineno-0-1517"></a>    <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3563,15 +3581,15 @@ and return a bool indicating if a record was touched.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1423">1423</a></span>
-<span class="normal"><a href="#__codelineno-0-1424">1424</a></span>
-<span class="normal"><a href="#__codelineno-0-1425">1425</a></span>
-<span class="normal"><a href="#__codelineno-0-1426">1426</a></span>
-<span class="normal"><a href="#__codelineno-0-1427">1427</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1423" name="__codelineno-0-1423"></a><span class="k">def</span> <span class="nf">get_file_size_in_mb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<a id="__codelineno-0-1424" name="__codelineno-0-1424"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the size of the file in bytes to MB.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1425" name="__codelineno-0-1425"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_size</span><span class="p">:</span>
-<a id="__codelineno-0-1426" name="__codelineno-0-1426"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_size</span> <span class="o">/</span> <span class="mi">1048597</span>
-<a id="__codelineno-0-1427" name="__codelineno-0-1427"></a>    <span class="k">return</span> <span class="mf">0.0</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1434">1434</a></span>
+<span class="normal"><a href="#__codelineno-0-1435">1435</a></span>
+<span class="normal"><a href="#__codelineno-0-1436">1436</a></span>
+<span class="normal"><a href="#__codelineno-0-1437">1437</a></span>
+<span class="normal"><a href="#__codelineno-0-1438">1438</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1434" name="__codelineno-0-1434"></a><span class="k">def</span> <span class="nf">get_file_size_in_mb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-0-1435" name="__codelineno-0-1435"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the size of the file in bytes to MB.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1436" name="__codelineno-0-1436"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_size</span><span class="p">:</span>
+<a id="__codelineno-0-1437" name="__codelineno-0-1437"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_size</span> <span class="o">/</span> <span class="mi">1048597</span>
+<a id="__codelineno-0-1438" name="__codelineno-0-1438"></a>    <span class="k">return</span> <span class="mf">0.0</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3747,7 +3765,8 @@ Duplicates are possible if data is tracked lazily.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Episodes this person has a guest appearance.</p>
+                <p>Episodes this person has a
+guest appearance.</p>
               </div>
             </td>
           </tr>
@@ -3789,17 +3808,17 @@ Duplicates are possible if data is tracked lazily.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1266">1266</a></span>
-<span class="normal"><a href="#__codelineno-0-1267">1267</a></span>
-<span class="normal"><a href="#__codelineno-0-1268">1268</a></span>
-<span class="normal"><a href="#__codelineno-0-1269">1269</a></span>
-<span class="normal"><a href="#__codelineno-0-1270">1270</a></span>
-<span class="normal"><a href="#__codelineno-0-1271">1271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1266" name="__codelineno-0-1266"></a><span class="nd">@cached_property</span>
-<a id="__codelineno-0-1267" name="__codelineno-0-1267"></a><span class="k">def</span> <span class="nf">distinct_podcasts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-1268" name="__codelineno-0-1268"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1269" name="__codelineno-0-1269"></a><span class="sd">    Get a count of the number of unique podcasts this person has appeared on.</span>
-<a id="__codelineno-0-1270" name="__codelineno-0-1270"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-1271" name="__codelineno-0-1271"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distinct_podcasts</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1277">1277</a></span>
+<span class="normal"><a href="#__codelineno-0-1278">1278</a></span>
+<span class="normal"><a href="#__codelineno-0-1279">1279</a></span>
+<span class="normal"><a href="#__codelineno-0-1280">1280</a></span>
+<span class="normal"><a href="#__codelineno-0-1281">1281</a></span>
+<span class="normal"><a href="#__codelineno-0-1282">1282</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1277" name="__codelineno-0-1277"></a><span class="nd">@cached_property</span>
+<a id="__codelineno-0-1278" name="__codelineno-0-1278"></a><span class="k">def</span> <span class="nf">distinct_podcasts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-0-1279" name="__codelineno-0-1279"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1280" name="__codelineno-0-1280"></a><span class="sd">    Get a count of the number of unique podcasts this person has appeared on.</span>
+<a id="__codelineno-0-1281" name="__codelineno-0-1281"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-1282" name="__codelineno-0-1282"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distinct_podcasts</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3823,18 +3842,7 @@ Duplicates are possible if data is tracked lazily.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1220">1220</a></span>
-<span class="normal"><a href="#__codelineno-0-1221">1221</a></span>
-<span class="normal"><a href="#__codelineno-0-1222">1222</a></span>
-<span class="normal"><a href="#__codelineno-0-1223">1223</a></span>
-<span class="normal"><a href="#__codelineno-0-1224">1224</a></span>
-<span class="normal"><a href="#__codelineno-0-1225">1225</a></span>
-<span class="normal"><a href="#__codelineno-0-1226">1226</a></span>
-<span class="normal"><a href="#__codelineno-0-1227">1227</a></span>
-<span class="normal"><a href="#__codelineno-0-1228">1228</a></span>
-<span class="normal"><a href="#__codelineno-0-1229">1229</a></span>
-<span class="normal"><a href="#__codelineno-0-1230">1230</a></span>
-<span class="normal"><a href="#__codelineno-0-1231">1231</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1231">1231</a></span>
 <span class="normal"><a href="#__codelineno-0-1232">1232</a></span>
 <span class="normal"><a href="#__codelineno-0-1233">1233</a></span>
 <span class="normal"><a href="#__codelineno-0-1234">1234</a></span>
@@ -3851,35 +3859,46 @@ Duplicates are possible if data is tracked lazily.</p>
 <span class="normal"><a href="#__codelineno-0-1245">1245</a></span>
 <span class="normal"><a href="#__codelineno-0-1246">1246</a></span>
 <span class="normal"><a href="#__codelineno-0-1247">1247</a></span>
-<span class="normal"><a href="#__codelineno-0-1248">1248</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1220" name="__codelineno-0-1220"></a><span class="k">def</span> <span class="nf">get_distinct_podcasts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-0-1221" name="__codelineno-0-1221"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1222" name="__codelineno-0-1222"></a><span class="sd">    Return a queryset of the distinct podcasts this person has appeared in.</span>
-<a id="__codelineno-0-1223" name="__codelineno-0-1223"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-1224" name="__codelineno-0-1224"></a>    <span class="n">hosted_podcasts</span> <span class="o">=</span> <span class="n">Podcast</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-<a id="__codelineno-0-1225" name="__codelineno-0-1225"></a>        <span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
-<a id="__codelineno-0-1226" name="__codelineno-0-1226"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-<a id="__codelineno-0-1227" name="__codelineno-0-1227"></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;podcast__id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-1228" name="__codelineno-0-1228"></a>            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
-<a id="__codelineno-0-1229" name="__codelineno-0-1229"></a>        <span class="p">)</span>
-<a id="__codelineno-0-1230" name="__codelineno-0-1230"></a>    <span class="p">)</span>
-<a id="__codelineno-0-1231" name="__codelineno-0-1231"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">hosted_podcasts</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique hosted podcasts...&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1232" name="__codelineno-0-1232"></a>    <span class="n">guested_podcasts</span> <span class="o">=</span> <span class="n">Podcast</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-<a id="__codelineno-0-1233" name="__codelineno-0-1233"></a>        <span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
-<a id="__codelineno-0-1234" name="__codelineno-0-1234"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-<a id="__codelineno-0-1235" name="__codelineno-0-1235"></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;podcast__id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-1236" name="__codelineno-0-1236"></a>            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
-<a id="__codelineno-0-1237" name="__codelineno-0-1237"></a>        <span class="p">)</span>
-<a id="__codelineno-0-1238" name="__codelineno-0-1238"></a>    <span class="p">)</span>
-<a id="__codelineno-0-1239" name="__codelineno-0-1239"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">guested_podcasts</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique guest podcasts...&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1240" name="__codelineno-0-1240"></a>    <span class="n">combined_podcast_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-<a id="__codelineno-0-1241" name="__codelineno-0-1241"></a>        <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">hosted_podcasts</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">guested_podcasts</span><span class="p">]</span>
-<a id="__codelineno-0-1242" name="__codelineno-0-1242"></a>    <span class="p">)</span>
-<a id="__codelineno-0-1243" name="__codelineno-0-1243"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">combined_podcast_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique podcasts ids...&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1244" name="__codelineno-0-1244"></a>    <span class="n">combined_podcasts</span> <span class="o">=</span> <span class="n">Podcast</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-<a id="__codelineno-0-1245" name="__codelineno-0-1245"></a>        <span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">combined_podcast_ids</span><span class="p">)</span>
-<a id="__codelineno-0-1246" name="__codelineno-0-1246"></a>    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1247" name="__codelineno-0-1247"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">combined_podcasts</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique podcasts...&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1248" name="__codelineno-0-1248"></a>    <span class="k">return</span> <span class="n">combined_podcasts</span>
+<span class="normal"><a href="#__codelineno-0-1248">1248</a></span>
+<span class="normal"><a href="#__codelineno-0-1249">1249</a></span>
+<span class="normal"><a href="#__codelineno-0-1250">1250</a></span>
+<span class="normal"><a href="#__codelineno-0-1251">1251</a></span>
+<span class="normal"><a href="#__codelineno-0-1252">1252</a></span>
+<span class="normal"><a href="#__codelineno-0-1253">1253</a></span>
+<span class="normal"><a href="#__codelineno-0-1254">1254</a></span>
+<span class="normal"><a href="#__codelineno-0-1255">1255</a></span>
+<span class="normal"><a href="#__codelineno-0-1256">1256</a></span>
+<span class="normal"><a href="#__codelineno-0-1257">1257</a></span>
+<span class="normal"><a href="#__codelineno-0-1258">1258</a></span>
+<span class="normal"><a href="#__codelineno-0-1259">1259</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1231" name="__codelineno-0-1231"></a><span class="k">def</span> <span class="nf">get_distinct_podcasts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-1232" name="__codelineno-0-1232"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1233" name="__codelineno-0-1233"></a><span class="sd">    Return a queryset of the distinct podcasts this person has appeared in.</span>
+<a id="__codelineno-0-1234" name="__codelineno-0-1234"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-1235" name="__codelineno-0-1235"></a>    <span class="n">hosted_podcasts</span> <span class="o">=</span> <span class="n">Podcast</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<a id="__codelineno-0-1236" name="__codelineno-0-1236"></a>        <span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+<a id="__codelineno-0-1237" name="__codelineno-0-1237"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-0-1238" name="__codelineno-0-1238"></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;podcast__id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-1239" name="__codelineno-0-1239"></a>            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<a id="__codelineno-0-1240" name="__codelineno-0-1240"></a>        <span class="p">)</span>
+<a id="__codelineno-0-1241" name="__codelineno-0-1241"></a>    <span class="p">)</span>
+<a id="__codelineno-0-1242" name="__codelineno-0-1242"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">hosted_podcasts</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique hosted podcasts...&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1243" name="__codelineno-0-1243"></a>    <span class="n">guested_podcasts</span> <span class="o">=</span> <span class="n">Podcast</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<a id="__codelineno-0-1244" name="__codelineno-0-1244"></a>        <span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+<a id="__codelineno-0-1245" name="__codelineno-0-1245"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-0-1246" name="__codelineno-0-1246"></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;podcast__id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-1247" name="__codelineno-0-1247"></a>            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<a id="__codelineno-0-1248" name="__codelineno-0-1248"></a>        <span class="p">)</span>
+<a id="__codelineno-0-1249" name="__codelineno-0-1249"></a>    <span class="p">)</span>
+<a id="__codelineno-0-1250" name="__codelineno-0-1250"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">guested_podcasts</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique guest podcasts...&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1251" name="__codelineno-0-1251"></a>    <span class="n">combined_podcast_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+<a id="__codelineno-0-1252" name="__codelineno-0-1252"></a>        <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">hosted_podcasts</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">guested_podcasts</span><span class="p">]</span>
+<a id="__codelineno-0-1253" name="__codelineno-0-1253"></a>    <span class="p">)</span>
+<a id="__codelineno-0-1254" name="__codelineno-0-1254"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">combined_podcast_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique podcasts ids...&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1255" name="__codelineno-0-1255"></a>    <span class="n">combined_podcasts</span> <span class="o">=</span> <span class="n">Podcast</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<a id="__codelineno-0-1256" name="__codelineno-0-1256"></a>        <span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">combined_podcast_ids</span><span class="p">)</span>
+<a id="__codelineno-0-1257" name="__codelineno-0-1257"></a>    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1258" name="__codelineno-0-1258"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">combined_podcasts</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique podcasts...&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1259" name="__codelineno-0-1259"></a>    <span class="k">return</span> <span class="n">combined_podcasts</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3905,35 +3924,35 @@ Duplicates are possible if data is tracked lazily.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1250">1250</a></span>
-<span class="normal"><a href="#__codelineno-0-1251">1251</a></span>
-<span class="normal"><a href="#__codelineno-0-1252">1252</a></span>
-<span class="normal"><a href="#__codelineno-0-1253">1253</a></span>
-<span class="normal"><a href="#__codelineno-0-1254">1254</a></span>
-<span class="normal"><a href="#__codelineno-0-1255">1255</a></span>
-<span class="normal"><a href="#__codelineno-0-1256">1256</a></span>
-<span class="normal"><a href="#__codelineno-0-1257">1257</a></span>
-<span class="normal"><a href="#__codelineno-0-1258">1258</a></span>
-<span class="normal"><a href="#__codelineno-0-1259">1259</a></span>
-<span class="normal"><a href="#__codelineno-0-1260">1260</a></span>
-<span class="normal"><a href="#__codelineno-0-1261">1261</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1261">1261</a></span>
 <span class="normal"><a href="#__codelineno-0-1262">1262</a></span>
 <span class="normal"><a href="#__codelineno-0-1263">1263</a></span>
-<span class="normal"><a href="#__codelineno-0-1264">1264</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1250" name="__codelineno-0-1250"></a><span class="k">def</span> <span class="nf">get_podcasts_with_appearance_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PodcastAppearanceData</span><span class="p">]:</span>
-<a id="__codelineno-0-1251" name="__codelineno-0-1251"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1252" name="__codelineno-0-1252"></a><span class="sd">    Provide podcast appearance data for each distinct podcast they have appeared on.</span>
-<a id="__codelineno-0-1253" name="__codelineno-0-1253"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-1254" name="__codelineno-0-1254"></a>    <span class="n">podcasts</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-0-1255" name="__codelineno-0-1255"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-<a id="__codelineno-0-1256" name="__codelineno-0-1256"></a>        <span class="k">for</span> <span class="n">podcast</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distinct_podcasts</span><span class="p">():</span>
-<a id="__codelineno-0-1257" name="__codelineno-0-1257"></a>            <span class="n">podcasts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-<a id="__codelineno-0-1258" name="__codelineno-0-1258"></a>                <span class="n">PodcastAppearanceData</span><span class="p">(</span>
-<a id="__codelineno-0-1259" name="__codelineno-0-1259"></a>                    <span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">,</span>
-<a id="__codelineno-0-1260" name="__codelineno-0-1260"></a>                    <span class="n">hosted_episodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">),</span>
-<a id="__codelineno-0-1261" name="__codelineno-0-1261"></a>                    <span class="n">guested_episodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">),</span>
-<a id="__codelineno-0-1262" name="__codelineno-0-1262"></a>                <span class="p">)</span>
-<a id="__codelineno-0-1263" name="__codelineno-0-1263"></a>            <span class="p">)</span>
-<a id="__codelineno-0-1264" name="__codelineno-0-1264"></a>    <span class="k">return</span> <span class="n">podcasts</span>
+<span class="normal"><a href="#__codelineno-0-1264">1264</a></span>
+<span class="normal"><a href="#__codelineno-0-1265">1265</a></span>
+<span class="normal"><a href="#__codelineno-0-1266">1266</a></span>
+<span class="normal"><a href="#__codelineno-0-1267">1267</a></span>
+<span class="normal"><a href="#__codelineno-0-1268">1268</a></span>
+<span class="normal"><a href="#__codelineno-0-1269">1269</a></span>
+<span class="normal"><a href="#__codelineno-0-1270">1270</a></span>
+<span class="normal"><a href="#__codelineno-0-1271">1271</a></span>
+<span class="normal"><a href="#__codelineno-0-1272">1272</a></span>
+<span class="normal"><a href="#__codelineno-0-1273">1273</a></span>
+<span class="normal"><a href="#__codelineno-0-1274">1274</a></span>
+<span class="normal"><a href="#__codelineno-0-1275">1275</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1261" name="__codelineno-0-1261"></a><span class="k">def</span> <span class="nf">get_podcasts_with_appearance_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PodcastAppearanceData</span><span class="p">]:</span>
+<a id="__codelineno-0-1262" name="__codelineno-0-1262"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1263" name="__codelineno-0-1263"></a><span class="sd">    Provide podcast appearance data for each distinct podcast they have appeared on.</span>
+<a id="__codelineno-0-1264" name="__codelineno-0-1264"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-1265" name="__codelineno-0-1265"></a>    <span class="n">podcasts</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-1266" name="__codelineno-0-1266"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+<a id="__codelineno-0-1267" name="__codelineno-0-1267"></a>        <span class="k">for</span> <span class="n">podcast</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distinct_podcasts</span><span class="p">():</span>
+<a id="__codelineno-0-1268" name="__codelineno-0-1268"></a>            <span class="n">podcasts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<a id="__codelineno-0-1269" name="__codelineno-0-1269"></a>                <span class="n">PodcastAppearanceData</span><span class="p">(</span>
+<a id="__codelineno-0-1270" name="__codelineno-0-1270"></a>                    <span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">,</span>
+<a id="__codelineno-0-1271" name="__codelineno-0-1271"></a>                    <span class="n">hosted_episodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">),</span>
+<a id="__codelineno-0-1272" name="__codelineno-0-1272"></a>                    <span class="n">guested_episodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">podcast</span><span class="o">=</span><span class="n">podcast</span><span class="p">),</span>
+<a id="__codelineno-0-1273" name="__codelineno-0-1273"></a>                <span class="p">)</span>
+<a id="__codelineno-0-1274" name="__codelineno-0-1274"></a>            <span class="p">)</span>
+<a id="__codelineno-0-1275" name="__codelineno-0-1275"></a>    <span class="k">return</span> <span class="n">podcasts</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3957,11 +3976,11 @@ Duplicates are possible if data is tracked lazily.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1216">1216</a></span>
-<span class="normal"><a href="#__codelineno-0-1217">1217</a></span>
-<span class="normal"><a href="#__codelineno-0-1218">1218</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1216" name="__codelineno-0-1216"></a><span class="k">def</span> <span class="nf">get_total_episodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-1217" name="__codelineno-0-1217"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the total number of episodes this person appeared on.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1218" name="__codelineno-0-1218"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1227">1227</a></span>
+<span class="normal"><a href="#__codelineno-0-1228">1228</a></span>
+<span class="normal"><a href="#__codelineno-0-1229">1229</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1227" name="__codelineno-0-1227"></a><span class="k">def</span> <span class="nf">get_total_episodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-0-1228" name="__codelineno-0-1228"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the total number of episodes this person appeared on.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1229" name="__codelineno-0-1229"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3985,17 +4004,17 @@ Duplicates are possible if data is tracked lazily.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1209">1209</a></span>
-<span class="normal"><a href="#__codelineno-0-1210">1210</a></span>
-<span class="normal"><a href="#__codelineno-0-1211">1211</a></span>
-<span class="normal"><a href="#__codelineno-0-1212">1212</a></span>
-<span class="normal"><a href="#__codelineno-0-1213">1213</a></span>
-<span class="normal"><a href="#__codelineno-0-1214">1214</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1209" name="__codelineno-0-1209"></a><span class="nd">@cached_property</span>
-<a id="__codelineno-0-1210" name="__codelineno-0-1210"></a><span class="k">def</span> <span class="nf">has_guested</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-1211" name="__codelineno-0-1211"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1212" name="__codelineno-0-1212"></a><span class="sd">    Counting the number of guest appearances.</span>
-<a id="__codelineno-0-1213" name="__codelineno-0-1213"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-1214" name="__codelineno-0-1214"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>  <span class="c1"># no cov</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1220">1220</a></span>
+<span class="normal"><a href="#__codelineno-0-1221">1221</a></span>
+<span class="normal"><a href="#__codelineno-0-1222">1222</a></span>
+<span class="normal"><a href="#__codelineno-0-1223">1223</a></span>
+<span class="normal"><a href="#__codelineno-0-1224">1224</a></span>
+<span class="normal"><a href="#__codelineno-0-1225">1225</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1220" name="__codelineno-0-1220"></a><span class="nd">@cached_property</span>
+<a id="__codelineno-0-1221" name="__codelineno-0-1221"></a><span class="k">def</span> <span class="nf">has_guested</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-0-1222" name="__codelineno-0-1222"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1223" name="__codelineno-0-1223"></a><span class="sd">    Counting the number of guest appearances.</span>
+<a id="__codelineno-0-1224" name="__codelineno-0-1224"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-1225" name="__codelineno-0-1225"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">guest_appearances</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>  <span class="c1"># no cov</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4019,17 +4038,17 @@ Duplicates are possible if data is tracked lazily.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1202">1202</a></span>
-<span class="normal"><a href="#__codelineno-0-1203">1203</a></span>
-<span class="normal"><a href="#__codelineno-0-1204">1204</a></span>
-<span class="normal"><a href="#__codelineno-0-1205">1205</a></span>
-<span class="normal"><a href="#__codelineno-0-1206">1206</a></span>
-<span class="normal"><a href="#__codelineno-0-1207">1207</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1202" name="__codelineno-0-1202"></a><span class="nd">@cached_property</span>
-<a id="__codelineno-0-1203" name="__codelineno-0-1203"></a><span class="k">def</span> <span class="nf">has_hosted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-1204" name="__codelineno-0-1204"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1205" name="__codelineno-0-1205"></a><span class="sd">    Counts the number of episodes where they have been listed as a host.</span>
-<a id="__codelineno-0-1206" name="__codelineno-0-1206"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-1207" name="__codelineno-0-1207"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>  <span class="c1"># no cov</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1213">1213</a></span>
+<span class="normal"><a href="#__codelineno-0-1214">1214</a></span>
+<span class="normal"><a href="#__codelineno-0-1215">1215</a></span>
+<span class="normal"><a href="#__codelineno-0-1216">1216</a></span>
+<span class="normal"><a href="#__codelineno-0-1217">1217</a></span>
+<span class="normal"><a href="#__codelineno-0-1218">1218</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1213" name="__codelineno-0-1213"></a><span class="nd">@cached_property</span>
+<a id="__codelineno-0-1214" name="__codelineno-0-1214"></a><span class="k">def</span> <span class="nf">has_hosted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-0-1215" name="__codelineno-0-1215"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1216" name="__codelineno-0-1216"></a><span class="sd">    Counts the number of episodes where they have been listed as a host.</span>
+<a id="__codelineno-0-1217" name="__codelineno-0-1217"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-1218" name="__codelineno-0-1218"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosted_episodes</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>  <span class="c1"># no cov</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6328,6 +6347,105 @@ in this record.</p>
 
 
 
+<h2 id="src.podcast_analyzer.models.PodcastAppearanceData" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">PodcastAppearanceData</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">PodcastAppearanceData</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">podcast</span><span class="p">:</span> <span class="n">Podcast</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">hosted_episodes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">Episode</span><span class="p">],</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">guested_episodes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">Episode</span><span class="p">],</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+        <p>Dataclass for sending back structured appearance data for an individual
+on a single podcast.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="src.podcast_analyzer.models.PodcastAppearanceData.podcast">podcast</span></code></td>
+            <td>
+                  <code>Podcast</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Podcast the data relates to.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="src.podcast_analyzer.models.PodcastAppearanceData.hosted_episodes">hosted_episodes</span></code></td>
+            <td>
+                  <code>QuerySet[Episode]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Episodes hosted by them.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="src.podcast_analyzer.models.PodcastAppearanceData.guested_episodes">guested_episodes</span></code></td>
+            <td>
+                  <code>QuerySet[Episode]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Episodes where they appeared as a guest.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="src.podcast_analyzer.models.Season" class="doc doc-heading">
             <span class="doc doc-object-name doc-class-name">Season</span>
 
@@ -6680,18 +6798,7 @@ e.g. a list or QuerySet</p>
 
             <details class="quote">
               <summary>Source code in <code>src/podcast_analyzer/models.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1509">1509</a></span>
-<span class="normal"><a href="#__codelineno-0-1510">1510</a></span>
-<span class="normal"><a href="#__codelineno-0-1511">1511</a></span>
-<span class="normal"><a href="#__codelineno-0-1512">1512</a></span>
-<span class="normal"><a href="#__codelineno-0-1513">1513</a></span>
-<span class="normal"><a href="#__codelineno-0-1514">1514</a></span>
-<span class="normal"><a href="#__codelineno-0-1515">1515</a></span>
-<span class="normal"><a href="#__codelineno-0-1516">1516</a></span>
-<span class="normal"><a href="#__codelineno-0-1517">1517</a></span>
-<span class="normal"><a href="#__codelineno-0-1518">1518</a></span>
-<span class="normal"><a href="#__codelineno-0-1519">1519</a></span>
-<span class="normal"><a href="#__codelineno-0-1520">1520</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1520">1520</a></span>
 <span class="normal"><a href="#__codelineno-0-1521">1521</a></span>
 <span class="normal"><a href="#__codelineno-0-1522">1522</a></span>
 <span class="normal"><a href="#__codelineno-0-1523">1523</a></span>
@@ -6709,36 +6816,47 @@ e.g. a list or QuerySet</p>
 <span class="normal"><a href="#__codelineno-0-1535">1535</a></span>
 <span class="normal"><a href="#__codelineno-0-1536">1536</a></span>
 <span class="normal"><a href="#__codelineno-0-1537">1537</a></span>
-<span class="normal"><a href="#__codelineno-0-1538">1538</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1509" name="__codelineno-0-1509"></a><span class="k">def</span> <span class="nf">calculate_median_episode_duration</span><span class="p">(</span><span class="n">episodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Episode</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-1510" name="__codelineno-0-1510"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-1511" name="__codelineno-0-1511"></a><span class="sd">    Given an iterable of episode objects, calculate the median duration.</span>
-<a id="__codelineno-0-1512" name="__codelineno-0-1512"></a>
-<a id="__codelineno-0-1513" name="__codelineno-0-1513"></a><span class="sd">    If not a QuerySet, first convert to a queryset to order and extract values.</span>
-<a id="__codelineno-0-1514" name="__codelineno-0-1514"></a>
-<a id="__codelineno-0-1515" name="__codelineno-0-1515"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-1516" name="__codelineno-0-1516"></a><span class="sd">        episodes (Iterable[Episode]): An iterable of episode objects,</span>
-<a id="__codelineno-0-1517" name="__codelineno-0-1517"></a><span class="sd">            e.g. a list or QuerySet</span>
-<a id="__codelineno-0-1518" name="__codelineno-0-1518"></a>
-<a id="__codelineno-0-1519" name="__codelineno-0-1519"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-1520" name="__codelineno-0-1520"></a><span class="sd">        int: The median duration in seconds.</span>
-<a id="__codelineno-0-1521" name="__codelineno-0-1521"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-1522" name="__codelineno-0-1522"></a>
-<a id="__codelineno-0-1523" name="__codelineno-0-1523"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">episodes</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">):</span>
-<a id="__codelineno-0-1524" name="__codelineno-0-1524"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">episodes</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-<a id="__codelineno-0-1525" name="__codelineno-0-1525"></a>            <span class="k">return</span> <span class="mi">0</span>
-<a id="__codelineno-0-1526" name="__codelineno-0-1526"></a>        <span class="k">return</span> <span class="n">median_high</span><span class="p">(</span>
-<a id="__codelineno-0-1527" name="__codelineno-0-1527"></a>            <span class="n">episodes</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;itunes_duration&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
-<a id="__codelineno-0-1528" name="__codelineno-0-1528"></a>                <span class="s2">&quot;itunes_duration&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
-<a id="__codelineno-0-1529" name="__codelineno-0-1529"></a>            <span class="p">)</span>
-<a id="__codelineno-0-1530" name="__codelineno-0-1530"></a>        <span class="p">)</span>
-<a id="__codelineno-0-1531" name="__codelineno-0-1531"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-1532" name="__codelineno-0-1532"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">episodes</span><span class="p">,</span> <span class="n">Sized</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">episodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-1533" name="__codelineno-0-1533"></a>            <span class="k">return</span> <span class="mi">0</span>
-<a id="__codelineno-0-1534" name="__codelineno-0-1534"></a>        <span class="k">return</span> <span class="n">median_high</span><span class="p">(</span>
-<a id="__codelineno-0-1535" name="__codelineno-0-1535"></a>            <span class="n">Episode</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">episodes</span><span class="p">])</span>
-<a id="__codelineno-0-1536" name="__codelineno-0-1536"></a>            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;itunes_duration&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-1537" name="__codelineno-0-1537"></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;itunes_duration&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-1538" name="__codelineno-0-1538"></a>        <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-1538">1538</a></span>
+<span class="normal"><a href="#__codelineno-0-1539">1539</a></span>
+<span class="normal"><a href="#__codelineno-0-1540">1540</a></span>
+<span class="normal"><a href="#__codelineno-0-1541">1541</a></span>
+<span class="normal"><a href="#__codelineno-0-1542">1542</a></span>
+<span class="normal"><a href="#__codelineno-0-1543">1543</a></span>
+<span class="normal"><a href="#__codelineno-0-1544">1544</a></span>
+<span class="normal"><a href="#__codelineno-0-1545">1545</a></span>
+<span class="normal"><a href="#__codelineno-0-1546">1546</a></span>
+<span class="normal"><a href="#__codelineno-0-1547">1547</a></span>
+<span class="normal"><a href="#__codelineno-0-1548">1548</a></span>
+<span class="normal"><a href="#__codelineno-0-1549">1549</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1520" name="__codelineno-0-1520"></a><span class="k">def</span> <span class="nf">calculate_median_episode_duration</span><span class="p">(</span><span class="n">episodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Episode</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-0-1521" name="__codelineno-0-1521"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-1522" name="__codelineno-0-1522"></a><span class="sd">    Given an iterable of episode objects, calculate the median duration.</span>
+<a id="__codelineno-0-1523" name="__codelineno-0-1523"></a>
+<a id="__codelineno-0-1524" name="__codelineno-0-1524"></a><span class="sd">    If not a QuerySet, first convert to a queryset to order and extract values.</span>
+<a id="__codelineno-0-1525" name="__codelineno-0-1525"></a>
+<a id="__codelineno-0-1526" name="__codelineno-0-1526"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-1527" name="__codelineno-0-1527"></a><span class="sd">        episodes (Iterable[Episode]): An iterable of episode objects,</span>
+<a id="__codelineno-0-1528" name="__codelineno-0-1528"></a><span class="sd">            e.g. a list or QuerySet</span>
+<a id="__codelineno-0-1529" name="__codelineno-0-1529"></a>
+<a id="__codelineno-0-1530" name="__codelineno-0-1530"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-1531" name="__codelineno-0-1531"></a><span class="sd">        int: The median duration in seconds.</span>
+<a id="__codelineno-0-1532" name="__codelineno-0-1532"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-1533" name="__codelineno-0-1533"></a>
+<a id="__codelineno-0-1534" name="__codelineno-0-1534"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">episodes</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">):</span>
+<a id="__codelineno-0-1535" name="__codelineno-0-1535"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">episodes</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+<a id="__codelineno-0-1536" name="__codelineno-0-1536"></a>            <span class="k">return</span> <span class="mi">0</span>
+<a id="__codelineno-0-1537" name="__codelineno-0-1537"></a>        <span class="k">return</span> <span class="n">median_high</span><span class="p">(</span>
+<a id="__codelineno-0-1538" name="__codelineno-0-1538"></a>            <span class="n">episodes</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;itunes_duration&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+<a id="__codelineno-0-1539" name="__codelineno-0-1539"></a>                <span class="s2">&quot;itunes_duration&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-0-1540" name="__codelineno-0-1540"></a>            <span class="p">)</span>
+<a id="__codelineno-0-1541" name="__codelineno-0-1541"></a>        <span class="p">)</span>
+<a id="__codelineno-0-1542" name="__codelineno-0-1542"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-1543" name="__codelineno-0-1543"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">episodes</span><span class="p">,</span> <span class="n">Sized</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">episodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-1544" name="__codelineno-0-1544"></a>            <span class="k">return</span> <span class="mi">0</span>
+<a id="__codelineno-0-1545" name="__codelineno-0-1545"></a>        <span class="k">return</span> <span class="n">median_high</span><span class="p">(</span>
+<a id="__codelineno-0-1546" name="__codelineno-0-1546"></a>            <span class="n">Episode</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">episodes</span><span class="p">])</span>
+<a id="__codelineno-0-1547" name="__codelineno-0-1547"></a>            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;itunes_duration&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-1548" name="__codelineno-0-1548"></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;itunes_duration&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-1549" name="__codelineno-0-1549"></a>        <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
