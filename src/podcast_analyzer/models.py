@@ -524,7 +524,12 @@ class Podcast(UUIDTimeStampedModel):
     itunes_categories = models.ManyToManyField(
         ItunesCategory, blank=True, related_name="podcasts"
     )
-    tags = TagField(blank=True)  # type: ignore
+    tags = TagField(  # type: ignore
+        blank=True,
+        get_absolute_url=lambda tag: reverse_lazy(  # type: ignore
+            "podcast_analyzer:tag-podcast-list", kwargs={"tag_slug": tag.slug}
+        ),
+    )
     analysis_group = models.ManyToManyField(
         AnalysisGroup, related_name="podcasts", blank=True
     )
@@ -705,7 +710,6 @@ class Podcast(UUIDTimeStampedModel):
         if self.feed_contains_itunes_data:
             self.itunes_explicit = feed_dict.get("explicit", False)
             author_dict: dict[str, str] | None = feed_dict.get("itunes_owner", None)
-            # self.tags = feed_dict.get("itunes_keywords", [])
             if author_dict is not None:
                 self.author = author_dict["name"]
                 self.email = author_dict.get("email")
@@ -726,6 +730,9 @@ class Podcast(UUIDTimeStampedModel):
                     category_data.append(parent)
             self.itunes_categories.clear()
             self.itunes_categories.add(*category_data)
+            logger.debug(
+                f"Adding feed keywords of {feed_dict.get('itunes_keywords', [])}"
+            )
             self.tags = feed_dict.get("itunes_keywords", [])
         if self.funding_url is not None:
             self.feed_contains_structured_donation_data = True
@@ -1294,7 +1301,6 @@ class Episode(UUIDTimeStampedModel):
     guests_detected_from_feed = models.ManyToManyField(
         Person, related_name="guest_appearances", blank=True
     )
-    tags = TagField(blank=True)  # type: ignore
     analysis_group = models.ManyToManyField(
         AnalysisGroup, related_name="episodes", blank=True
     )

@@ -16,6 +16,7 @@
   <h1>{% if not podcast %}{% translate "Add podcast" %}{% else %}{% blocktranslate with title=podcast.title %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>
   <form method="post">
     {% csrf_token %}
+    {{ form.media }}
     {% for field in form %}
       <div class="field">
         {{ field.errors }}

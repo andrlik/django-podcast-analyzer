@@ -112,6 +112,7 @@ class PodcastUpdateView(LoginRequiredMixin, UpdateView):
         "podcast_cover_art_url",
         "release_frequency",
         "probable_feed_host",
+        "tags",
         "analysis_group",
     ]
     context_object_name = "podcast"
@@ -346,3 +347,32 @@ class AnalysisGroupDeleteView(
 
     def get_success_url(self):
         return reverse_lazy("podcast_analyzer:ag-list")
+
+
+class TagPodcastListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):
+    """
+    List the podcasts for the given tag.
+    """
+
+    model = Podcast
+    slug_field = "tag_slug"
+    context_object_name = "podcasts"
+    paginate_by = 25
+    prefetch_related = ["episodes", "seasons", "itunes_categories", "tags"]
+    ordering = ["title", "-created"]
+    tag: Podcast.tags.tag_model  # type: ignore
+
+    def get_queryset(self):
+        try:
+            self.tag = Podcast.tags.tag_model.objects.get(
+                slug=self.kwargs.get("tag_slug", None)
+            )
+        except ObjectDoesNotExist as odne:
+            raise Http404 from odne
+        self.queryset = Podcast.objects.filter(tags__in=[self.tag])
+        return super().get_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tag"] = self.tag
+        return context

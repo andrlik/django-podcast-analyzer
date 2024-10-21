@@ -21,7 +21,6 @@ A simple [Django](https://www.djangoproject.com) app that allows you to follow t
 
 This is early stage! Things that still need to be done:
 
-- Simplify templates so you can easily integrate them without a lot of styling opinions.
 - Improved docs.
 
 ## Installation
