@@ -11,6 +11,7 @@
 - Add views and templates for Episode records. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/f72c3b2aa206e9f85c71e5f0b856fa6ce181d42e)
 - Add initial analysis group templates. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/a1be7bbd19ae121df19db201c5a8e12635eac8fc)
 - Adds analysis group calculations around durations, related object counts, feed data properties, iTunes categories, etc. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/86e5819e26d6bf2efe413febf82c162cd8d42554)
+- Exposes Podcast tags to views and templates, and removes the unused Episode level tags. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/e96f87e68712648c46190babc54bef546b14f259)
 
 ## 0.1.2
 

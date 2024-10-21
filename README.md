@@ -21,6 +21,7 @@ A simple [Django](https://www.djangoproject.com) app that allows you to follow t
 
 This is early stage! Things that still need to be done:
 
+- Better handling of duplicate people discovered from multiple feeds
 - Improved docs.
 
 ## Installation
