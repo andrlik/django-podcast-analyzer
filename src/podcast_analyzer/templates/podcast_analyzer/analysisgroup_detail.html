@@ -17,17 +17,103 @@
     <h2>{% translate "Metadata" %}</h2>
     <dl>
       <dt>{% translate "Podcast feeds" %}</dt>
-      <dd>{{ group.num_feeds }}</dd>
+      <dd>{{ group.num_podcasts }}</dd>
+      <dt>{% translate "Dormant podcats" %}</dt>
+      <dd>{{ group.get_num_dormant_podcasts }}</dd>
       <dt>{% translate "Seasons" %}</dt>
       <dd>{{ group.num_seasons }}</dd>
       <dt>{% translate "Episodes" %}</dt>
       <dd>{{ group.num_episodes }}</dd>
+      <dt>{% translate "Total duration of all episodes" %}</dt>
+      <dd>{{ group.get_total_duration_timedelta|default_if_none:"00:00" }}</dd>
+      <dt>{% translate "Median episode duration" %}</dt>
+      <dd>{{ group.get_median_duration_timedelta|default_if_none:"00:00" }}</dd>
+      <dt>{% translate "Total people detected from feed" %}</dt>
+      <dd>{{ group.all_people.num_people }}</dd>
+      <dt>{% translate "Release Frequencies" %}</dt>
+      <dd>
+        <table>
+          <thead>
+            <tr>
+              <td>{% translate "Frequency" %}</td>
+              <td>{% translate "# Podcasts" %}</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{% translate "Daily" %}</td>
+              <td>{{ group.release_frequencies.daily }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Several time a week" %}</td>
+              <td>{{ group.release_frequencies.often }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Weekly" %}</td>
+              <td>{{ group.release_frequencies.weekly }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Biweekly" %}</td>
+              <td>{{ group.release_frequencies.biweekly }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Monthly" %}</td>
+              <td>{{ group.release_frequencies.monthly }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Ad hoc/Intermittent" %}</td>
+              <td>{{ group.release_frequencies.adhoc }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Pending/Unknown" %}</td>
+              <td>{{ group.release_frequencies.unknown }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </dd>
+      <dt>{% translate "Feed elements" %}</dt>
+      <dd>
+        <table>
+          <thead>
+            <tr>
+              <td>{% translate "Feed property" %}</td>
+              <td>{% translate "# Podcasts" %}</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{% translate "Feed contains iTunes data" %}</td>
+              <td>{{ group.get_num_podcasts_with_itunes_data }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Feed contains Podcasting 2.0 data" %}</td>
+              <td>{{ group.get_num_podcasts_with_podcast_index_data }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Feed contains structured Donation/Funding data" %}</td>
+              <td>{{ group.get_num_podcasts_with_donation_data }}</td>
+            </tr>
+            <tr>
+              <td>{% translate "Third-party tracking data detected" %}</td>
+              <td>{{ group.get_num_podcasts_using_trackers }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </dd>
       <dt>{% translate "Created" %}</dt>
       <dd>{{ group.created|date:"F j, Y H:i" }}</dd>
       <dt>{% translate "Modified" %}</dt>
       <dd>{{ group.modified|date:"F j, Y H:i" }}</dd>
     </dl>
   </div>
+  <h2>{% translate "iTunes Categories with counts" %}</h2>
+  <ul>
+    {% for category in group.get_itunes_categories_with_count %}
+      <li>{% if category.parent_category %}{{ category.parent_category.name }} - {% endif %}{{ category.name }}: {{ category.ag_pods }}</li>
+    {% empty %}
+      <li>{% translate "No categories found for this analysis group." %}</li>
+    {% endfor %}
+  </ul>
 
   <div>
     <div>

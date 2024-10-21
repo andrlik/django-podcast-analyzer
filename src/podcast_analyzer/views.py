@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import logging
 from typing import TYPE_CHECKING, ClassVar
 
 # from django.shortcuts import render
@@ -27,6 +28,8 @@ from podcast_analyzer.forms import AnalysisGroupForm
 from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 
 # Create your views here.
+
+logger = logging.getLogger("podcast_analyzer")
 
 
 class SelectPrefetchRelatedMixin:
@@ -300,11 +303,11 @@ class AnalysisGroupUpdateView(
         return kwargs
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        self.object = form.save()
         self.object.podcasts.set(form.cleaned_data["podcasts"])
         self.object.seasons.set(form.cleaned_data["seasons"])
         self.object.episodes.set(form.cleaned_data["episodes"])
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class AnalysisGroupCreateView(LoginRequiredMixin, CreateView):
@@ -316,6 +319,14 @@ class AnalysisGroupCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = AnalysisGroup.objects.create(name=form.cleaned_data["name"])
+        logger.debug(
+            f"Created new analysis group with name: {form.cleaned_data['name']}"
+        )
+        logger.debug(
+            f"Adding {len(form.cleaned_data['podcasts'])} podcasts, "
+            f"{len(form.cleaned_data['seasons'])} seasons and "
+            f"{len(form.cleaned_data['episodes'])} episodes."
+        )
         self.object.podcasts.set(form.cleaned_data["podcasts"])
         self.object.seasons.set(form.cleaned_data["seasons"])
         self.object.episodes.set(form.cleaned_data["episodes"])

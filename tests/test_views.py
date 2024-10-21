@@ -792,7 +792,7 @@ def test_unauthorized_analysis_group_post_views(
 ):
     podcast = PodcastFactory()
     generate_episodes_for_podcast(podcast)
-    current_podcasts = analysis_group.num_feeds
+    current_podcasts = analysis_group.num_podcasts
     ag_id = analysis_group.id
     data = {
         "name": "A better name",
@@ -808,7 +808,7 @@ def test_unauthorized_analysis_group_post_views(
     assert "accounts/login" in response["Location"]
     analysis_group.refresh_from_db()
     assert analysis_group.name != "A better name"
-    assert analysis_group.num_feeds == current_podcasts
+    assert analysis_group.num_podcasts == current_podcasts
     with django_assert_max_num_queries(40):
         response = client.post(
             tp.reverse("podcast_analyzer:ag-delete", id=analysis_group.id), data={}
@@ -847,6 +847,40 @@ def test_authorized_analysis_group_get_views(
     assert response.status_code == 200
 
 
+def test_authorized_analysis_group_detail_view_conditional_categories(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    analysis_group,
+):
+    podcast_with_parsed_episodes.analysis_group.add(analysis_group)
+    url = tp.reverse("podcast_analyzer:ag-detail", id=analysis_group.id)
+    client.force_login(user)
+    with django_assert_max_num_queries(50):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert "<li>Leisure - Games: 1</li>" in response.content.decode("utf-8")
+    cat_to_change = podcast_with_parsed_episodes.itunes_categories.get(name="Games")
+    podcast_with_parsed_episodes.itunes_categories.remove(cat_to_change)
+    podcast_with_parsed_episodes.itunes_categories.add(cat_to_change.parent_category)
+    analysis_group.refresh_from_db()
+    with django_assert_max_num_queries(50):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert "<li>Leisure: 1</li>" in response.content.decode("utf-8")
+    podcast_with_parsed_episodes.itunes_categories.clear()
+    analysis_group.refresh_from_db()
+    with django_assert_max_num_queries(50):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert (
+        "<li>No categories found for this analysis group.</li>"
+        in response.content.decode("utf-8")
+    )
+
+
 def test_authorized_analysis_group_create_view(
     client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
 ):
@@ -866,7 +900,7 @@ def test_authorized_analysis_group_create_view(
     assert AnalysisGroup.objects.count() == current_group_count + 1
     group = AnalysisGroup.objects.latest("created")
     assert group.name == "The test generated analysis group"
-    assert group.num_feeds == 1
+    assert group.num_podcasts() == 1
 
 
 def test_authorized_analysis_group_edit_delete_views(
@@ -894,7 +928,7 @@ def test_authorized_analysis_group_edit_delete_views(
     assert analysis_group.get_absolute_url() == response["Location"]
     analysis_group.refresh_from_db()
     assert analysis_group.name == "The test generated analysis group"
-    assert analysis_group.num_feeds == 1
+    assert analysis_group.num_podcasts() == 1
     with django_assert_max_num_queries(40):
         response = client.post(
             tp.reverse("podcast_analyzer:ag-delete", id=analysis_group.id), data={}
