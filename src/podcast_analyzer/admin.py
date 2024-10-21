@@ -186,7 +186,7 @@ class AnalysisGroupAdmin(admin.ModelAdmin):
     Admin for analysis group objects.
     """
 
-    list_display = ["name", "num_feeds", "num_seasons", "num_episodes"]
+    list_display = ["name", "num_podcasts", "num_seasons", "num_episodes"]
 
 
 @admin.register(ArtUpdate)
