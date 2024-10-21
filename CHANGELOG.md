@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.1.2...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.1.2...0.2.0)
 
 - Improved logic for getting distinct podcasts for Person records. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/615e02aa2f57b0e0540375dd21c199d8bb4533fc)
 - If the actual mime type of Podcast cover art file is different from the reported type or file extension, update the file extension. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/75fdd0f2e2f2fd326e60e6ba14f01e76d0be0901)
