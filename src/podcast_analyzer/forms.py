@@ -21,6 +21,7 @@ class AnalysisGroupForm(forms.ModelForm):
         seasons (form.ModelMultipleChoiceField): List of seasons
         episodes (form.ModelMultipleChoiceField): List of episodes
     """
+
     class Meta:
         model = AnalysisGroup
         fields = ["name"]

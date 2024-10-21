@@ -117,6 +117,13 @@ class TimeStampedModel(models.Model):
 class UUIDTimeStampedModel(TimeStampedModel):
     """
     Base model for all our objects records.
+
+    Attributes:
+        id (models.UUIDField): Unique ID.
+        created (models.DateTimeField): Creation time.
+        modified (models.DateTimeField): Modification time.
+        cached_properties (list[str]): Names of cached properties that should be
+            dropped on refresh_from_db
     """
 
     cached_properties: ClassVar[list[str]] = []
@@ -141,6 +148,10 @@ class UUIDTimeStampedModel(TimeStampedModel):
 class ItunesCategory(TimeStampedModel):
     """
     Itunes categories.
+
+    Attributes:
+        name (str): Name of the category
+        parent_category (ItunesCategory | None): Relation to another category as parent.
     """
 
     name = models.CharField(max_length=250)
@@ -162,6 +173,12 @@ class ItunesCategory(TimeStampedModel):
 class AnalysisGroup(UUIDTimeStampedModel):
     """
     Abstract group to assign a record to for purposes of analysis.
+
+    Attributes:
+        name (str): Name of the group.
+        podcasts (QuerySet[Podcast]): Podcasts explicitly linked to group.
+        seasons (QuerySet[Season]): Seasons explicitly linked to group.
+        episodes (QuerySet[Episode]): Episodes explicitly linked to group.
     """
 
     cached_properties: ClassVar[list[str]] = [
@@ -409,7 +426,16 @@ class AnalysisGroup(UUIDTimeStampedModel):
 
 
 class ArtUpdate(models.Model):
-    """Model for capturing art update events."""
+    """
+    Model for capturing art update events. Useful for debugging.
+
+    Attributes:
+        podcast (Podcast): Podcast that this update relates to.
+        timestamp (datetime): Timestamp when the update was requested.
+        reported_mime_type (str): The mime_type returned by the remote server.
+        actual_mime_type (str): The actual mime_type of the file.
+        valid_file (bool): Whether the file was valid and of the allowed mime types.
+    """
 
     podcast = models.ForeignKey(
         "Podcast", on_delete=models.CASCADE, related_name="art_updates"
@@ -435,6 +461,37 @@ class ArtUpdate(models.Model):
 class Podcast(UUIDTimeStampedModel):
     """
     Model for a given podcast feed.
+
+    Attributes:
+        title (str): The title of the podcast.
+        rss_feed (str): The URL of the RSS feed of the podcast.
+        podcast_cover_art_url (str | None): The remove URL of the podcast cover art.
+        podcast_cached_cover_art (File | None): The cached cover art.
+        last_feed_update (datetime | None): When the podcast feed was last updated.
+        dormant (bool): Whether the podcast is dormant or not.
+        last_checked (datetime): When the podcast feed was last checked.
+        author (str | None): The author of the podcast.
+        language (str | None): The language of the podcast.
+        generator (str | None): The reported generator of the feed.
+        email (str | None): The email listed in the feed.
+        site_url (str | None): The URL of the podcast site.
+        itunes_explicit (bool | None): Whether the podcast has an explict tag on iTunes.
+        itunes_feed_type (str | None): The feed type of the podcast feed.
+        description (str | None): The provided description of the podcast.
+        release_frequency (str): The detected release frequency.
+            One of: daily, often, weekly, biweekly, monthly, adhoc, unknown.
+        feed_contains_itunes_data (bool): Whether the podcast feed contains itunes data.
+        feed_contains_podcast_index_data (bool): Whether the podcast feed contains
+            podcast index elements.
+        feed_contains_tracking_data (bool): Whether the podcast feed contains
+            third-party tracking data.
+        feed_contains_structured_donation_data (bool): Whether the feed contains
+            donation links.
+        funding_url (str | None): Provided URL for donations/support.
+        probable_feed_host (str | None): Current assessment of the feed hosting company.
+        itunes_categories (QuerySet[ItunesCategory]): The listed iTunes categories.
+        tags (list[str]): The list of keywords/tags declared in the feed.
+        analysis_group (QuerySet[AnalysisGroup]): The associated analysis groups.
     """
 
     cached_properties: ClassVar[list[str]] = [
@@ -1096,6 +1153,16 @@ class Podcast(UUIDTimeStampedModel):
 
 @dataclasses.dataclass
 class PodcastAppearanceData:
+    """
+    Dataclass for sending back structured appearance data for an individual
+    on a single podcast.
+
+    Attributes:
+        podcast (Podcast): Podcast the data relates to.
+        hosted_episodes (QuerySet[Episode]): Episodes hosted by them.
+        guested_episodes (QuerySet[Episode]): Episodes where they appeared as a guest.
+    """
+
     podcast: Podcast
     hosted_episodes: QuerySet["Episode"]
     guested_episodes: QuerySet["Episode"]
@@ -1105,6 +1172,14 @@ class Person(UUIDTimeStampedModel):
     """
     People detected from structured data in podcast feed.
     Duplicates are possible if data is tracked lazily.
+
+    Attributes:
+        name (str): Name of the person.
+        url (str | None): Reported URL of the person.
+        img_url (str | None): Reported image URL of the person.
+        hosted_episodes (QuerySet[Episode]): Episodes this person has hosted.
+        guest_appearances (QuerySet[Episode]): Episodes this person has a
+            guest appearance.
     """
 
     cached_properties: ClassVar[list[str]] = [
@@ -1210,6 +1285,11 @@ class Person(UUIDTimeStampedModel):
 class Season(UUIDTimeStampedModel):
     """
     A season for a given podcast.
+
+    Attributes:
+        podcast (Podcast): The podcast the season belongs to.
+        season_number (int): The season number.
+        analysis_group (QuerySet[AnalysisGroup]): Analysis Groups this is assigned to.
     """
 
     if TYPE_CHECKING:
@@ -1233,6 +1313,30 @@ class Season(UUIDTimeStampedModel):
 class Episode(UUIDTimeStampedModel):
     """
     Represents a single episode of a podcast.
+
+    Attributes:
+        podcast (Podcast): The podcast this episode belongs to.
+        guid (str): GUID of the episode
+        title (str | None): Title of the episode
+        ep_type (str): Episode type, e.g full, bonus, trailer
+        season (Season | None): Season the episode belongs to.
+        ep_num (int | None): Episode number
+        release_datetime (datetime | None): Date and time the episode was released.
+        episode_url (str | None): URL of the episode page.
+        mime_type (str | None): Reported mime type of the episode.
+        download_url (str | None): URL of the episode file.
+        itunes_duration (int | None): Duration of the episode in seconds.
+        file_size (int | None): Size of the episode file in bytes.
+        itunes_explict (bool): Does this episode have the explicit flag?
+        show_notes (str | None): Show notes for the episode, if provided.
+        cw_present (bool): Did we detect a content warning?
+        transcript_detected (bool): Did we detect a transcript?
+        hosts_detected_from_feed (QuerySet[Person]): Hosts found in the
+            feed information.
+        guests_detected_from_feed (QuerySet[Person]): Guests found in the
+            feed information.
+        analysis_group (QuerySet[AnalysisGroup]): Analysis Groups this is assigned to.
+
     """
 
     podcast = models.ForeignKey(
