@@ -9,6 +9,7 @@ import dataclasses
 import datetime
 import logging
 import uuid
+from collections.abc import Iterable, Sized
 from io import BytesIO
 from statistics import median_high
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -20,7 +21,7 @@ from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 
 if TYPE_CHECKING:
     from django.db.models.manager import (
@@ -38,7 +39,9 @@ from magic import MagicException
 from tagulous.models import TagField
 
 from podcast_analyzer import FeedFetchError, FeedParseError
-from podcast_analyzer.utils import update_file_extension_from_mime_type
+from podcast_analyzer.utils import (
+    update_file_extension_from_mime_type,
+)
 
 logger = logging.getLogger("podcast_analyzer")
 
@@ -162,9 +165,13 @@ class AnalysisGroup(UUIDTimeStampedModel):
     """
 
     cached_properties: ClassVar[list[str]] = [
-        "num_feeds",
-        "num_seasons",
-        "num_episodes",
+        "all_podcasts",
+        "all_people",
+        "all_episodes",
+        "all_seasons",
+        "median_episode_duration",
+        "total_duration_seconds",
+        "release_frequencies",
     ]
     if TYPE_CHECKING:
         podcasts: ManyToManyRelatedManager["Podcast", "Podcast"]
@@ -181,43 +188,209 @@ class AnalysisGroup(UUIDTimeStampedModel):
     def get_absolute_url(self):
         return reverse_lazy("podcast_analyzer:ag-detail", kwargs={"id": self.pk})
 
-    @cached_property
-    def num_feeds(self) -> int:
+    def num_podcasts(self) -> int:
         """
-        Returns the number of feeds explicitly assigned to this group.
+        Returns the total number of podcasts in this group, both explicitly
+        and implied.
         """
-        return self.podcasts.count()
+        podcasts = self.all_podcasts
+        return podcasts.count()
+
+    def get_num_dormant_podcasts(self) -> int:
+        """Get the podcasts connected, explict or implicit, that are dormant."""
+        dormant_podcasts = self.all_podcasts.filter(dormant=True)
+        return dormant_podcasts.count()
+
+    def get_num_podcasts_with_itunes_data(self) -> int:
+        """Include itunes specific elements in feed."""
+        return self.all_podcasts.filter(feed_contains_itunes_data=True).count()
+
+    def get_num_podcasts_with_podcast_index_data(self) -> int:
+        """Includes Podcast index elements in feed."""
+        return self.all_podcasts.filter(feed_contains_podcast_index_data=True).count()
+
+    def get_num_podcasts_with_donation_data(self) -> int:
+        """Feed contains structure donation/funding data."""
+        return self.all_podcasts.filter(
+            feed_contains_structured_donation_data=True
+        ).count()
+
+    def get_num_podcasts_using_trackers(self) -> int:
+        """Feeds that contain what appears to be third-party tracking data."""
+        return self.all_podcasts.filter(feed_contains_tracking_data=True).count()
+
+    def get_counts_by_release_frequency(self) -> dict[str, int]:
+        """
+        Get counts of podcasts by release frequency.
+
+        NOTE: This is based on podcasts' current release frequency. We can't reliably
+        calculate this based on isolated seasons and episodes.
+        """
+        podcasts = self.get_all_podcasts()
+        frequency_dict = {
+            "daily": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.DAILY
+            ).count(),
+            "often": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.OFTEN
+            ).count(),
+            "weekly": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.WEEKLY
+            ).count(),
+            "biweekly": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.BIWEEKLY
+            ).count(),
+            "monthly": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.MONTHLY
+            ).count(),
+            "adhoc": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.ADHOC
+            ).count(),
+            "unknown": podcasts.filter(
+                release_frequency=Podcast.ReleaseFrequency.UNKNOWN
+            ).count(),
+        }
+        return frequency_dict
 
     @cached_property
+    def release_frequencies(self) -> dict[str, int]:
+        return self.get_counts_by_release_frequency()
+
     def num_seasons(self) -> int:
         """
         Returns the number of seasons associated with this group, both
         direct associations and implicit associations due to an assigned feed.
         """
-        podcasts = self.podcasts.all()
-        num_seasons: int = self.seasons.exclude(podcast__in=podcasts).count()
-        for podcast in podcasts:
-            num_seasons += podcast.seasons.count()
-        return num_seasons
+        seasons = self.all_seasons
+        return seasons.count()
 
-    @cached_property
     def num_episodes(self) -> int:
         """
         Returns the number of episodes associated with this group, whether directly
         or via an assigned season or podcast.
         """
+        episodes = self.all_episodes
+        return episodes.count()
+
+    def num_people(self) -> int:
+        """
+        Returns the total number of people detected from episodes associated with
+        this group.
+        """
+        return self.all_people.count()
+
+    @cached_property
+    def median_episode_duration(self) -> int:
+        """The media duration of episodes in seconds."""
+        return calculate_median_episode_duration(self.all_episodes)
+
+    def get_median_duration_timedelta(self) -> datetime.timedelta | None:
+        """Return the median duration of episodes as a timedelta."""
+        median_duration = self.median_episode_duration
+        if median_duration == 0:
+            return None
+        return datetime.timedelta(seconds=median_duration)
+
+    def get_total_duration_seconds(self) -> int:
+        """
+        Calculate the total duration of all episodes, explicit and implied
+        for this group.
+        """
+        episodes = self.all_episodes
+        if not episodes.exists():
+            return 0
+        return episodes.aggregate(models.Sum("itunes_duration"))["itunes_duration__sum"]
+
+    @cached_property
+    def total_duration_seconds(self) -> int:
+        return self.get_total_duration_seconds()
+
+    def get_total_duration_timedelta(self) -> datetime.timedelta | None:
+        duration = self.total_duration_seconds
+        if duration == 0:
+            return None
+        return datetime.timedelta(seconds=self.get_total_duration_seconds())
+
+    def get_all_episodes(self) -> QuerySet["Episode"]:
+        """
+        Get all episodes, explict and implied, for this Analysis Group.
+        """
         podcasts = self.podcasts.all()
-        seasons = self.seasons.all()
-        num_episodes: int = (
+        seasons = self.seasons.exclude(podcast__in=podcasts)
+        episode_ids = list(
             self.episodes.exclude(podcast__in=podcasts)
             .exclude(season__in=seasons)
-            .count()
+            .values_list("id", flat=True)
         )
         for podcast in podcasts:
-            num_episodes += podcast.episodes.count()
+            if podcast.episodes.exists():
+                episode_ids += list(podcast.episodes.all().values_list("id", flat=True))
         for season in seasons:
-            num_episodes += season.episodes.count()
-        return num_episodes
+            episode_ids += list(season.episodes.all().values_list("id", flat=True))
+        return Episode.objects.filter(id__in=episode_ids)
+
+    def get_all_seasons(self) -> QuerySet["Season"]:
+        """
+        Returns a QuerySet of all Season objects for this group, both explicit
+        and implied.
+        """
+        podcasts = self.podcasts.all()
+        season_ids = list(
+            self.seasons.exclude(podcast__id__in=podcasts).values_list("id", flat=True)
+        )
+        for podcast in podcasts:
+            if podcast.seasons.exists():
+                season_ids += list(podcast.seasons.all().values_list("id", flat=True))
+        return Season.objects.filter(id__in=season_ids)
+
+    def get_all_podcasts(self) -> QuerySet["Podcast"]:
+        """
+        Returns a QuerySet of all Podcast objects for this group, both explicitly
+        assigned and implied by Season and Episode objects.
+        """
+        podcast_ids = list(self.podcasts.all().values_list("id", flat=True))
+        podcast_ids_from_seasons = list(
+            self.seasons.exclude(podcast__id__in=podcast_ids)
+            .values_list("podcast__id", flat=True)
+            .distinct()
+        )
+        podcast_ids_from_episodes = list(
+            self.episodes.exclude(podcast__id__in=podcast_ids)
+            .values_list("podcast__id", flat=True)
+            .distinct()
+        )
+        podcast_ids = podcast_ids + podcast_ids_from_seasons + podcast_ids_from_episodes
+        logger.debug(f"Found {len(podcast_ids)} podcast ids to fetch.")
+        podcasts = Podcast.objects.filter(id__in=podcast_ids)
+        return podcasts
+
+    def get_all_people(self) -> QuerySet["Person"]:
+        """Returns a QuerySet of all People that are associated with this group."""
+        episodes_with_people = self.all_episodes.filter(
+            Q(hosts_detected_from_feed__isnull=False)
+            | Q(guests_detected_from_feed__isnull=False)
+        )
+        people = Person.objects.filter(
+            Q(hosted_episodes__in=episodes_with_people)
+            | Q(guest_appearances__in=episodes_with_people)
+        ).distinct()
+        return people
+
+    @cached_property
+    def all_people(self) -> QuerySet["Person"]:
+        return self.get_all_people()
+
+    @cached_property
+    def all_podcasts(self) -> QuerySet["Podcast"]:
+        return self.get_all_podcasts()
+
+    @cached_property
+    def all_episodes(self) -> QuerySet["Episode"]:
+        return self.get_all_episodes()
+
+    @cached_property
+    def all_seasons(self) -> QuerySet["Season"]:
+        return self.get_all_seasons()
 
 
 class ArtUpdate(models.Model):
@@ -340,7 +513,7 @@ class Podcast(UUIDTimeStampedModel):
     )
 
     class Meta:
-        ordering: ClassVar[list[str]] = ["title"]
+        ordering: ClassVar[Iterable[str]] = ["title"]
 
     def __str__(self):  # no cov
         return self.title
@@ -380,15 +553,7 @@ class Podcast(UUIDTimeStampedModel):
         """
         Returns the media duration across all episodes.
         """
-        if self.episodes.count() == 0:
-            return 0
-        return median_high(
-            list(
-                self.episodes.all()
-                .order_by("itunes_duration")
-                .values_list("itunes_duration", flat=True)
-            )
-        )
+        return calculate_median_episode_duration(self.episodes.all())
 
     @property
     def median_episode_duration_timedelta(self) -> datetime.timedelta:
@@ -1223,3 +1388,35 @@ class Episode(UUIDTimeStampedModel):
             ep.save()
             return True
         return False
+
+
+def calculate_median_episode_duration(episodes: Iterable[Episode]) -> int:
+    """
+    Given an iterable of episode objects, calculate the median duration.
+
+    If not a QuerySet, first convert to a queryset to order and extract values.
+
+    Args:
+        episodes (Iterable[Episode]): An iterable of episode objects,
+            e.g. a list or QuerySet
+
+    Returns:
+        int: The median duration in seconds.
+    """
+
+    if isinstance(episodes, QuerySet):
+        if not episodes.exists():
+            return 0
+        return median_high(
+            episodes.order_by("itunes_duration").values_list(
+                "itunes_duration", flat=True
+            )
+        )
+    else:
+        if isinstance(episodes, Sized) and len(episodes) == 0:
+            return 0
+        return median_high(
+            Episode.objects.filter(id__in=[e.id for e in episodes])
+            .order_by("itunes_duration")
+            .values_list("itunes_duration", flat=True)
+        )

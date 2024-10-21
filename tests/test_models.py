@@ -16,7 +16,13 @@ from django.utils import timezone
 from django_q.models import Schedule
 
 from podcast_analyzer.exceptions import FeedFetchError, FeedParseError
-from podcast_analyzer.models import Episode, ItunesCategory, Person, Podcast
+from podcast_analyzer.models import (
+    Episode,
+    ItunesCategory,
+    Person,
+    Podcast,
+    calculate_median_episode_duration,
+)
 from tests.factories.podcast import PodcastFactory, generate_episodes_for_podcast
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -865,12 +871,51 @@ def test_analysis_group_feed_count(
         ep.analysis_group.add(analysis_group)
     season = podcast_with_two_seasons.seasons.get(season_number=1)
     season.analysis_group.add(analysis_group)
-    assert analysis_group.num_feeds == 1
-    assert analysis_group.num_seasons == 2
-    assert analysis_group.num_episodes == 18
-    season.analysis_group.clear()
-    assert analysis_group.num_seasons == 2
-    assert analysis_group.num_episodes == 18
     analysis_group.refresh_from_db()
-    assert analysis_group.num_seasons == 1
-    assert analysis_group.num_episodes == 8
+    assert analysis_group.num_podcasts() == 3
+    assert analysis_group.num_seasons() == 2
+    assert analysis_group.num_episodes() == 18
+    assert analysis_group.num_people() == 2
+    season.analysis_group.clear()
+    analysis_group.refresh_from_db()
+    assert analysis_group.num_podcasts() == 2
+    assert analysis_group.num_seasons() == 1
+    assert analysis_group.num_episodes() == 8
+    assert analysis_group.num_people() == 2
+    podcast_with_parsed_episodes.analysis_group.clear()
+    analysis_group.refresh_from_db()
+    assert analysis_group.num_podcasts() == 1
+    assert analysis_group.num_episodes() == 3
+    assert analysis_group.num_seasons() == 0
+    assert analysis_group.num_people() == 0
+
+
+def test_analysis_group_calculate_duration_episodes(
+    podcast_with_parsed_episodes, analysis_group
+):
+    podcast_with_parsed_episodes.analysis_group.add(analysis_group)
+    assert (
+        podcast_with_parsed_episodes.median_episode_duration
+        == analysis_group.median_episode_duration
+    )
+    assert (
+        podcast_with_parsed_episodes.total_duration_seconds
+        == analysis_group.get_total_duration_seconds()
+    )
+    assert (
+        analysis_group.get_median_duration_timedelta()
+        == podcast_with_parsed_episodes.median_episode_duration_timedelta
+    )
+    assert (
+        podcast_with_parsed_episodes.total_duration_timedelta
+        == analysis_group.get_total_duration_timedelta()
+    )
+
+
+def test_calculate_median_duration_as_list(podcast_with_parsed_episodes):
+    episode_list = list(podcast_with_parsed_episodes.episodes.all())
+    assert (
+        calculate_median_episode_duration(episode_list)
+        == podcast_with_parsed_episodes.median_episode_duration
+    )
+    assert calculate_median_episode_duration([]) == 0
