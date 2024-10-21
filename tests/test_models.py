@@ -890,6 +890,27 @@ def test_analysis_group_feed_count(
     assert analysis_group.num_people() == 0
 
 
+def test_analysis_group_categories(
+    mute_signals, podcast_with_parsed_episodes, analysis_group
+):
+    new_podcast = PodcastFactory()
+    new_podcast.analysis_group.add(analysis_group)
+    podcast_with_parsed_episodes.analysis_group.add(analysis_group)
+    categories = analysis_group.get_itunes_categories_with_count()
+    assert categories.exists()
+    assert categories.count() == 2
+    for category in categories:
+        assert category.ag_pods == 1
+    new_podcast.itunes_categories.set(
+        podcast_with_parsed_episodes.itunes_categories.all()
+    )
+    analysis_group.refresh_from_db()
+    categories = analysis_group.get_itunes_categories_with_count()
+    assert categories.count() == 2
+    for category in categories:
+        assert category.ag_pods == 2
+
+
 def test_analysis_group_calculate_duration_episodes(
     podcast_with_parsed_episodes, analysis_group
 ):

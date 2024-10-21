@@ -847,6 +847,40 @@ def test_authorized_analysis_group_get_views(
     assert response.status_code == 200
 
 
+def test_authorized_analysis_group_detail_view_conditional_categories(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    analysis_group,
+):
+    podcast_with_parsed_episodes.analysis_group.add(analysis_group)
+    url = tp.reverse("podcast_analyzer:ag-detail", id=analysis_group.id)
+    client.force_login(user)
+    with django_assert_max_num_queries(50):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert "<li>Leisure - Games: 1</li>" in response.content.decode("utf-8")
+    cat_to_change = podcast_with_parsed_episodes.itunes_categories.get(name="Games")
+    podcast_with_parsed_episodes.itunes_categories.remove(cat_to_change)
+    podcast_with_parsed_episodes.itunes_categories.add(cat_to_change.parent_category)
+    analysis_group.refresh_from_db()
+    with django_assert_max_num_queries(50):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert "<li>Leisure: 1</li>" in response.content.decode("utf-8")
+    podcast_with_parsed_episodes.itunes_categories.clear()
+    analysis_group.refresh_from_db()
+    with django_assert_max_num_queries(50):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert (
+        "<li>No categories found for this analysis group.</li>"
+        in response.content.decode("utf-8")
+    )
+
+
 def test_authorized_analysis_group_create_view(
     client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
 ):

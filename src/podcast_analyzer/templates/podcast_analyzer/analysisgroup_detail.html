@@ -106,6 +106,14 @@
       <dd>{{ group.modified|date:"F j, Y H:i" }}</dd>
     </dl>
   </div>
+  <h2>{% translate "iTunes Categories with counts" %}</h2>
+  <ul>
+    {% for category in group.get_itunes_categories_with_count %}
+      <li>{% if category.parent_category %}{{ category.parent_category.name }} - {% endif %}{{ category.name }}: {{ category.ag_pods }}</li>
+    {% empty %}
+      <li>{% translate "No categories found for this analysis group." %}</li>
+    {% endfor %}
+  </ul>
 
   <div>
     <div>

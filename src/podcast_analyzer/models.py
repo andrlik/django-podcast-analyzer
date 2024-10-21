@@ -311,6 +311,19 @@ class AnalysisGroup(UUIDTimeStampedModel):
             return None
         return datetime.timedelta(seconds=self.get_total_duration_seconds())
 
+    def get_itunes_categories_with_count(self) -> QuerySet[ItunesCategory]:
+        """
+        For all associated podcasts, explicit or implicit, return their
+        associated distinct categories with counts.
+        """
+        ag_pods = models.Count("podcasts", filter=Q(podcasts__in=self.all_podcasts))
+        return (
+            ItunesCategory.objects.filter(podcasts__in=self.all_podcasts)
+            .annotate(ag_pods=ag_pods)
+            .select_related("parent_category")
+            .order_by("parent_category__name", "name")
+        )
+
     def get_all_episodes(self) -> QuerySet["Episode"]:
         """
         Get all episodes, explict and implied, for this Analysis Group.
@@ -361,7 +374,9 @@ class AnalysisGroup(UUIDTimeStampedModel):
         )
         podcast_ids = podcast_ids + podcast_ids_from_seasons + podcast_ids_from_episodes
         logger.debug(f"Found {len(podcast_ids)} podcast ids to fetch.")
-        podcasts = Podcast.objects.filter(id__in=podcast_ids)
+        podcasts = Podcast.objects.filter(id__in=podcast_ids).prefetch_related(
+            "itunes_categories"
+        )
         return podcasts
 
     def get_all_people(self) -> QuerySet["Person"]:
@@ -506,7 +521,9 @@ class Podcast(UUIDTimeStampedModel):
     feed_contains_structured_donation_data = models.BooleanField(default=False)
     funding_url = models.URLField(null=True, blank=True)
     probable_feed_host = models.CharField(max_length=250, null=True, blank=True)
-    itunes_categories = models.ManyToManyField(ItunesCategory, blank=True)
+    itunes_categories = models.ManyToManyField(
+        ItunesCategory, blank=True, related_name="podcasts"
+    )
     tags = TagField(blank=True)  # type: ignore
     analysis_group = models.ManyToManyField(
         AnalysisGroup, related_name="podcasts", blank=True
