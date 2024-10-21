@@ -11,6 +11,10 @@ from podcast_analyzer.models import AnalysisGroup, Episode, Podcast, Season
 
 
 class AnalysisGroupForm(forms.ModelForm):
+    """
+    Form class that enables setting the reverse relationships
+    to Podcast, Season, and Episode.
+    """
     class Meta:
         model = AnalysisGroup
         fields = ["name"]
