@@ -3,13 +3,15 @@
 {% block extratitle %}{% translate "Podcasts" %} - {% endblock %}
 {% block breadcrumbs %}
   <ul>
-    <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-list' %}" aria-current="page">{% translate "Podcasts" %}</a></li>
+    <li class="is-active">{% if tag %}<a href="{% url 'podcast_analyzer:tag-podcast-list' tag_slug=tag.slug %}">{% blocktranslate with tag_name=tag.name %}Podcasts tagged with {{ tag_name }}{% endblocktranslate %}</a>{% else %}<a href="{% url 'podcast_analyzer:podcast-list' %}" aria-current="page">{% translate "Podcasts" %}</a>{% endif %}</li>
   </ul>
 {% endblock %}
 {% block extra_controls %}
-  <div>
-    <a href="{% url 'podcast_analyzer:podcast-create' %}">{% translate "Add podcast" %}</a>
-  </div>
+  {% if not tag %}
+    <div>
+      <a href="{% url 'podcast_analyzer:podcast-create' %}">{% translate "Add podcast" %}</a>
+    </div>
+  {% endif %}
 {% endblock %}
 {% block content %}
   <h1>{% translate "Podcasts" %}</h1>

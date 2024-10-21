@@ -88,4 +88,9 @@ urlpatterns = [
         view=views.PodcastDeleteView.as_view(),
         name="podcast-delete",
     ),
+    path(
+        "tags/<slug:tag_slug>/",
+        view=views.TagPodcastListView.as_view(),
+        name="tag-podcast-list",
+    ),
 ]

@@ -9,6 +9,7 @@ from django.contrib import admin, messages
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.translation import ngettext
+from tagulous import admin as tagulous_admin
 
 from podcast_analyzer import FeedFetchError, FeedParseError
 from podcast_analyzer.models import (
@@ -48,7 +49,6 @@ class ItunesCategoryAdmin(admin.ModelAdmin):
     list_filter = ["parent_category"]
 
 
-@admin.register(Podcast)
 class PodcastAdmin(admin.ModelAdmin):
     """
     Admin for podcast records.
@@ -148,6 +148,9 @@ class PodcastAdmin(admin.ModelAdmin):
             % episodes_touched,
             messages.SUCCESS,
         )
+
+
+tagulous_admin.register(Podcast, PodcastAdmin)
 
 
 @admin.register(Season)

@@ -938,3 +938,43 @@ def test_authorized_analysis_group_edit_delete_views(
     assert AnalysisGroup.objects.count() == current_group_count - 1
     with pytest.raises(ObjectDoesNotExist):
         AnalysisGroup.objects.get(id=analysis_group.id)
+
+
+def test_unauthorized_tag_podcast_list_view(
+    client, django_assert_max_num_queries, tp, podcast_with_parsed_episodes
+):
+    new_tag = Podcast.tags.tag_model.objects.create(name="games")
+    podcast_with_parsed_episodes.tags = "games"
+    podcast_with_parsed_episodes.save()
+    url = tp.reverse("podcast_analyzer:tag-podcast-list", tag_slug=new_tag.slug)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 302
+    assert "accounts/login" in response["Location"]
+
+
+def test_authorized_tag_podcast_list_view(
+    client, django_assert_max_num_queries, user, podcast_with_parsed_episodes
+):
+    new_tag = Podcast.tags.tag_model.objects.create(name="games")
+    podcast_with_parsed_episodes.tags = "games"
+    podcast_with_parsed_episodes.save()
+    url = new_tag.get_absolute_url()
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert (
+        f'<li class="is-active"><a href="{url}">Podcasts tagged with {new_tag.name}</a></li>'
+        in response.content.decode("utf-8")
+    )
+
+
+def test_non_existent_tag(
+    client, django_assert_max_num_queries, user, podcast_with_parsed_episodes
+):
+    url = "/app/tags/some-random-tag/"
+    client.force_login(user)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 404

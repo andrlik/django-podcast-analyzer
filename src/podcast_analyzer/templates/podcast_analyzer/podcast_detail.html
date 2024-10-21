@@ -60,6 +60,8 @@
           {% endfor %}
         </ul>
       </dd>
+      <dt>{% translate "Tags" %}</dt>
+      <dd>{% for tag in podcast.tags.all %}<a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}{% empty %}{% translate "No tags found." %}{% endfor %}</dd>
       <dt>{% translate "Generator" %}</dt>
       <dd>{{ podcast.generator|urlize|default_if_none:"Unknown" }}</dd>
       <dt>{% translate "Probable Feed Host" %}</dt>
