@@ -14,6 +14,12 @@ class AnalysisGroupForm(forms.ModelForm):
     """
     Form class that enables setting the reverse relationships
     to Podcast, Season, and Episode.
+
+    Attributes:
+        name (forms.CharField): Name of the group
+        podcasts (form.ModelMultipleChoiceField): List of podcasts
+        seasons (form.ModelMultipleChoiceField): List of seasons
+        episodes (form.ModelMultipleChoiceField): List of episodes
     """
     class Meta:
         model = AnalysisGroup
