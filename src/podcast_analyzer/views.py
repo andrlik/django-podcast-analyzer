@@ -223,7 +223,7 @@ class EpisodeListView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, ListVie
     pk_url_kwarg = "id"
     context_object_name = "episodes"
     paginate_by = 50
-    ordering = ["-ep_num"]
+    ordering = ["-release_datetime", "-ep_num"]
     select_related = ["podcast", "season"]
 
 

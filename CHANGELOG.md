@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.1...HEAD)
+
+- As it turns out, some podcasts don't even include an episode number. Adjusts primary sorting for episodes on release_datetime.
+
 ## 0.2.1
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.0...0.2.1)
