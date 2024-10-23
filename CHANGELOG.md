@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.0...HEAD)
+
+- Fixes template links and link text.
+- Adds app level breadcrumb item.
+- Adds missing base entry view to app root.
+
 ## 0.2.0
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.1.2...0.2.0)
