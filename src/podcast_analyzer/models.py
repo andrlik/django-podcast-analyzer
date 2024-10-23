@@ -40,6 +40,7 @@ from tagulous.models import TagField
 
 from podcast_analyzer import FeedFetchError, FeedParseError
 from podcast_analyzer.utils import (
+    split_keywords,
     update_file_extension_from_mime_type,
 )
 
@@ -790,7 +791,7 @@ class Podcast(UUIDTimeStampedModel):
             logger.debug(
                 f"Adding feed keywords of {feed_dict.get('itunes_keywords', [])}"
             )
-            self.tags = feed_dict.get("itunes_keywords", [])
+            self.tags = split_keywords(feed_dict.get("itunes_keywords", []))
         if self.funding_url is not None:
             self.feed_contains_structured_donation_data = True
         self.last_checked = timezone.now()

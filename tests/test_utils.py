@@ -9,6 +9,7 @@ import pytest
 
 from podcast_analyzer.utils import (
     filename_has_extension,
+    split_keywords,
     update_file_extension_from_mime_type,
 )
 
@@ -51,3 +52,19 @@ def test_update_file_extension_from_mime_type(
         update_file_extension_from_mime_type(mime_type=mime_type, filename=filename)
         == expected_filename
     )
+
+
+@pytest.mark.parametrize(
+    "provided_keywords,expected_keywords",
+    [
+        ([], []),
+        (["apple", "tech", "chimp"], ["apple", "tech", "chimp"]),
+        (["apple,tech,chimp"], ["apple", "tech", "chimp"]),
+        (
+            ["apple", "tech,chimp", "audio drama"],
+            ["apple", "tech", "chimp", "audio drama"],
+        ),
+    ],
+)
+def test_keyword_validation(provided_keywords, expected_keywords):
+    assert split_keywords(provided_keywords) == expected_keywords

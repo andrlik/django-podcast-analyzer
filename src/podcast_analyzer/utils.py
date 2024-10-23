@@ -38,3 +38,26 @@ def filename_has_extension(filename: str) -> bool:
     if "." in filename[1:] and not filename.endswith("."):
         return True
     return False
+
+
+def split_keywords(keywords: list[str]) -> list[str]:
+    """
+    Given a list of keywords, check for delimiters that were missed, and split
+    accordingly.
+
+    Args:
+        keywords (list[str]): A list of keywords from podcastparser.
+
+    Returns:
+        list[str]: A list of keywords split accordingly.
+    """
+    if len(keywords) == 0:
+        return keywords
+    actual_keywords = []
+    for keyword in keywords:
+        if "," in keyword:
+            split_keys = [k.strip() for k in keyword.split(",")]
+            actual_keywords += split_keys
+        else:
+            actual_keywords.append(keyword)
+    return actual_keywords
