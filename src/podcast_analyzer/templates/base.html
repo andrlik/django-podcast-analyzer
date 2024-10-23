@@ -21,8 +21,11 @@
             <div>
               <div>
                 <nav aria-label="breadcrumbs">
-                  {% block breadcrumbs %}
-                  {% endblock %}
+                  <ul>
+                    {% block app_breadcrumb %}{% endblock %}
+                    {% block breadcrumbs %}
+                    {% endblock %}
+                  </ul>
                 </nav>
               </div>
             </div>

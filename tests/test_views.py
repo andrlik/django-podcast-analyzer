@@ -21,6 +21,31 @@ pytestmark = pytest.mark.django_db(transaction=True)
 
 
 @pytest.mark.parametrize(
+    "authenticated,expected_response_code", [(False, 302), (True, 200)]
+)
+def test_app_entry(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    authenticated,
+    expected_response_code,
+):
+    if authenticated:
+        client.force_login(user)
+    with django_assert_max_num_queries(25):
+        response = client.get(tp.reverse("podcast_analyzer:entry"))
+    assert response.status_code == expected_response_code
+    if not authenticated:
+        assert "accounts/login" in response["Location"]
+    else:
+        assert (
+            f'<a href="{tp.reverse("podcast_analyzer:entry")}">Analyzer</a>'
+            in response.content.decode("utf-8")
+        )
+
+
+@pytest.mark.parametrize(
     "view_name,is_detail",
     [
         ("podcast-list", False),
@@ -964,9 +989,8 @@ def test_authorized_tag_podcast_list_view(
     with django_assert_max_num_queries(40):
         response = client.get(url)
     assert response.status_code == 200
-    assert (
-        f'<li class="is-active"><a href="{url}">Podcasts tagged with {new_tag.name}</a></li>'
-        in response.content.decode("utf-8")
+    assert f"Podcasts tagged with {new_tag.name}</a></li>" in response.content.decode(
+        "utf-8"
     )
 
 

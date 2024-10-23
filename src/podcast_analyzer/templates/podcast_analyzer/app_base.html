@@ -1,4 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% block app_breadcrumb %}
+  <li><a href="{% url 'podcast_analyzer:entry' %}">{% translate "Analyzer" %}</a></li>
+{% endblock %}
 {% block content %}
 {% endblock %}
