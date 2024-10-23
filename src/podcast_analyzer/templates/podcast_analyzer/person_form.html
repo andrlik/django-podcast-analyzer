@@ -2,11 +2,11 @@
 {% load i18n %}
 {% block extratitle %}{% translate "Edit" %} {{ person.name }} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
-    <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a> </li>
-    <li class='is-active'><a href="{% url 'podcast_analyzer:person-edit' id=person.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
+  <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a> </li>
+  <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
+
 {% endblock %}
 {% block content %}
   <h1>{% blocktranslate with name=person.name %}Edit {{ name }}{% endblocktranslate %}</h1>

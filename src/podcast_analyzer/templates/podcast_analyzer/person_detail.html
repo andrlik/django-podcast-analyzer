@@ -2,10 +2,10 @@
 {% load i18n %}
 {% block extratitle %}{{ podcast.title }} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
-    <li class='is-active'><a href="{{ person.get_absolute_url }}" aria-current="page">{{ person.name }}</a> </li>
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
+  <li class='is-active'><a href="{{ person.get_absolute_url }}" aria-current="page">{{ person.name }}</a> </li>
+
 {% endblock %}
 {% block extra_controls %}
   <div><a href="{% url 'podcast_analyzer:person-edit' id=person.id %}">{% translate "Edit" %}</a></div>
@@ -88,7 +88,7 @@
     </div>
     <div>
 
-      <a href="{% url 'podcast_analyzer:person-delete' id=person.id %}">{% translate "Delete podcast" %}</a>
+      <a href="{% url 'podcast_analyzer:person-delete' id=person.id %}">{% translate "Delete person" %}</a>
     </div>
 
   </div>

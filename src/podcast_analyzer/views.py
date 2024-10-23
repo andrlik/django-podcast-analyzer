@@ -18,6 +18,7 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
@@ -65,6 +66,20 @@ class SelectPrefetchRelatedMixin:
             else:
                 qs = qs.order_by(*self.ordering)
         return qs
+
+
+class AppEntryView(LoginRequiredMixin, TemplateView):
+    """The default view for the root of the application."""
+
+    template_name = "podcast_analyzer/app_entry.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["podcast_count"] = Podcast.objects.count()
+        context["people_count"] = Person.objects.count()
+        context["analysis_group_count"] = AnalysisGroup.objects.count()
+        context["episode_count"] = Episode.objects.count()
+        return context
 
 
 class PodcastListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):

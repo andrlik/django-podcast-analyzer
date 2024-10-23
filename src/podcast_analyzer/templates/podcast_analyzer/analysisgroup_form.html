@@ -2,15 +2,15 @@
 {% load i18n %}
 {% block extratitle %}{% if not group %}{% translate "Add analysis group" %}{% else %}{% translate "Edit" %} {{ group.name }}{% endif %} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
-    {% if not group %}
-      <li class="is-active"><a href="{% url 'podcast_analyzer:ag-create' %}" aria-current="page">{% translate "Add" %}</a></li>
-    {% else %}
-      <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
-      <li class='is-active'><a href="{% url 'podcast_analyzer:ag-edit' id=group.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
-    {% endif %}
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
+  {% if not group %}
+    <li class="is-active"><a href="{% url 'podcast_analyzer:ag-create' %}" aria-current="page">{% translate "Add" %}</a></li>
+  {% else %}
+    <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
+    <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
+  {% endif %}
+
 {% endblock %}
 {% block content %}
   <h1>{% if not group %}{% translate "Add analysis group" %}{% else %}{% blocktranslate with title=group.name %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>

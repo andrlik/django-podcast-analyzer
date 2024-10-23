@@ -2,13 +2,13 @@
 {% load i18n %}
 {% block extratitle %}{% translate "Edit" %} {{ episode.title }} - {{ podcast.title }}{% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-    <li><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "Episodes" %}</a></li>
-    <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
-    <li><a href="{{ episode.get_absolute_url }}">{{ episode.title }}</a></li>
-    <li class='is-active'><a href="{% url 'podcast_analyzer:episode-edit' podcast_id=podcast.id id=episode.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+  <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
+  <li><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "Episodes" %}</a></li>
+  <li><a href="{{ episode.get_absolute_url }}">{{ episode.title }}</a></li>
+  <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
+
 {% endblock %}
 {% block content %}
   <h1>{% blocktranslate with title=episode.title %}Edit {{ title }}{% endblocktranslate %}</h1>

@@ -2,12 +2,12 @@
 {% load i18n %}
 {% block extratitle %}{{ episode.title }} - {% translate "Episodes" %} - {{ podcast.title }} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-    <li><a href="{{ podcast.urls.view}}" aria-current="page">{{ podcast.title }}</a> </li>
-    <li><a href="{{ podcast.urls.episodes }}">{% translate "Episodes" %}</a></li>
-    <li class="is-active"><a href="{{ episode.urls.view }}">{{ episode.title }}</a></li>
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+  <li><a href="{{ podcast.get_absolute_url}}">{{ podcast.title }}</a> </li>
+  <li><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "Episodes" %}</a></li>
+  <li class="is-active"><a href="#" aria-current="page">{{ episode.title }}</a></li>
+
 {% endblock %}
 {% block extra_controls %}
 {% endblock %}
@@ -23,7 +23,7 @@
         <strong>{% translate "Hosts" %}</strong>
         <ul>
           {% for host in episode.hosts_detected_from_feed.all %}
-            <li><a href="{{ host.urls.view }}">{{ host.name }}</a></li>
+            <li><a href="{{ host.get_absolute_url }}">{{ host.name }}</a></li>
           {% empty %}
             <li>{% translate "No hosts detected in feed." %}</li>
           {% endfor %}
@@ -33,7 +33,7 @@
         <strong>{% translate "Guests" %}</strong>
         <ul>
           {% for guest in episode.guests_detected_from_feed.all %}
-            <li><a href="{{ guest.urls.view }}">{{ guest.name }}</a></li>
+            <li><a href="{{ guest.get_absolute_url }}">{{ guest.name }}</a></li>
           {% empty %}
             <li>{% translate "No guests detected in feed." %}</li>
           {% endfor %}

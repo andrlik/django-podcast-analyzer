@@ -2,11 +2,11 @@
 {% load i18n %}
 {% block extratitle %}{% blocktranslate with title=group.name %}Delete {{ title }}?{% endblocktranslate %} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
-    <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
-    <li class='is-active'><a href="{% url 'podcast_analyzer:ag-delete' id=group.id %}" aria-current="page">{% translate "Delete" %}</a> </li>
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
+  <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a> </li>
+  <li class='is-active'><a href="#" aria-current="page">{% translate "Delete" %}</a> </li>
+
 {% endblock %}
 {% block content %}
   <h1>{% blocktranslate with title=group.name %}Delete {{ title }}?{% endblocktranslate %}</h1>

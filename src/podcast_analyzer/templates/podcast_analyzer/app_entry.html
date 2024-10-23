@@ -1,0 +1,10 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block content %}
+  <h1>{% translate "Currently tracking" %}</h1>
+  <ul>
+    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}: {{ podcast_count }}</a></li>
+    <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}: {{ people_count }}</a></li>
+    <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}: {{ analysis_group_count}}</a></li>
+  </ul>
+{% endblock %}
