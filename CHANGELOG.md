@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.3
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.2...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.2...0.2.3)
 
 - Add fix for cases with podcastparser doesn't split keywords correctly.
 
