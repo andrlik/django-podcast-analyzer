@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.1
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.0...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.0...0.2.1)
 
 - Fixes template links and link text.
 - Adds app level breadcrumb item.
