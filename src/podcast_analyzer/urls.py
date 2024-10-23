@@ -12,6 +12,7 @@ from podcast_analyzer import views
 app_name = "podcast_analyzer"
 
 urlpatterns = [
+    path("", view=views.AppEntryView.as_view(), name="entry"),
     path(
         "analysis-groups/", view=views.AnalysisGroupListView.as_view(), name="ag-list"
     ),

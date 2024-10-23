@@ -2,11 +2,11 @@
 {% load i18n %}
 {% block extratitle %}{% translate "Episodes" %} - {{ podcast.title }} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-    <li><a href="{{ podcast.urls.view }}" aria-current="page">{{ podcast.title }}</a> </li>
-    <li class="is-active"><a href="{{ podcast.urls.episodes }}">{% translate "Episodes" %}</a></li>
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+  <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
+  <li class="is-active"><a href="#" aria-current="page">{% translate "Episodes" %}</a></li>
+
 {% endblock %}
 {% block extra_controls %}
 {% endblock %}

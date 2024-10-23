@@ -2,15 +2,14 @@
 {% load i18n %}
 {% block extratitle %}{% if not podcast %}{% translate "Add podcast" %}{% else %}{% translate "Edit" %} {{ podcast.title }}{% endif %} - {% endblock %}
 {% block breadcrumbs %}
-  <ul>
-    <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-    {% if not podcast %}
-      <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-create' %}" aria-current="page">{% translate "Add" %}</a></li>
-    {% else %}
-      <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
-      <li class='is-active'><a href="{% url 'podcast_analyzer:podcast-edit' id=podcast.id %}" aria-current="page">{% translate "Edit" %}</a> </li>
-    {% endif %}
-  </ul>
+
+  <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
+  {% if not podcast %}
+    <li class="is-active"><a href="{% url 'podcast_analyzer:podcast-create' %}" aria-current="page">{% translate "Add" %}</a></li>
+  {% else %}
+    <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
+    <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
+  {% endif %}
 {% endblock %}
 {% block content %}
   <h1>{% if not podcast %}{% translate "Add podcast" %}{% else %}{% blocktranslate with title=podcast.title %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>
