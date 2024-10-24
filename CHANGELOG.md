@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.3...HEAD)
+
+- Adds a description field to AnalysisGroup so you add the reasoning behind why you created it.
+
 ## 0.2.3
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.2...0.2.3)

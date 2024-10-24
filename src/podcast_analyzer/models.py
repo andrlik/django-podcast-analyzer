@@ -196,6 +196,11 @@ class AnalysisGroup(UUIDTimeStampedModel):
         seasons: ManyToManyRelatedManager["Season", "Season"]
         episodes: ManyToManyRelatedManager["Episode", "Episode"]
     name = models.CharField(max_length=250, help_text=_("Identifier for group."))
+    description = models.TextField(
+        blank=True,
+        default="",
+        help_text=_("Description of group for your future reference."),
+    )
 
     class Meta:
         ordering: ClassVar[list[str]] = ["name", "created"]
