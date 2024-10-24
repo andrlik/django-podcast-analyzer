@@ -12,6 +12,7 @@
 {% endblock %}
 {% block content %}
   <h1>{{ group.name }}</h1>
+  <p>{{ group.description|striptags|urlize }}</p>
 
   <div>
     <h2>{% translate "Metadata" %}</h2>
