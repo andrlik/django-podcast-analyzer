@@ -17,6 +17,7 @@ class AnalysisGroupForm(forms.ModelForm):
 
     Attributes:
         name (forms.CharField): Name of the group
+        description (forms.TextField): Description of the group
         podcasts (form.ModelMultipleChoiceField): List of podcasts
         seasons (form.ModelMultipleChoiceField): List of seasons
         episodes (form.ModelMultipleChoiceField): List of episodes
@@ -24,7 +25,7 @@ class AnalysisGroupForm(forms.ModelForm):
 
     class Meta:
         model = AnalysisGroup
-        fields = ["name"]
+        fields = ["name", "description"]
 
     podcasts = forms.ModelMultipleChoiceField(
         queryset=Podcast.objects.all(), required=False
