@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.4
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.3...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.3...0.2.4)
 
 - Adds a description field to AnalysisGroup so you add the reasoning behind why you created it. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/01e1cee682320baeff67c34abcb3ffb1d5094240)
 
