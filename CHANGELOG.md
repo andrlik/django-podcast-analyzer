@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.5
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.4...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.4...0.2.5)
 
 - Add description to AnalysisGroupForm. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/024d8aaad63c4c84905b4ba4b80a32bc33f6831d)
 
