@@ -1,32 +1,38 @@
 # Changelog
 
+## Unreleased
+
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.5...HEAD)
+
+- Adds support for Django's messages framework. If detected in INSTALLED_APPS, it will add success and error messages to requests. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/de896d064fb5e58d595f2b390ec84bf7e7ddb0de)
+
 ## 0.2.5
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.4...0.2.5)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.4...v0.2.5)
 
 - Add description to AnalysisGroupForm. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/024d8aaad63c4c84905b4ba4b80a32bc33f6831d)
 
 ## 0.2.4
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.3...0.2.4)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.3...v0.2.4)
 
 - Adds a description field to AnalysisGroup so you add the reasoning behind why you created it. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/01e1cee682320baeff67c34abcb3ffb1d5094240)
 
 ## 0.2.3
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.2...0.2.3)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.2...v0.2.3)
 
 - Add fix for cases with podcastparser doesn't split keywords correctly.
 
 ## 0.2.2
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.1...0.2.2)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.1...v0.2.2)
 
 - As it turns out, some podcasts don't even include an episode number. Adjusts primary sorting for episodes on release_datetime.
 
 ## 0.2.1
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.0...0.2.1)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.0...v0.2.1)
 
 - Fixes template links and link text.
 - Adds app level breadcrumb item.
@@ -34,7 +40,7 @@
 
 ## 0.2.0
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.1.2...0.2.0)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.1.2...v0.2.0)
 
 - Improved logic for getting distinct podcasts for Person records. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/615e02aa2f57b0e0540375dd21c199d8bb4533fc)
 - If the actual mime type of Podcast cover art file is different from the reported type or file extension, update the file extension. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/75fdd0f2e2f2fd326e60e6ba14f01e76d0be0901)

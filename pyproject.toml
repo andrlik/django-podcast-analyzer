@@ -290,4 +290,4 @@ search = "Unreleased"
 [[tool.bumpversion.files]]
 filename = "CHANGELOG.md"
 search = "{current_version}...HEAD"
-replace = "{current_version}...{new_version}"
+replace = "{current_version}...v{new_version}"
