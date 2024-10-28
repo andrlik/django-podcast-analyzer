@@ -9,10 +9,13 @@ import logging
 from typing import TYPE_CHECKING, ClassVar
 
 # from django.shortcuts import render
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -31,6 +34,11 @@ from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 # Create your views here.
 
 logger = logging.getLogger("podcast_analyzer")
+
+
+def messaging_enabled() -> bool:
+    """Returns a bool representing if django's messages are enabled."""
+    return "django.contrib.messages" in settings.INSTALLED_APPS
 
 
 class SelectPrefetchRelatedMixin:
@@ -112,6 +120,18 @@ class PodcastCreateView(LoginRequiredMixin, CreateView):
     model = Podcast
     fields: ClassVar[list[str]] = ["title", "rss_feed"]  # type: ignore
 
+    def form_invalid(self, form):
+        if messaging_enabled():
+            messages.error(
+                self.request, _("Podcast could not be created. See errors below.")
+            )
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Podcast created"))
+        return super().get_success_url()
+
 
 class PodcastUpdateView(LoginRequiredMixin, UpdateView):
     """
@@ -132,6 +152,18 @@ class PodcastUpdateView(LoginRequiredMixin, UpdateView):
     ]
     context_object_name = "podcast"
 
+    def form_invalid(self, form):
+        if messaging_enabled():
+            messages.error(
+                self.request, _("Podcast could not be updated. See errors below.")
+            )
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Podcast updated"))
+        return super().get_success_url()
+
 
 class PodcastDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteView):
     """
@@ -145,6 +177,8 @@ class PodcastDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteVi
     prefetch_related = ["episodes", "seasons", "analysis_group"]
 
     def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Podcast deleted"))
         return reverse_lazy("podcast_analyzer:podcast-list")
 
 
@@ -176,6 +210,18 @@ class PersonUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "person"
     pk_url_kwarg = "id"
 
+    def form_invalid(self, form):
+        if messaging_enabled():
+            messages.error(
+                self.request, _("Person could not be updated. See errors below.")
+            )
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Person updated"))
+        return super().get_success_url()
+
 
 class PersonDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteView):
     """Delete a person from the database."""
@@ -187,6 +233,8 @@ class PersonDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteVie
     object: Person
 
     def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Person deleted"))
         return reverse_lazy("podcast_analyzer:person-list")
 
 
@@ -256,6 +304,18 @@ class EpisodeUpdateView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, Updat
         "guests_detected_from_feed",
     ]
 
+    def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Episode updated"))
+        return super().get_success_url()
+
+    def form_invalid(self, form):  # no cov
+        if messaging_enabled():
+            messages.error(
+                self.request, _("Episode could not be updated. See errors below.")
+            )
+        return super().form_invalid(form)
+
 
 class EpisodeDeleteView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, DeleteView):
     """Delete a given episode."""
@@ -273,6 +333,8 @@ class EpisodeDeleteView(LoginRequiredMixin, PodcastEpisodeDescendantMixin, Delet
     podcast: Podcast
 
     def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Episode deleted"))
         return reverse_lazy(
             "podcast_analyzer:episode-list", kwargs={"podcast_id": self.podcast.pk}
         )
@@ -323,6 +385,8 @@ class AnalysisGroupUpdateView(
         self.object.podcasts.set(form.cleaned_data["podcasts"])
         self.object.seasons.set(form.cleaned_data["seasons"])
         self.object.episodes.set(form.cleaned_data["episodes"])
+        if messaging_enabled():
+            messages.success(self.request, _("Analysis group updated"))
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -346,6 +410,8 @@ class AnalysisGroupCreateView(LoginRequiredMixin, CreateView):
         self.object.podcasts.set(form.cleaned_data["podcasts"])
         self.object.seasons.set(form.cleaned_data["seasons"])
         self.object.episodes.set(form.cleaned_data["episodes"])
+        if messaging_enabled():
+            messages.success(self.request, _("Analysis group created"))
         return HttpResponseRedirect(self.object.get_absolute_url())
 
 
@@ -361,6 +427,8 @@ class AnalysisGroupDeleteView(
     prefetch_related = ["podcasts", "seasons", "episodes"]
 
     def get_success_url(self):
+        if messaging_enabled():
+            messages.success(self.request, _("Analysis group deleted"))
         return reverse_lazy("podcast_analyzer:ag-list")
 
 

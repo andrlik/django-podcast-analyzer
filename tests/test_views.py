@@ -12,6 +12,7 @@ import uuid
 
 import pytest
 from django.core.exceptions import ObjectDoesNotExist
+from django.test import override_settings
 
 from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 from tests.factories.person import PersonFactory
@@ -140,6 +141,80 @@ def test_authenticated_create(mute_signals, client, tp, user):
     assert response["Location"] == new_pod.get_absolute_url()
 
 
+@pytest.mark.parametrize("messages_enabled", [True, False])
+def test_authenticated_create_messages(
+    mute_signals, settings, client, tp, user, messages_enabled
+):
+    client.force_login(user)
+    data_kwargs = {
+        "title": "Yet Another Tech Podcast",
+        "rss_feed": "https://www.example.com/yatp/feeds/rss.xml",
+    }
+    current_podcast_count = Podcast.objects.count()
+    url = tp.reverse("podcast_analyzer:podcast-create")
+    # First we check for errors
+    if not messages_enabled:
+        with override_settings(
+            INSTALLED_APPS=[
+                "django.contrib.auth",
+                "django.contrib.contenttypes",
+                "django.contrib.sessions",
+                "django.contrib.sites",
+                "django.contrib.staticfiles",
+                "django.contrib.admin",
+                "django.forms",
+                "tagulous",
+                "django_browser_reload",
+                "django_q",
+                "django_watchfiles",
+                "django_extensions",
+                "podcast_analyzer",
+            ]
+        ):
+            print(settings.INSTALLED_APPS)
+            response = client.post(url, data={"title": "Another boring show"})
+    else:
+        response = client.post(url, data={"title": "Another boring show"})
+    assert response.status_code == 200
+    assert current_podcast_count == Podcast.objects.count()
+    if messages_enabled:
+        assert (
+            "Podcast could not be created. See errors below."
+            in response.content.decode("utf-8")
+        )
+    else:
+        assert (
+            "Podcast could not be created. See errors below."
+            not in response.content.decode("utf-8")
+        )
+    if not messages_enabled:
+        with override_settings(
+            INSTALLED_APPS=[
+                "django.contrib.auth",
+                "django.contrib.contenttypes",
+                "django.contrib.sessions",
+                "django.contrib.sites",
+                "django.contrib.staticfiles",
+                "django.contrib.admin",
+                "django.forms",
+                "tagulous",
+                "django_browser_reload",
+                "django_q",
+                "django_watchfiles",
+                "django_extensions",
+                "podcast_analyzer",
+            ]
+        ):
+            response = client.post(url, data=data_kwargs, follow=True)
+    else:
+        response = client.post(url, data=data_kwargs, follow=True)
+    assert Podcast.objects.count() == current_podcast_count + 1
+    if messages_enabled:
+        assert "Podcast created" in response.content.decode("utf-8")
+    else:
+        assert "Podcast created" not in response.content.decode("utf-8")
+
+
 def test_authenticated_edit(
     mute_signals, client, tp, user, podcast_with_parsed_episodes
 ):
@@ -164,6 +239,88 @@ def test_authenticated_edit(
     podcast_with_parsed_episodes.refresh_from_db()
     assert last_mod < podcast_with_parsed_episodes.modified
     assert podcast_with_parsed_episodes.title == "Yet Another Tech Podcast"
+
+
+@pytest.mark.parametrize("messages_enabled", [True, False])
+def test_authenticated_edit_podcast_messages(
+    mute_signals, client, tp, user, podcast_with_parsed_episodes, messages_enabled
+):
+    client.force_login(user)
+    data_kwargs = {
+        "title": "Yet Another Tech Podcast",
+        "rss_feed": podcast_with_parsed_episodes.rss_feed,
+        "site_url": podcast_with_parsed_episodes.site_url,
+        "podcast_cover_art_url": podcast_with_parsed_episodes.podcast_cover_art_url,
+        "release_frequency": podcast_with_parsed_episodes.release_frequency,
+        "probable_feed_host": podcast_with_parsed_episodes.probable_feed_host
+        if podcast_with_parsed_episodes.probable_feed_host
+        else "",
+        "analysis_group": [],
+    }
+    url = tp.reverse(
+        "podcast_analyzer:podcast-edit", id=podcast_with_parsed_episodes.id
+    )
+    last_mod = podcast_with_parsed_episodes.modified
+    if not messages_enabled:
+        with override_settings(
+            INSTALLED_APPS=[
+                "django.contrib.auth",
+                "django.contrib.contenttypes",
+                "django.contrib.sessions",
+                "django.contrib.sites",
+                "django.contrib.staticfiles",
+                "django.contrib.admin",
+                "django.forms",
+                "tagulous",
+                "django_browser_reload",
+                "django_q",
+                "django_watchfiles",
+                "django_extensions",
+                "podcast_analyzer",
+            ]
+        ):
+            response = client.post(url, data={"title": "Not here to make friends"})
+    else:
+        response = client.post(url, data={"title": "Not here to make friends"})
+    assert response.status_code == 200
+    podcast_with_parsed_episodes.refresh_from_db()
+    assert last_mod == podcast_with_parsed_episodes.modified
+    assert podcast_with_parsed_episodes.title != "Not here to make friends"
+    if messages_enabled:
+        assert (
+            "Podcast could not be updated. See errors below."
+            in response.content.decode("utf-8")
+        )
+    else:
+        assert (
+            "Podcast could not be updated. See errors below."
+            not in response.content.decode("utf-8")
+        )
+    if not messages_enabled:
+        with override_settings(
+            INSTALLED_APPS=[
+                "django.contrib.auth",
+                "django.contrib.contenttypes",
+                "django.contrib.sessions",
+                "django.contrib.sites",
+                "django.contrib.staticfiles",
+                "django.contrib.admin",
+                "django.forms",
+                "tagulous",
+                "django_browser_reload",
+                "django_q",
+                "django_watchfiles",
+                "django_extensions",
+                "podcast_analyzer",
+            ]
+        ):
+            response = client.post(url, data=data_kwargs, follow=True)
+    else:
+        response = client.post(url, data=data_kwargs, follow=True)
+    if messages_enabled:
+        assert "Podcast updated" in response.content.decode("utf-8")
+    else:
+        assert "Podcast updated" not in response.content.decode("utf-8")
 
 
 def test_authenticated_delete(
@@ -413,6 +570,55 @@ def test_authenticated_person_edit(client, django_assert_max_num_queries, tp, us
     assert response["Location"] == person.get_absolute_url()
     person.refresh_from_db()
     assert person.url == "https://example.com"
+
+
+@pytest.mark.parametrize("messages_enabled", [True, False])
+def test_authenticated_person_edit_bad_data(
+    client, django_assert_max_num_queries, tp, user, messages_enabled
+):
+    person = PersonFactory(url="https://google.com")
+    last_mod = person.modified
+    name = person.name
+    client.force_login(user)
+    if not messages_enabled:
+        with override_settings(
+            INSTALLED_APPS=[
+                "django.contrib.auth",
+                "django.contrib.contenttypes",
+                "django.contrib.sessions",
+                "django.contrib.sites",
+                "django.contrib.staticfiles",
+                "django.contrib.admin",
+                "django.forms",
+                "tagulous",
+                "django_browser_reload",
+                "django_q",
+                "django_watchfiles",
+                "django_extensions",
+                "podcast_analyzer",
+            ]
+        ):
+            response = client.post(
+                tp.reverse("podcast_analyzer:person-edit", id=person.id), data={}
+            )
+    else:
+        response = client.post(
+            tp.reverse("podcast_analyzer:person-edit", id=person.id), data={}
+        )
+    assert response.status_code == 200
+    person.refresh_from_db()
+    assert person.name == name
+    assert person.modified == last_mod
+    if messages_enabled:
+        assert (
+            "Person could not be updated. See errors below."
+            in response.content.decode("utf-8")
+        )
+    else:
+        assert (
+            "Person could not be updated. See errors below."
+            not in response.content.decode("utf-8")
+        )
 
 
 def test_authenticated_person_delete(client, django_assert_max_num_queries, tp, user):
