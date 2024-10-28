@@ -883,6 +883,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.views.messaging_enabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      messaging_enabled
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1213,6 +1222,15 @@
   <a href="#src.podcast_analyzer.views.TagPodcastListView" class="md-nav__link">
     <span class="md-ellipsis">
       TagPodcastListView
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.views.messaging_enabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      messaging_enabled
     </span>
   </a>
   
@@ -2233,6 +2251,34 @@ select_related: list[str]</p>
 
 </div>
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.podcast_analyzer.views.messaging_enabled" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">messaging_enabled</span>
+
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">messaging_enabled</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Returns a bool representing if django's messages are enabled.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/podcast_analyzer/views.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="k">def</span> <span class="nf">messaging_enabled</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a bool representing if django&#39;s messages are enabled.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="k">return</span> <span class="s2">&quot;django.contrib.messages&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">INSTALLED_APPS</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 
