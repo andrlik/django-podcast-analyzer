@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.6
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.5...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.5...v0.2.6)
 
 - Adds support for Django's messages framework. If detected in INSTALLED_APPS, it will add success and error messages to requests. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/de896d064fb5e58d595f2b390ec84bf7e7ddb0de)
 
