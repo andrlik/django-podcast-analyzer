@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.6...HEAD)
+
+- Bug fix: Ensures correct function signature is added to the task queue for refreshing feed.
+
 ## 0.2.6
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.5...v0.2.6)

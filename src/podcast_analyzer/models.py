@@ -1029,7 +1029,7 @@ class Podcast(UUIDTimeStampedModel):
                 f"Scheduling next feed refresh for {self.title} for {next_run}"
             )
             refresh_schedule, created = Schedule.objects.get_or_create(
-                func="django_podcast_analyzer.podcast_data.tasks.async_refresh_feed",
+                func="podcast_analyzer.tasks.async_refresh_feed",
                 kwargs=f"podcast_id='{self.id}'",
                 name=f"{self.title} Refresh",
                 defaults={
