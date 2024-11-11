@@ -18,12 +18,12 @@ logger = logging.getLogger("podcast_analyzer")
 
 
 @receiver(post_save, sender=Podcast)
-def import_podcast_on_create(sender, instance, created, *args, **kwargs):  # noqa: ARG001
+def import_podcast_on_create(sender, instance, created, raw, *args, **kwargs):  # noqa: ARG001
     """
     When a podcast is created, schedule it for importing of feed data.
     """
     logger.debug("Checking to see if this is a new podcast...")
-    if created:
+    if created and not raw:
         logger.debug(
             f"New podcast created! Adding a task to fetch "
             f"feed data from {instance.rss_feed}"

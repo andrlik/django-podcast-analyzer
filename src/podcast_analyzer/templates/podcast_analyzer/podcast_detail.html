@@ -43,7 +43,7 @@
       <dt>{% translate "Language" %}</dt>
       <dd>{{ podcast.language }}</dd>
       <dt>{% translate "Actively releasing?" %}</dt>
-      <dd><span class="is-sr-only">{{ podcast.is_dormant|yesno:"No,Yes"}} </span>{{ podcast.is_dormant|yesno:"🚫,✅"}}</dd>
+      <dd><span class="is-sr-only">{{ podcast.dormant|yesno:"No,Yes"}} </span>{{ podcast.dormant|yesno:"🚫,✅"}}</dd>
       <dt>{% translate "Site URL" %}</dt>
       <dd>{{ podcast.site_url|urlize }}</dd>
       <dt>{% translate "Funding URL" %}</dt>
