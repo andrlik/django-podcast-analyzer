@@ -408,7 +408,7 @@ wheels = [
 
 [[package]]
 name = "django-podcast-analyzer"
-version = "0.2.7"
+version = "0.2.8"
 source = { editable = "." }
 dependencies = [
     { name = "django" },

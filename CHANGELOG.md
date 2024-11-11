@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.8
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.7...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.7...v0.2.8)
 
 - Bug fix: Corrects an error in the podcast detail template that could erroneously show a dormant podcast as active.
 - Adds logic to receivers to ignore post_create signals that come from fixtures.
