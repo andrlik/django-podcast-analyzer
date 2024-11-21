@@ -20,7 +20,7 @@ import podcastparser
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q, QuerySet
 
 if TYPE_CHECKING:
@@ -1205,6 +1205,19 @@ class Person(UUIDTimeStampedModel):
     img_url = models.URLField(
         null=True, blank=True, help_text=_("URL of the person's avatar image.")
     )
+    merged_into = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        related_name="merged_records",
+        null=True,
+        blank=True,
+        help_text=_("A primary record this person has been merged into."),
+    )
+    merged_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_("When the record was merged")
+    )
 
     class Meta:
         verbose_name_plural = "People"
@@ -1215,6 +1228,43 @@ class Person(UUIDTimeStampedModel):
 
     def get_absolute_url(self) -> str:
         return reverse_lazy("podcast_analyzer:person-detail", kwargs={"id": self.id})
+
+    @staticmethod
+    def merge_person(
+            source_person: "Person",
+            destination_person: "Person",
+            *,
+            dry_run: bool = False
+    ) -> int:
+        """
+        Merge one person record into another and update all existing episode links.
+
+        Args:
+            source_person (Person): The person that will be merged into another record.
+            destination_person (Person): The person record where the source_person will
+                be merged into.
+            dry_run (bool): Whether to actually do the merge or simply report the
+                number of affected records.
+
+        Returns:
+            int: The number of affected records or the number of records updated.
+        """
+        if dry_run:
+            return source_person.get_total_episodes()
+        records_updated = 0
+        with transaction.atomic():
+            for hosted_ep in source_person.hosted_episodes.all():
+                hosted_ep.hosts_detected_from_feed.remove(source_person)
+                hosted_ep.hosts_detected_from_feed.add(destination_person)
+                records_updated += 1
+            for guest_ep in source_person.guest_appearances.all():
+                guest_ep.guest_detected_from_feed.remove(source_person)
+                guest_ep.guest_detected_from_feed.add(destination_person)
+                records_updated += 1
+            source_person.merged_into = destination_person
+            source_person.merged_at = timezone.now()
+            source_person.save()
+        return records_updated
 
     @cached_property
     def has_hosted(self) -> int:
@@ -1510,6 +1560,8 @@ class Episode(UUIDTimeStampedModel):
                     persona, created = Person.objects.get_or_create(
                         name=person["name"], url=person.get("href", None)
                     )
+                    if persona.merged_into:
+                        persona = persona.merged_into
                     img = person.get("img", None)
                     if persona.img_url is None and img is not None:
                         persona.img_url = img

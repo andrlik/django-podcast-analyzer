@@ -745,6 +745,13 @@ def test_person_podcast_appearance_data(mute_signals):
     assert pod_data[2].guested_episodes.count() == 2
 
 
+def test_merge_person(podcast_with_parsed_episodes):
+    source_person = podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    dest_person = Person.objects.create(name="Primary Record", url="https://example.com/people/mrbig/")
+    current_episode_count = source_person.get_total_episodes()
+
+
+
 def test_season_detection(podcast_with_parsed_metadata, parsed_rss):
     """
     Checks that seasons don't exist for the podcast in initial state

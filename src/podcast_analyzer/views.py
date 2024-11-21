@@ -191,6 +191,7 @@ class PersonListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):
     paginate_by = 25
     ordering = ["name"]
     prefetch_related = ["hosted_episodes", "guest_appearances"]
+    queryset = Person.objects.filter(merged_into__isnull=True)
 
 
 class PersonDetailView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DetailView):
