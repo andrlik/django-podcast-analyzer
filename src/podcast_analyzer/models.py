@@ -1258,12 +1258,17 @@ class Person(UUIDTimeStampedModel):
                 hosted_ep.hosts_detected_from_feed.add(destination_person)
                 records_updated += 1
             for guest_ep in source_person.guest_appearances.all():
-                guest_ep.guest_detected_from_feed.remove(source_person)
-                guest_ep.guest_detected_from_feed.add(destination_person)
+                guest_ep.guests_detected_from_feed.remove(source_person)
+                guest_ep.guests_detected_from_feed.add(destination_person)
                 records_updated += 1
             source_person.merged_into = destination_person
             source_person.merged_at = timezone.now()
             source_person.save()
+            if not destination_person.url:
+                destination_person.url = source_person.url
+            if not destination_person.img_url:
+                destination_person.img_url = source_person.img_url
+            destination_person.save()
         return records_updated
 
     @cached_property

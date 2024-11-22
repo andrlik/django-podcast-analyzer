@@ -745,14 +745,47 @@ def test_person_podcast_appearance_data(mute_signals):
     assert pod_data[2].guested_episodes.count() == 2
 
 
-def test_merge_person(podcast_with_parsed_episodes):
+@pytest.mark.parametrize("person_url,img_url", [
+    ("https://example.com/people/mrbig", None),
+    ("https://example.com/people/mrbig", "https://example.com/people/mrbig/me.jpg"),
+    (None, "https://example.com/people/mrbig/me.jpg"),
+    (None, None),
+])
+def test_merge_person(podcast_with_parsed_episodes, podcast_with_two_seasons, person_url, img_url):
     source_person = podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
-    dest_person = Person.objects.create(name="Primary Record", url="https://example.com/people/mrbig/")
+    dest_person = Person.objects.create(name="Primary Record", url=person_url, img_url=img_url)
+    guest_ep = podcast_with_two_seasons.episodes.latest("release_datetime")
+    guest_ep.guests_detected_from_feed.add(source_person)
     current_episode_count = source_person.get_total_episodes()
+    updated_records = Person.merge_person(source_person, dest_person, dry_run=True)
+    assert updated_records == current_episode_count
+    assert source_person.get_total_episodes() == current_episode_count
+    assert dest_person.get_total_episodes() == 0
     updated_records = Person.merge_person(source_person, dest_person)
     assert updated_records == current_episode_count
     assert source_person.get_total_episodes() == 0
     assert dest_person.get_total_episodes() == current_episode_count
+    assert dest_person.guest_appearances.count() == 1
+    assert source_person.guest_appearances.count() == 0
+    if not img_url:
+        assert dest_person.img_url == source_person.img_url
+    else:
+        assert dest_person.img_url != source_person.img_url
+    if not person_url:
+        assert dest_person.url == source_person.url
+    else:
+        assert dest_person.url != source_person.url
+
+
+def test_merge_detection_in_episode_parse(podcast_with_parsed_metadata, parsed_rss):
+    source_person = Person.objects.create(name="John Doe", url="https://somepersonalwebsite.com")
+    dest_person = Person.objects.create(name="John Doe", url="https://example.com/people/jdoe/")
+    Person.merge_person(source_person, dest_person)
+    podcast_with_parsed_metadata.update_episodes_from_feed_data(parsed_rss["episodes"])
+    for episode in podcast_with_parsed_metadata.episodes.all():
+        hosts = episode.hosts_detected_from_feed.all()
+        assert dest_person in hosts
+        assert source_person not in hosts
 
 
 def test_season_detection(podcast_with_parsed_metadata, parsed_rss):

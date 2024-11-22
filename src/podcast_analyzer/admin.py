@@ -36,6 +36,7 @@ class PersonAdmin(admin.ModelAdmin):
         "url",
         "has_hosted",
         "has_guested",
+        "merged_to"
     ]
 
 
