@@ -749,7 +749,10 @@ def test_merge_person(podcast_with_parsed_episodes):
     source_person = podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
     dest_person = Person.objects.create(name="Primary Record", url="https://example.com/people/mrbig/")
     current_episode_count = source_person.get_total_episodes()
-
+    updated_records = Person.merge_person(source_person, dest_person)
+    assert updated_records == current_episode_count
+    assert source_person.get_total_episodes() == 0
+    assert dest_person.get_total_episodes() == current_episode_count
 
 
 def test_season_detection(podcast_with_parsed_metadata, parsed_rss):
