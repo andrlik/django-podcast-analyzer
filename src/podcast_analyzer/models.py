@@ -1214,9 +1214,7 @@ class Person(UUIDTimeStampedModel):
         help_text=_("A primary record this person has been merged into."),
     )
     merged_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text=_("When the record was merged")
+        null=True, blank=True, help_text=_("When the record was merged")
     )
 
     class Meta:
@@ -1231,10 +1229,7 @@ class Person(UUIDTimeStampedModel):
 
     @staticmethod
     def merge_person(
-            source_person: "Person",
-            destination_person: "Person",
-            *,
-            dry_run: bool = False
+        source_person: "Person", destination_person: "Person", *, dry_run: bool = False
     ) -> int:
         """
         Merge one person record into another and update all existing episode links.

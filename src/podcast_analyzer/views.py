@@ -14,7 +14,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404, HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
@@ -28,7 +29,7 @@ from django.views.generic import (
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-from podcast_analyzer.forms import AnalysisGroupForm
+from podcast_analyzer.forms import AnalysisGroupForm, PersonMergeForm
 from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 
 # Create your views here.
@@ -231,12 +232,96 @@ class PersonDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteVie
     pk_url_kwarg = "id"
     context_object_name = "person"
     prefetch_related = ["hosted_episodes", "guest_appearances"]
+    select_related = ["merged_to"]
     object: Person
 
     def get_success_url(self):
         if messaging_enabled():
             messages.success(self.request, _("Person deleted"))
         return reverse_lazy("podcast_analyzer:person-list")
+
+
+class PersonMergeListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListView):
+    """Show a list of people that this record could be merged with."""
+
+    model = Person
+    context_object_name = "merge_targets"
+    prefetch_related = ["hosted_episodes", "guest_appearances"]
+    select_related = ["merged_to"]
+    template_name = "podcast_analyzer/person_merge_list.html"
+    paginate_by = 20
+    source_person: Person
+
+    def get_queryset(self):
+        person_id = self.kwargs.get("person_id", None)
+        self.source_person = get_object_or_404(Person, pk=person_id)
+        return Person.objects.filter(merged_to__isnull=True).exclude(
+            id=self.source_person.id
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["person"] = self.source_person
+        return context
+
+
+class PersonMergeView(LoginRequiredMixin, UpdateView):
+    """
+    Show a confirmation screen so that the user can double-check what will be changed.
+    Then perform the merge on a post.
+    """
+
+    model = Person
+    pk_url_kwarg = "id"
+    context_object_name = "source"
+    destination: Person
+    template_name = "podcast_analyzer/person_confirm_merge.html"
+    form_class = PersonMergeForm
+    object: Person
+
+    def form_valid(self, form):
+        source = form.cleaned_data.get("source_person")
+        destination = form.cleaned_data.get("destination_person")
+        records_updated = Person.merge_person(
+            source_person=source, destination_person=destination
+        )
+        if messaging_enabled():
+            messages.success(
+                self.request,
+                f"Merged successfully and updated {records_updated} related records.",
+            )
+        return HttpResponseRedirect(destination.get_absolute_url())
+
+    def get_form_kwargs(self):
+        if self.object is None:
+            obj = self.get_object()
+        else:
+            obj = self.object
+        self.initial = {"source_person": obj, "destination_person": self.destination}
+        return super().get_form_kwargs()
+
+    def get_queryset(self):
+        destination_id = self.kwargs.get("destination_id")
+        self.destination = get_object_or_404(Person, pk=destination_id)
+        if self.destination.merged_at and messaging_enabled():
+            messages.error(
+                self.request,
+                _(
+                    "You cannot merge a person into a record that has already been "
+                    "merged itself."
+                ),
+            )
+            return HttpResponseRedirect(
+                reverse(
+                    "podcast_analyzer:person_merge_list",
+                    kwargs={"id": self.kwargs.get["id"]},
+                )
+            )
+        return (
+            Person.objects.filter(merged_to__isnull=True)
+            .prefetch_related("hosted_episodes", "guest_appearances")
+            .select_related("merged_to")
+        )
 
 
 class PodcastEpisodeDescendantMixin(SelectPrefetchRelatedMixin):
