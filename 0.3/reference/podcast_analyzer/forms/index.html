@@ -461,6 +461,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.forms.PersonMergeForm" class="md-nav__link">
+    <span class="md-ellipsis">
+      PersonMergeForm
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PersonMergeForm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.forms.PersonMergeForm.clean" class="md-nav__link">
+    <span class="md-ellipsis">
+      clean
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -840,6 +864,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.forms.PersonMergeForm" class="md-nav__link">
+    <span class="md-ellipsis">
+      PersonMergeForm
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PersonMergeForm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.podcast_analyzer.forms.PersonMergeForm.clean" class="md-nav__link">
+    <span class="md-ellipsis">
+      clean
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -988,6 +1036,133 @@ to Podcast, Season, and Episode.</p>
 
 
 
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="src.podcast_analyzer.forms.PersonMergeForm" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">PersonMergeForm</span>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code>Form</code></p>
+
+
+        <p>Form class for validating person merge operations.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="src.podcast_analyzer.forms.PersonMergeForm.source_person">source_person</span></code></td>
+            <td>
+                  <code>ModelChoiceField</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Source person</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="src.podcast_analyzer.forms.PersonMergeForm.destination_person">destination_person</span></code></td>
+            <td>
+                  <code>ModelChoiceField</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Destination person</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="src.podcast_analyzer.forms.PersonMergeForm.clean" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">clean</span>
+
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">clean</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Run standard clean and then validate that user is not trying
+to merge a record into itself.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/podcast_analyzer/forms.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#__codelineno-0-67">67</a></span>
+<span class="normal"><a href="#__codelineno-0-68">68</a></span>
+<span class="normal"><a href="#__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#__codelineno-0-71">71</a></span>
+<span class="normal"><a href="#__codelineno-0-72">72</a></span>
+<span class="normal"><a href="#__codelineno-0-73">73</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    Run standard clean and then validate that user is not trying</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">    to merge a record into itself.</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;destination_person&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source_person&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a>    <span class="k">if</span> <span class="n">dest</span> <span class="o">==</span> <span class="n">source</span><span class="p">:</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a>        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;A record cannot be merged into itself!&quot;</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a>        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 
