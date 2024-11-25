@@ -41,6 +41,16 @@ urlpatterns = [
         "people/<uuid:id>/", view=views.PersonDetailView.as_view(), name="person-detail"
     ),
     path(
+        "people/<uuid:id>/merge/",
+        view=views.PersonMergeListView.as_view(),
+        name="person-merge-list",
+    ),
+    path(
+        "people/<uuid:id>/merge/<uuid:destination_id>/",
+        view=views.PersonMergeView.as_view(),
+        name="person-merge",
+    ),
+    path(
         "people/<uuid:id>/edit/",
         view=views.PersonUpdateView.as_view(),
         name="person-edit",

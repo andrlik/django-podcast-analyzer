@@ -8,7 +8,7 @@
 
 {% endblock %}
 {% block extra_controls %}
-  <div><a href="{% url 'podcast_analyzer:person-edit' id=person.id %}">{% translate "Edit" %}</a></div>
+  <div><a href="{% url 'podcast_analyzer:person-edit' id=person.id %}">{% translate "Edit" %}</a> | <a href="{% url 'podcast_analyzer:person-merge-list' id=person.id %}">{% translate "Merge with another record" %}</a></div>
 {% endblock %}
 {% block content %}
   <h1>{{ person.name }}</h1>

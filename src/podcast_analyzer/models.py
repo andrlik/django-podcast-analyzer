@@ -20,7 +20,7 @@ import podcastparser
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q, QuerySet
 
 if TYPE_CHECKING:
@@ -1174,6 +1174,72 @@ class PodcastAppearanceData:
     guested_episodes: QuerySet["Episode"]
 
 
+@dataclasses.dataclass
+class PersonMergeConflictData:
+    """
+    Dataclass for sending back a structured list of potential merge conflicts between
+    two Person records.
+
+    Attributes:
+        source_person (Person): The source for the merge.
+        destination_person (Person): The destination record for the merge.
+        common_episodes (QuerySet[Episode]): Episodes where both records appear.
+        common_host_episodes (QuerySet[Episode]): Episodes where both records appear as
+            hosts.
+        common_guest_episodes (QuerySet[Episode]): Episodes where both records appear as
+            guests.
+    """
+
+    source_person: "Person"
+    destination_person: "Person"
+    common_episodes: QuerySet["Episode"]
+    common_host_episodes: QuerySet["Episode"]
+    common_guest_episodes: QuerySet["Episode"]
+    _common_ids: list[uuid.UUID] | None = None
+
+    def is_conflict_free(self) -> bool:
+        """Are any potential conflicts present?
+
+        Returns:
+            bool: Whether the merge conflicts were found.
+        """
+        if (
+            not self.common_episodes.exists()
+            and not self.common_host_episodes.exists()
+            and not self.common_guest_episodes.exists()
+        ):
+            return True
+        return False
+
+    def common_id_list(self) -> list[uuid.UUID]:
+        """
+        Get the list of any potential common episodes and store it in an
+        attribute before returning for caching.
+
+        Returns:
+            list[uuid.UUID]: The list of ids for any potential common episodes.
+        """
+        if self._common_ids is None:
+            self._common_ids = list(
+                self.common_episodes.all().values_list("id", flat=True)
+            )
+        return self._common_ids
+
+    def is_conflict(self, episode: "Episode") -> bool:
+        """
+        Checks if the supplied episode is one with a conflict.
+
+        Args:
+            episode (Episode): Episode to check.
+
+        Returns:
+            bool: Whether the merge conflicts were found.
+        """
+        if episode.id in self.common_id_list():
+            return True
+        return False
+
+
 class Person(UUIDTimeStampedModel):
     """
     People detected from structured data in podcast feed.
@@ -1205,6 +1271,17 @@ class Person(UUIDTimeStampedModel):
     img_url = models.URLField(
         null=True, blank=True, help_text=_("URL of the person's avatar image.")
     )
+    merged_into = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        related_name="merged_records",
+        null=True,
+        blank=True,
+        help_text=_("A primary record this person has been merged into."),
+    )
+    merged_at = models.DateTimeField(
+        null=True, blank=True, help_text=_("When the record was merged")
+    )
 
     class Meta:
         verbose_name_plural = "People"
@@ -1215,6 +1292,61 @@ class Person(UUIDTimeStampedModel):
 
     def get_absolute_url(self) -> str:
         return reverse_lazy("podcast_analyzer:person-detail", kwargs={"id": self.id})
+
+    @staticmethod
+    def merge_person(
+        source_person: "Person",
+        destination_person: "Person",
+        *,
+        conflict_data: PersonMergeConflictData | None = None,
+        dry_run: bool = False,
+    ) -> int:
+        """
+        Merge one person record into another and update all existing episode links.
+        In cases where a conflict appears, such as an overlap in episodes or in
+        additional attributes such as url or img_url, the destination record
+        always wins.
+
+        Args:
+            source_person (Person): The person that will be merged into another record.
+            destination_person (Person): The person record where the source_person will
+                be merged into.
+            conflict_data (PersonMergeConflictData, optional): You can optionally
+                provide this data in advance if you have already calculated it.
+            dry_run (bool): Whether to actually do the merge or simply report the
+                number of affected records.
+
+        Returns:
+            int: The number of affected records or the number of records updated.
+        """
+        if dry_run:
+            return source_person.get_total_episodes()
+        records_updated = 0
+        if not conflict_data:
+            conflict_data = source_person.get_potential_merge_conflicts(
+                destination_person
+            )
+        conflict_free = conflict_data.is_conflict_free()
+        with transaction.atomic():
+            for hosted_ep in source_person.hosted_episodes.all():
+                hosted_ep.hosts_detected_from_feed.remove(source_person)
+                if conflict_free or not conflict_data.is_conflict(hosted_ep):
+                    hosted_ep.hosts_detected_from_feed.add(destination_person)
+                records_updated += 1
+            for guest_ep in source_person.guest_appearances.all():
+                guest_ep.guests_detected_from_feed.remove(source_person)
+                if conflict_free or not conflict_data.is_conflict(guest_ep):
+                    guest_ep.guests_detected_from_feed.add(destination_person)
+                records_updated += 1
+            source_person.merged_into = destination_person
+            source_person.merged_at = timezone.now()
+            source_person.save()
+            if not destination_person.url:
+                destination_person.url = source_person.url
+            if not destination_person.img_url:
+                destination_person.img_url = source_person.img_url
+            destination_person.save()
+        return records_updated
 
     @cached_property
     def has_hosted(self) -> int:
@@ -1233,6 +1365,47 @@ class Person(UUIDTimeStampedModel):
     def get_total_episodes(self) -> int:
         """Get the total number of episodes this person appeared on."""
         return self.hosted_episodes.count() + self.guest_appearances.count()
+
+    def get_potential_merge_conflicts(
+        self, target: "Person"
+    ) -> PersonMergeConflictData:
+        """
+        Checks the person record against a given merge target and returns data
+        on any potential merge conflicts.
+
+        Args:
+            target (Person): The person whose merge conflicts should be checked against.
+
+        Returns:
+            PersonMergeConflictData: The merge conflicts data on the proposed target.
+        """
+        hosted_episode_ids = list(
+            self.hosted_episodes.all().values_list("id", flat=True)
+        )
+        guest_episode_ids = list(
+            self.guest_appearances.all().values_list("id", flat=True)
+        )
+        all_episode_ids = list(hosted_episode_ids + guest_episode_ids)
+        common_hosted_episodes = target.hosted_episodes.filter(
+            id__in=hosted_episode_ids
+        )
+        common_guest_episodes = target.guest_appearances.filter(
+            id__in=guest_episode_ids
+        )
+        target_all_episodes_ids = list(
+            target.hosted_episodes.all().values_list("id", flat=True)
+        ) + list(target.guest_appearances.all().values_list("id", flat=True))
+        common_episode_id_set = set(all_episode_ids).intersection(
+            target_all_episodes_ids
+        )
+        common_episodes = Episode.objects.filter(id__in=common_episode_id_set)
+        return PersonMergeConflictData(
+            source_person=self,
+            destination_person=target,
+            common_episodes=common_episodes,
+            common_host_episodes=common_hosted_episodes,
+            common_guest_episodes=common_guest_episodes,
+        )
 
     def get_distinct_podcasts(self):
         """
@@ -1510,6 +1683,8 @@ class Episode(UUIDTimeStampedModel):
                     persona, created = Person.objects.get_or_create(
                         name=person["name"], url=person.get("href", None)
                     )
+                    if persona.merged_into:
+                        persona = persona.merged_into
                     img = person.get("img", None)
                     if persona.img_url is None and img is not None:
                         persona.img_url = img

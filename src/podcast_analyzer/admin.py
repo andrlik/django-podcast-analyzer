@@ -31,12 +31,7 @@ class PersonAdmin(admin.ModelAdmin):
     Admin for detected persons.
     """
 
-    list_display = [
-        "name",
-        "url",
-        "has_hosted",
-        "has_guested",
-    ]
+    list_display = ["name", "url", "has_hosted", "has_guested", "merged_into"]
 
 
 @admin.register(ItunesCategory)

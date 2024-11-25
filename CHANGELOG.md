@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.8...HEAD)
+
+- Adds the ability to merge a person record into another. In cases where there is a conflict, the destination record wins.
+
 ## 0.2.8
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.2.7...v0.2.8)

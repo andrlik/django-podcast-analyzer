@@ -686,6 +686,322 @@ def test_person_detail_with_appearances(
     assert "No appearances yet." not in response.content.decode("utf-8")
 
 
+@pytest.mark.parametrize("authenticated", [True, False])
+def test_person_merge_list(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    authenticated,
+):
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    if authenticated:
+        client.force_login(user)
+    url = tp.reverse("podcast_analyzer:person-merge-list", id=source_person.id)
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    if not authenticated:
+        assert response.status_code == 302
+        assert "accounts/login" in response["Location"]
+    else:
+        assert response.status_code == 200
+        assert source_person not in response.context["merge_targets"]
+
+
+@pytest.mark.parametrize(
+    "authenticated,dest_url,dest_img_url,messaging_enabled",
+    [
+        (False, None, None, True),
+        (False, None, None, False),
+        (True, None, None, False),
+        (True, None, None, True),
+        (True, "https://example.com/people/msmith", None, True),
+        (True, None, "https://example.com/people/msmith/me.jpg", True),
+        (
+            True,
+            "https://example.com/people/msmith",
+            "https://example.com/people/msmith/me.jpg",
+            True,
+        ),
+        (
+            True,
+            "https://example.com/people/msmith",
+            "https://example.com/people/msmith/me.jpg",
+            False,
+        ),
+    ],
+)
+def test_person_merge_valid_target(
+    settings,
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    authenticated,
+    dest_url,
+    dest_img_url,
+    messaging_enabled,
+):
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    destination_person = Person.objects.create(
+        name="Michael Smith", url=dest_url, img_url=dest_img_url
+    )
+    if authenticated:
+        client.force_login(user)
+    url = tp.reverse(
+        "podcast_analyzer:person-merge",
+        id=source_person.id,
+        destination_id=destination_person.id,
+    )
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    if not authenticated:
+        assert response.status_code == 302
+        assert "accounts/login" in response["Location"]
+    else:
+        assert response.status_code == 200
+        assert response.context["conflict_data"].is_conflict_free()
+        if not dest_url:
+            assert (
+                f"The url for the destination record will be updated to: {source_person.url}"
+                in response.content.decode("utf-8")
+            )
+        else:
+            assert (
+                f"The url for the destination record will be updated to: {source_person.url}"
+                not in response.content.decode("utf-8")
+            )
+        if not dest_img_url:
+            assert (
+                f"The image url for destination record will be updated to: {source_person.img_url}"
+                in response.content.decode("utf-8")
+            )
+        else:
+            assert (
+                f"The image url for destination record will be updated to: {source_person.img_url}"
+                not in response.content.decode("utf-8")
+            )
+    orig_source_episodes = source_person.get_total_episodes()
+    orig_dest_episodes = destination_person.get_total_episodes()
+    if not messaging_enabled:
+        with override_settings(
+            INSTALLED_APPS=[
+                "django.contrib.auth",
+                "django.contrib.contenttypes",
+                "django.contrib.sessions",
+                "django.contrib.sites",
+                "django.contrib.staticfiles",
+                "django.contrib.admin",
+                "django.forms",
+                "tagulous",
+                "django_browser_reload",
+                "django_q",
+                "django_watchfiles",
+                "django_extensions",
+                "podcast_analyzer",
+            ]
+        ):
+            with django_assert_max_num_queries(60):
+                response = client.post(
+                    url,
+                    data={
+                        "source_person": source_person.id,
+                        "destination_person": destination_person.id,
+                    },
+                )
+    else:
+        response = client.post(
+            url,
+            data={
+                "source_person": source_person.id,
+                "destination_person": destination_person.id,
+            },
+        )
+    source_person.refresh_from_db()
+    destination_person.refresh_from_db()
+    if not authenticated:
+        assert response.status_code == 302
+        assert "accounts/login" in response["Location"]
+        assert source_person.get_total_episodes() == orig_source_episodes
+        assert destination_person.get_total_episodes() == orig_dest_episodes
+        assert source_person.merged_into is None
+    else:
+        assert response.status_code == 302
+        assert destination_person.get_absolute_url() == response["Location"]
+        assert source_person.get_total_episodes() == 0
+        assert (
+            destination_person.get_total_episodes()
+            == orig_source_episodes + orig_dest_episodes
+        )
+        assert source_person.merged_into == destination_person
+
+
+def test_person_merge_with_conflicts(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    destination_person = Person.objects.create(name="Curious George")
+    podcast_with_parsed_episodes.episodes.latest(
+        "release_datetime"
+    ).guests_detected_from_feed.add(destination_person)
+    client.force_login(user)
+    url = tp.reverse(
+        "podcast_analyzer:person-merge",
+        id=source_person.id,
+        destination_id=destination_person.id,
+    )
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert not response.context["conflict_data"].is_conflict_free()
+
+
+@pytest.mark.parametrize(
+    "authenticated,messaging_enabled",
+    [
+        (False, False),
+        (True, True),
+        (True, False),
+    ],
+)
+def test_person_merge_merged_target(
+    client,
+    django_assert_max_num_queries,
+    tp,
+    user,
+    podcast_with_parsed_episodes,
+    authenticated,
+    messaging_enabled,
+):
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    person1 = Person.objects.create(name="Old Sam")
+    dest_person = Person.objects.create(name="New Sam")
+    Person.merge_person(person1, dest_person)
+    url = tp.reverse(
+        "podcast_analyzer:person-merge", id=source_person.id, destination_id=person1.id
+    )
+    if authenticated:
+        client.force_login(user)
+    orig_source_episodes = source_person.get_total_episodes()
+    orig_dest_episodes = person1.get_total_episodes()
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    if not authenticated:
+        assert response.status_code == 302
+        assert "accounts/login" in response["Location"]
+    else:
+        assert response.status_code == 404
+    with django_assert_max_num_queries(60):
+        response = client.post(
+            url,
+            data={
+                "source_person": source_person.id,
+                "destination_person": person1.id,
+            },
+        )
+    source_person.refresh_from_db()
+    person1.refresh_from_db()
+    if not authenticated:
+        assert response.status_code == 302
+        assert "accounts/login" in response["Location"]
+    else:
+        assert response.status_code == 404
+        assert source_person.get_total_episodes() == orig_source_episodes
+        assert person1.get_total_episodes() == orig_dest_episodes
+        assert not source_person.merged_into
+
+
+def test_no_person_merge_option(client, django_assert_max_num_queries, tp, user):
+    client.force_login(user)
+    person = Person.objects.create(name="Old Sam")
+    url = tp.reverse("podcast_analyzer:person-merge-list", id=person.id)
+    with django_assert_max_num_queries(25):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert "No merge options found." in response.content.decode("utf-8")
+
+
+def test_person_merge_to_merged_record(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    client.force_login(user)
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    merged_person = Person.objects.create(name="Old Sam")
+    true_person = Person.objects.create(name="New Sam")
+    Person.merge_person(merged_person, true_person)
+    orig_source_episodes = source_person.get_total_episodes()
+    orig_merged_episodes = merged_person.get_total_episodes()
+    orig_true_episodes = true_person.get_total_episodes()
+    url = tp.reverse(
+        "podcast_analyzer:person-merge",
+        id=source_person.id,
+        destination_id=merged_person.id,
+    )
+    with django_assert_max_num_queries(30):
+        response = client.post(
+            url,
+            data={
+                "source_person": source_person.id,
+                "destination_person": merged_person.id,
+            },
+        )
+    source_person.refresh_from_db()
+    merged_person.refresh_from_db()
+    true_person.refresh_from_db()
+    assert response.status_code == 404
+    assert source_person.get_total_episodes() == orig_source_episodes
+    assert merged_person.get_total_episodes() == orig_merged_episodes
+    assert true_person.get_total_episodes() == orig_true_episodes
+    assert not source_person.merged_into
+
+
+def test_person_merge_tamper_form(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    client.force_login(user)
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    dest_person = Person.objects.create(name="Old Sam")
+    true_person = Person.objects.create(name="New Sam")
+    orig_source_episodes = source_person.get_total_episodes()
+    orig_merged_episodes = dest_person.get_total_episodes()
+    orig_true_episodes = true_person.get_total_episodes()
+    url = tp.reverse(
+        "podcast_analyzer:person-merge",
+        id=source_person.id,
+        destination_id=true_person.id,
+    )
+    with django_assert_max_num_queries(30):
+        response = client.post(
+            url,
+            data={
+                "source_person": source_person.id,
+                "destination_person": dest_person.id,
+            },
+        )
+    source_person.refresh_from_db()
+    dest_person.refresh_from_db()
+    true_person.refresh_from_db()
+    assert response.status_code == 400
+    assert source_person.get_total_episodes() == orig_source_episodes
+    assert dest_person.get_total_episodes() == orig_merged_episodes
+    assert true_person.get_total_episodes() == orig_true_episodes
+    assert not source_person.merged_into
+
+
 @pytest.mark.parametrize(
     "view_name,is_detail",
     [

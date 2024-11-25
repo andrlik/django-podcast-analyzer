@@ -6,8 +6,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from django import forms
+from django.core.exceptions import ValidationError
 
-from podcast_analyzer.models import AnalysisGroup, Episode, Podcast, Season
+from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast, Season
 
 
 class AnalysisGroupForm(forms.ModelForm):
@@ -36,3 +37,26 @@ class AnalysisGroupForm(forms.ModelForm):
     episodes = forms.ModelMultipleChoiceField(
         queryset=Episode.objects.all(), required=False
     )
+
+
+class PersonMergeForm(forms.Form):
+    cleaned_data = {}
+    source_person = forms.ModelChoiceField(
+        queryset=Person.objects.filter(merged_into__isnull=True),
+        required=True,
+        widget=forms.widgets.HiddenInput,
+    )
+    destination_person = forms.ModelChoiceField(
+        queryset=Person.objects.filter(merged_into__isnull=True),
+        required=True,
+        widget=forms.widgets.HiddenInput,
+    )
+
+    def clean(self):
+        self.cleaned_data = super().clean()
+        dest = self.cleaned_data.get("destination_person")
+        source = self.cleaned_data.get("source_person")
+        if dest == source:
+            msg = "A record cannot be merged into itself!"
+            raise ValidationError(msg)
+        return self.cleaned_data
