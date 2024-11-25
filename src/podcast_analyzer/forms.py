@@ -40,6 +40,13 @@ class AnalysisGroupForm(forms.ModelForm):
 
 
 class PersonMergeForm(forms.Form):
+    """
+    Form class for validating person merge operations.
+
+    Attributes:
+        source_person (forms.ModelChoiceField): Source person
+        destination_person (forms.ModelChoiceField): Destination person
+    """
     cleaned_data = {}
     source_person = forms.ModelChoiceField(
         queryset=Person.objects.filter(merged_into__isnull=True),
@@ -53,6 +60,10 @@ class PersonMergeForm(forms.Form):
     )
 
     def clean(self):
+        """
+        Run standard clean and then validate that user is not trying
+        to merge a record into itself.
+        """
         self.cleaned_data = super().clean()
         dest = self.cleaned_data.get("destination_person")
         source = self.cleaned_data.get("source_person")
