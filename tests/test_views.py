@@ -766,6 +766,7 @@ def test_person_merge_valid_target(
         assert "accounts/login" in response["Location"]
     else:
         assert response.status_code == 200
+        assert response.context["conflict_data"].is_conflict_free()
         if not dest_url:
             assert (
                 f"The url for the destination record will be updated to: {source_person.url}"
@@ -841,6 +842,28 @@ def test_person_merge_valid_target(
         assert source_person.merged_into == destination_person
 
 
+def test_person_merge_with_conflicts(
+    client, django_assert_max_num_queries, tp, user, podcast_with_parsed_episodes
+):
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()
+    )
+    destination_person = Person.objects.create(name="Curious George")
+    podcast_with_parsed_episodes.episodes.latest(
+        "release_datetime"
+    ).guests_detected_from_feed.add(destination_person)
+    client.force_login(user)
+    url = tp.reverse(
+        "podcast_analyzer:person-merge",
+        id=source_person.id,
+        destination_id=destination_person.id,
+    )
+    with django_assert_max_num_queries(40):
+        response = client.get(url)
+    assert response.status_code == 200
+    assert not response.context["conflict_data"].is_conflict_free()
+
+
 @pytest.mark.parametrize(
     "authenticated,messaging_enabled",
     [
@@ -877,54 +900,22 @@ def test_person_merge_merged_target(
         assert response.status_code == 302
         assert "accounts/login" in response["Location"]
     else:
-        assert response.status_code == 200
-        if messaging_enabled:
-            assert (
-                "You cannot merge a person into a record that has already been merged itself"
-                in response.content.decode("utf-8")
-            )
-    if not messaging_enabled:
-        with override_settings(
-            INSTALLED_APPS=[
-                "django.contrib.auth",
-                "django.contrib.contenttypes",
-                "django.contrib.sessions",
-                "django.contrib.sites",
-                "django.contrib.staticfiles",
-                "django.contrib.admin",
-                "django.forms",
-                "tagulous",
-                "django_browser_reload",
-                "django_q",
-                "django_watchfiles",
-                "django_extensions",
-                "podcast_analyzer",
-            ]
-        ):
-            with django_assert_max_num_queries(60):
-                response = client.post(
-                    url,
-                    data={
-                        "source_person": source_person.id,
-                        "destination_person": person1.id,
-                    },
-                )
-    else:
-        with django_assert_max_num_queries(60):
-            response = client.post(
-                url,
-                data={
-                    "source_person": source_person.id,
-                    "destination_person": person1.id,
-                },
-            )
+        assert response.status_code == 404
+    with django_assert_max_num_queries(60):
+        response = client.post(
+            url,
+            data={
+                "source_person": source_person.id,
+                "destination_person": person1.id,
+            },
+        )
     source_person.refresh_from_db()
     person1.refresh_from_db()
     if not authenticated:
         assert response.status_code == 302
         assert "accounts/login" in response["Location"]
     else:
-        assert response.status_code == 200
+        assert response.status_code == 404
         assert source_person.get_total_episodes() == orig_source_episodes
         assert person1.get_total_episodes() == orig_dest_episodes
         assert not source_person.merged_into
@@ -969,7 +960,7 @@ def test_person_merge_to_merged_record(
     source_person.refresh_from_db()
     merged_person.refresh_from_db()
     true_person.refresh_from_db()
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert source_person.get_total_episodes() == orig_source_episodes
     assert merged_person.get_total_episodes() == orig_merged_episodes
     assert true_person.get_total_episodes() == orig_true_episodes

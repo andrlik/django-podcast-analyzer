@@ -786,6 +786,25 @@ def test_merge_person(
         assert dest_person.url != source_person.url
 
 
+def test_merge_person_with_conflicts(podcast_with_parsed_episodes):
+    source_person = (
+        podcast_with_parsed_episodes.episodes.first().guests_detected_from_feed.first()
+    )
+    dest_person = Person.objects.create(name="Johnny Appleseed")
+    podcast_with_parsed_episodes.episodes.latest(
+        "release_datetime"
+    ).hosts_detected_from_feed.add(dest_person)
+    orig_source_episodes = source_person.get_total_episodes()
+    conflict_data = source_person.get_potential_merge_conflicts(dest_person)
+    assert conflict_data._common_ids is None
+    conflict_data.common_id_list()
+    assert conflict_data._common_ids is not None
+    updated_records = Person.merge_person(source_person, dest_person)
+    assert updated_records == orig_source_episodes
+    assert source_person.get_total_episodes() == 0
+    assert dest_person.get_total_episodes() == orig_source_episodes
+
+
 def test_merge_detection_in_episode_parse(podcast_with_parsed_metadata, parsed_rss):
     source_person = Person.objects.create(
         name="John Doe", url="https://somepersonalwebsite.com"

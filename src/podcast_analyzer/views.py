@@ -310,22 +310,17 @@ class PersonMergeView(LoginRequiredMixin, SingleObjectMixin, FormView):
         return super().get_form_kwargs()
 
     def get_queryset(self):
-        destination_id = self.kwargs.get("destination_id")
-        self.destination = get_object_or_404(Person, pk=destination_id)
-        if self.destination.merged_at:
-            if messaging_enabled():
-                messages.error(
-                    self.request,
-                    _(
-                        "You cannot merge a person into a record that has already been "
-                        "merged itself."
-                    ),
-                )
-        return (
+        qs = (
             Person.objects.filter(merged_into__isnull=True)
             .prefetch_related("hosted_episodes", "guest_appearances")
             .select_related("merged_into")
         )
+        destination_id = self.kwargs.get("destination_id")
+        try:
+            self.destination = qs.get(id=destination_id)
+        except ObjectDoesNotExist as odne:
+            raise Http404 from odne
+        return qs
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset=queryset)  # type: ignore
@@ -336,6 +331,9 @@ class PersonMergeView(LoginRequiredMixin, SingleObjectMixin, FormView):
             self.get_object()
         context = super().get_context_data(**kwargs)
         context["destination"] = self.destination
+        context["conflict_data"] = self.object.get_potential_merge_conflicts(
+            self.destination
+        )
         return context
 
 

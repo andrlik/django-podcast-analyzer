@@ -18,6 +18,14 @@
     <li>{% translate "All future episodes that refer to source record will automatically be redirected to the new record." %}</li>
     <li>{% translate "The source record will no longer appear in lists." %}</li>
   </ul>
+  {% if conflict_data and not conflict_data.is_conflict_free %}
+    <p><strong>{% translate "Warning" %}:</strong> {% translate "These two records overlap with each other in one or more episodes! The destination record will have the priority in case of conflicts." %}</p>
+    <ul>
+      <li>{% blocktranslate count counter=conflict_data.common_episodes.count %}There is {{ counter }} episode in common.{% plural %}There are {{ counter }} episodes in common.{% endblocktranslate %}</li>
+      <li>{% blocktranslate count counter=conflict_data.common_host_episodes.count %}There is {{ counter }} hosted episode in common.{% plural %}There are {{ counter }} hosted episodes in common.{% endblocktranslate %}</li>
+      <li>{% blocktranslate count counter=conflict_data.common_guest_episodes.count %}There is {{ counter }} guest appearance in common.{% plural %}There are {{ counter }} guest appearances in common.{% endblocktranslate %}</li>
+    </ul>
+  {% endif %}
   <form method="post">
     {% csrf_token %}
     {{ form }}
