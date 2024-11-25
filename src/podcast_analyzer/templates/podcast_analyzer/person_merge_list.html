@@ -1,0 +1,42 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% translate "Merge options" %} - {{ person.name }} - {% translate "People" %} - {% endblock %}
+{% block breadcrumbs %}
+  <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
+  <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a></li>
+  <li class="is-active"><a href="#" aria-current="page">{% translate "Merge options" %}</a></li>
+{% endblock %}
+{% block content %}
+  <h1>{% translate "Merge options for" %} {{ person.name }}</h1>
+  <p>{% translate "Select a person to merge this record into:" %}</p>
+  <table>
+    <thead>
+      <tr>
+        <th>{% translate "Name" %}</th>
+        <th>{% translate "URL" %}</th>
+        <th>{% translate "Image URL" %}</th>
+        <th>{% translate "Podcasts" %}</th>
+        <th>{% translate "Hosted Episodes" %}</th>
+        <th>{% translate "Guest Appearances" %}</th>
+        <th>{% translate "Similarity Index" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for target in  page_obj %}
+        <tr>
+          <td><a href="{% url 'podcast_analyzer:person-merge' id=person.id destination_id=target.id %}">{{ target.name }}</a></td>
+          <td>{{ target.url|urlizetrunc:35 }}</td>
+          <td>{{ target.img_url|urlizetrunc:35 }}</td>
+          <td>{{ target.get_distinct_podcasts.count }}</td>
+          <td>{{ target.hosted_episodes.count }}</td>
+          <td>{{ target.guest_appearances.count }}</td>
+          <td>{% translate "Not calculated yet." %}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">{% translate "No merge options found." %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include "podcast_analyzer/includes/pagination.html" %}
+{% endblock %}

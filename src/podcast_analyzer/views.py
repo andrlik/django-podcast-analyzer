@@ -12,19 +12,25 @@ from typing import TYPE_CHECKING, ClassVar
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    ObjectDoesNotExist,
+    SuspiciousOperation,
+)
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
     DeleteView,
     DetailView,
+    FormView,
     ListView,
     TemplateView,
     UpdateView,
 )
+from django.views.generic.detail import SingleObjectMixin
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -232,7 +238,7 @@ class PersonDeleteView(LoginRequiredMixin, SelectPrefetchRelatedMixin, DeleteVie
     pk_url_kwarg = "id"
     context_object_name = "person"
     prefetch_related = ["hosted_episodes", "guest_appearances"]
-    select_related = ["merged_to"]
+    select_related = ["merged_into"]
     object: Person
 
     def get_success_url(self):
@@ -247,15 +253,15 @@ class PersonMergeListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListVi
     model = Person
     context_object_name = "merge_targets"
     prefetch_related = ["hosted_episodes", "guest_appearances"]
-    select_related = ["merged_to"]
+    select_related = ["merged_into"]
     template_name = "podcast_analyzer/person_merge_list.html"
     paginate_by = 20
     source_person: Person
 
     def get_queryset(self):
-        person_id = self.kwargs.get("person_id", None)
+        person_id = self.kwargs.get("id", None)
         self.source_person = get_object_or_404(Person, pk=person_id)
-        return Person.objects.filter(merged_to__isnull=True).exclude(
+        return Person.objects.filter(merged_into__isnull=True).exclude(
             id=self.source_person.id
         )
 
@@ -265,7 +271,7 @@ class PersonMergeListView(LoginRequiredMixin, SelectPrefetchRelatedMixin, ListVi
         return context
 
 
-class PersonMergeView(LoginRequiredMixin, UpdateView):
+class PersonMergeView(LoginRequiredMixin, SingleObjectMixin, FormView):
     """
     Show a confirmation screen so that the user can double-check what will be changed.
     Then perform the merge on a post.
@@ -282,6 +288,9 @@ class PersonMergeView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         source = form.cleaned_data.get("source_person")
         destination = form.cleaned_data.get("destination_person")
+        if destination != self.destination or source != self.object:
+            msg = "It looks like you are trying to tamper with the merge form."
+            raise SuspiciousOperation(msg)
         records_updated = Person.merge_person(
             source_person=source, destination_person=destination
         )
@@ -293,7 +302,7 @@ class PersonMergeView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(destination.get_absolute_url())
 
     def get_form_kwargs(self):
-        if self.object is None:
+        if not hasattr(self, "object"):
             obj = self.get_object()
         else:
             obj = self.object
@@ -303,25 +312,31 @@ class PersonMergeView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         destination_id = self.kwargs.get("destination_id")
         self.destination = get_object_or_404(Person, pk=destination_id)
-        if self.destination.merged_at and messaging_enabled():
-            messages.error(
-                self.request,
-                _(
-                    "You cannot merge a person into a record that has already been "
-                    "merged itself."
-                ),
-            )
-            return HttpResponseRedirect(
-                reverse(
-                    "podcast_analyzer:person_merge_list",
-                    kwargs={"id": self.kwargs.get["id"]},
+        if self.destination.merged_at:
+            if messaging_enabled():
+                messages.error(
+                    self.request,
+                    _(
+                        "You cannot merge a person into a record that has already been "
+                        "merged itself."
+                    ),
                 )
-            )
         return (
-            Person.objects.filter(merged_to__isnull=True)
+            Person.objects.filter(merged_into__isnull=True)
             .prefetch_related("hosted_episodes", "guest_appearances")
-            .select_related("merged_to")
+            .select_related("merged_into")
         )
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset=queryset)  # type: ignore
+        return self.object
+
+    def get_context_data(self, **kwargs):
+        if not hasattr(self, "object"):
+            self.get_object()
+        context = super().get_context_data(**kwargs)
+        context["destination"] = self.destination
+        return context
 
 
 class PodcastEpisodeDescendantMixin(SelectPrefetchRelatedMixin):

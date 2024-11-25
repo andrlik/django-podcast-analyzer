@@ -794,6 +794,7 @@ def test_merge_detection_in_episode_parse(podcast_with_parsed_metadata, parsed_r
         name="John Doe", url="https://example.com/people/jdoe/"
     )
     Person.merge_person(source_person, dest_person)
+    assert podcast_with_parsed_metadata.episodes.count() == 0
     podcast_with_parsed_metadata.update_episodes_from_feed_data(parsed_rss["episodes"])
     for episode in podcast_with_parsed_metadata.episodes.all():
         hosts = episode.hosts_detected_from_feed.all()

@@ -1,0 +1,28 @@
+{% extends "podcast_analyzer/app_base.html" %}
+{% load i18n %}
+{% block extratitle %}{% blocktranslate with source_name=source.name destination_name=destination.name %}Merge {{ source_name }} into {{ destination_name }}{% endblocktranslate %} - {% translate "People" %} - {% endblock %}
+{% block breadcrumbs %}
+  <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
+  <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a></li>
+  <li class="is-active"><a href="#" aria-current="page">{% translate "Merge with" %} {{ destination.name }}</a></li>
+{% endblock %}
+{% block content %}
+  <h1>{% blocktranslate with source_name=source.name destination_name=destination.name %}Merge {{ source_name }} into {{ destination_name }}{% endblocktranslate %}</h1>
+  <p>{% blocktranslate with source_name=source.name destination_name=destination.name %}{{ source_name }} would be merged into {{ destination_name }} for all existing episodes and any future episodes.{% endblocktranslate %}</p>
+  <p>{% translate "This means:" %}</p>
+  <ul>
+    <li>{% translate "All episode appearances, either as guest or host, will be reassigned." %}</li>
+    <li>{% translate "All podcast and analysis group connections will be reassigned." %}</li>
+    {% if not destination.url %}<li>{% translate "The url for the destination record will be updated to" %}: {{ source.url }}</li>{% endif %}
+    {% if not destination.img_url %}<li>{% translate "The image url for destination record will be updated to" %}: {{ source.img_url }}</li>{% endif %}
+    <li>{% translate "All future episodes that refer to source record will automatically be redirected to the new record." %}</li>
+    <li>{% translate "The source record will no longer appear in lists." %}</li>
+  </ul>
+  <form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <p>{% translate "Are you sure you wish to proceed with this merge? It cannot be undone." %}</p>
+    <a href="{% url 'podcast_analyzer:person-merge-list' id=source.id %}">{% translate "No, return to merge options" %}</a>
+    <button type="submit">{% translate "Merge records" %}</button>
+  </form>
+{% endblock %}

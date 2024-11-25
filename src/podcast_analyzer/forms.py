@@ -40,21 +40,23 @@ class AnalysisGroupForm(forms.ModelForm):
 
 
 class PersonMergeForm(forms.Form):
+    cleaned_data = {}
     source_person = forms.ModelChoiceField(
-        queryset=Person.objects.filter(merged_to__isnull=True),
+        queryset=Person.objects.filter(merged_into__isnull=True),
         required=True,
         widget=forms.widgets.HiddenInput,
     )
     destination_person = forms.ModelChoiceField(
-        queryset=Person.objects.filter(merged_to__isnull=True),
+        queryset=Person.objects.filter(merged_into__isnull=True),
         required=True,
         widget=forms.widgets.HiddenInput,
     )
 
     def clean(self):
-        cleaned_data = super().clean()
-        dest = cleaned_data.get("destination_person")
-        source = cleaned_data.get("source_person")
+        self.cleaned_data = super().clean()
+        dest = self.cleaned_data.get("destination_person")
+        source = self.cleaned_data.get("source_person")
         if dest == source:
             msg = "A record cannot be merged into itself!"
             raise ValidationError(msg)
+        return self.cleaned_data
