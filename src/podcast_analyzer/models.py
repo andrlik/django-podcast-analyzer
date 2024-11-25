@@ -1303,6 +1303,9 @@ class Person(UUIDTimeStampedModel):
     ) -> int:
         """
         Merge one person record into another and update all existing episode links.
+        In cases where a conflict appears, such as an overlap in episodes or in
+        additional attributes such as url or img_url, the destination record
+        always wins.
 
         Args:
             source_person (Person): The person that will be merged into another record.
