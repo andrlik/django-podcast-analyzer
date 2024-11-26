@@ -13,6 +13,21 @@ MIME_TYPE_FILE_EXTENSIONS = {
 }
 
 
+def get_filename_from_url(url: str) -> str:
+    """Given a URL to a file, get only the filename itself.
+
+    Args:
+        url (str): The URL to a file.
+
+    Returns:
+        str: The filename.
+    """
+    filename = url.split("/")[-1]
+    if "?" in filename:
+        filename = filename.split("?")[0]
+    return filename
+
+
 def update_file_extension_from_mime_type(mime_type: str, filename: str) -> str:
     """
     Given the mime type and filename update the file extension.

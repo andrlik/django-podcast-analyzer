@@ -745,6 +745,46 @@ def test_person_podcast_appearance_data(mute_signals):
     assert pod_data[2].guested_episodes.count() == 2
 
 
+@pytest.mark.asyncio
+async def test_person_fetch_avatar_no_url():
+    person = await Person.objects.acreate(
+        name="John Doe", url="https://www.example.com"
+    )
+    await person.afetch_avatar()
+    assert not person.avatar
+
+
+@pytest.mark.asyncio
+async def test_person_fetch_avatar_request_fail(mute_signals, httpx_mock):
+    person = await Person.objects.acreate(
+        name="John Doe",
+        url="https://www.example.com",
+        img_url="https://example.com/jdoe.jpg",
+    )
+    httpx_mock.add_response(url="https://example.com/jdoe.jpg", status_code=404)
+    await person.afetch_avatar()
+    assert not person.avatar
+
+
+@pytest.mark.asyncio
+async def test_person_fetch_avatar(mute_signals, cover_art, httpx_mock):
+    person = await Person.objects.acreate(
+        name="John Doe",
+        url="https://www.example.com",
+        img_url="https://example.com/jdoe.jpg",
+    )
+    headers = {"Content-Type": "image/png"}
+    httpx_mock.add_response(
+        url="https://example.com/jdoe.jpg",
+        headers=headers,
+        content=cover_art,
+        status_code=200,
+    )
+    await person.afetch_avatar()
+    assert person.avatar
+    assert person.avatar.url
+
+
 @pytest.mark.parametrize(
     "person_url,img_url",
     [
@@ -755,7 +795,11 @@ def test_person_podcast_appearance_data(mute_signals):
     ],
 )
 def test_merge_person(
-    podcast_with_parsed_episodes, podcast_with_two_seasons, person_url, img_url
+    mute_signals,
+    podcast_with_parsed_episodes,
+    podcast_with_two_seasons,
+    person_url,
+    img_url,
 ):
     source_person = (
         podcast_with_parsed_episodes.episodes.first().hosts_detected_from_feed.first()

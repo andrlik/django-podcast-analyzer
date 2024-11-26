@@ -12,6 +12,7 @@ __version__ = "0.3.0"
 from podcast_analyzer.exceptions import (
     FeedFetchError,
     FeedParseError,
+    ImageRetrievalError,
 )
 
-__all__ = ["FeedFetchError", "FeedParseError"]
+__all__ = ["FeedFetchError", "FeedParseError", "ImageRetrievalError"]

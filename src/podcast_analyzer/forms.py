@@ -47,6 +47,7 @@ class PersonMergeForm(forms.Form):
         source_person (forms.ModelChoiceField): Source person
         destination_person (forms.ModelChoiceField): Destination person
     """
+
     cleaned_data = {}
     source_person = forms.ModelChoiceField(
         queryset=Person.objects.filter(merged_into__isnull=True),
