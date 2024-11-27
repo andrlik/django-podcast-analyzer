@@ -253,7 +253,7 @@ ignore = ["W004"]
 image_alt = true
 
 [tool.bandit]
-exclude_dirs = ["tests"]
+exclude_dirs = ["tests", "conftest.py"]
 
 [tool.bumpversion]
 current_version = "0.3.0"

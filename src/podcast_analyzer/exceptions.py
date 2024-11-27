@@ -21,3 +21,11 @@ class FeedParseError(Exception):
     """
 
     pass
+
+
+class ImageRetrievalError(Exception):
+    """
+    Raised when we are unable to retrieve image data from a remote source.
+    """
+
+    pass

@@ -42,6 +42,11 @@ def use_test_media(request, settings):
     request.addfinalizer(remove_test_media)
 
 
+@pytest.fixture(autouse=True)
+def worker_sync_mode(request, settings):
+    settings.Q_CLUSTER["sync"] = True
+
+
 @pytest.fixture
 def user():
     u = User.objects.create_superuser(

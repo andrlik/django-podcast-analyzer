@@ -38,8 +38,9 @@ from django_q.tasks import async_task
 from magic import MagicException
 from tagulous.models import TagField
 
-from podcast_analyzer import FeedFetchError, FeedParseError
+from podcast_analyzer import FeedFetchError, FeedParseError, ImageRetrievalError
 from podcast_analyzer.utils import (
+    get_filename_from_url,
     split_keywords,
     update_file_extension_from_mime_type,
 )
@@ -97,6 +98,135 @@ def podcast_art_directory_path(instance, filename):
     if len(title) > ART_TITLE_LENGTH_LIMIT:
         title = title[:ART_TITLE_LENGTH_LIMIT]
     return f"{title.replace(" ", "_")}_{instance.id}/{filename}"
+
+
+def avatar_directory_path(instance, filename):
+    """
+    Used for storing cached person avatar images.
+    """
+    name = instance.name
+    if len(name) > ART_TITLE_LENGTH_LIMIT:  # no cov
+        name = name[:ART_TITLE_LENGTH_LIMIT]
+    return f"{name.replace(" ", "_")}_{instance.id}/{filename}"
+
+
+@dataclasses.dataclass(init=False)
+class RemoteImageData:
+    """
+    Represents the results from fetching remote image data for
+    use in local caches.
+
+    Attributes:
+        image_file (File): A Django file object of the image.
+        filename (str): The filename of the image provided for convenience.
+        remote_url (str): The URL of the remote image.
+        reported_mime_type (str | None): The mime type of the image per the remote
+            server.
+        actual_mime_type (str | None): The actual mime type of the image.
+    """
+
+    image_file: File
+    filename: str
+    reported_mime_type: str | None
+    remote_url: str
+    actual_mime_type: str | None
+
+    _allowed_mime_types = [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+    ]
+
+    def __init__(
+        self,
+        img_data: BytesIO,
+        remote_url: str,
+        reported_mime_type: str | None = None,
+        *,
+        allowed_mime_types: list[str] | None = None,
+    ) -> None:
+        """
+        Creates an instance of RemoteImageData and does some initial calculations.
+
+        Args:
+            img_data (BytesIO): Image data as a BytesIO object.
+            remote_url (str): Remote image URL.
+            reported_mime_type (str | None): Reported mime type of the image.
+        """
+        self.remote_url = remote_url
+        self.reported_mime_type = reported_mime_type
+        filename: str = get_filename_from_url(self.remote_url)
+        self.image_file = File(img_data, name=filename)
+        if allowed_mime_types is not None and len(allowed_mime_types) > 0:
+            # For when we start capturing other types of files.
+            self._allowed_mime_types = allowed_mime_types
+        try:
+            self.actual_mime_type = magic.from_buffer(img_data.read(2048), mime=True)
+            logger.debug(f"Setting actual mime type to {self.actual_mime_type}")
+        except MagicException as me:  # no cov
+            logger.error(f"Unable to determine real mime type for {filename}: {me}")
+            self.actual_mime_type = None
+        if (
+            self.actual_mime_type is not None
+            and self.actual_mime_type != self.reported_mime_type
+            and self.actual_mime_type in self._allowed_mime_types
+        ):
+            logger.debug(
+                f"Reported mime type is {self.reported_mime_type} but actual is "
+                f"{self.actual_mime_type}. Updating file extension..."
+            )
+            filename = update_file_extension_from_mime_type(
+                mime_type=self.actual_mime_type, filename=filename
+            )
+            logger.debug(f"Filename is now {filename}")
+        logger.debug(f"Setting self.filename to {filename}")
+        self.filename = filename
+
+    def is_valid(self) -> bool:
+        """
+        Validate that the mime type is valid for storage.
+        """
+        if (
+            self.actual_mime_type is not None
+            and self.actual_mime_type in self._allowed_mime_types
+        ):
+            return True
+        return False
+
+
+async def fetch_image_for_record(
+    img_url: str,
+) -> RemoteImageData:
+    """
+    Given a URL for an image file and a model instance, fetch the file and
+    returns its data in BytesIO object with its reported mime type.
+
+    Args:
+        img_url (str): URL for an image file
+
+    Returns:
+        RemoteImageData: Includes the bytes, reported mime_type and remote url.
+
+    Raises:
+        ImageRetrievalError: If an image could not be fetched.
+    """
+    async with httpx.AsyncClient(timeout=5) as client:
+        try:
+            r = await client.get(img_url)
+        except httpx.RequestError as req_err:  # no cov
+            msg = f"Unable to fetch image from {img_url}! Details: {req_err}"
+            raise ImageRetrievalError(msg) from req_err
+        if r.status_code != httpx.codes.OK:
+            msg = f"Received status code {r.status_code} for {img_url}"
+            raise ImageRetrievalError(msg)
+        mime_type = r.headers.get("Content-Type", None)
+        img_data = BytesIO(r.content)
+    return RemoteImageData(
+        img_data=img_data,
+        remote_url=img_url,
+        reported_mime_type=mime_type,
+    )
 
 
 class TimeStampedModel(models.Model):
@@ -698,7 +828,7 @@ class Podcast(UUIDTimeStampedModel):
             f"found updated {episodes_touched} episodes."
         )
         if self.podcast_art_cache_update_needed:
-            async_task(self.fetch_podcast_cover_art)
+            async_task("podcast_analyzer.tasks.fetch_podcast_cover_art", self)
         async_task("podcast_analyzer.tasks.run_feed_analysis", self)
         return episodes_touched
 
@@ -902,6 +1032,7 @@ class Podcast(UUIDTimeStampedModel):
             )
             self.podcast_art_cache_update_needed = False
             self.save()
+            update_record.save()
         else:
             logger.error(
                 f"File mime type of {update_record.actual_mime_type} is "
@@ -1271,6 +1402,7 @@ class Person(UUIDTimeStampedModel):
     img_url = models.URLField(
         null=True, blank=True, help_text=_("URL of the person's avatar image.")
     )
+    avatar = models.ImageField(null=True, blank=True, upload_to=avatar_directory_path)
     merged_into = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -1292,6 +1424,25 @@ class Person(UUIDTimeStampedModel):
 
     def get_absolute_url(self) -> str:
         return reverse_lazy("podcast_analyzer:person-detail", kwargs={"id": self.id})
+
+    async def afetch_avatar(self) -> None:
+        """
+        Fetch the file at img_url to cache locally.
+        """
+        if not self.img_url:
+            logger.debug(f"There is not img_url for {self.name}. Aborting fetch.")
+            return  # Nothing to do
+        try:
+            rid = await fetch_image_for_record(self.img_url)
+        except ImageRetrievalError as ire:
+            logger.error(
+                f"Error fetching image for {self.name} from {self.img_url}: {ire}"
+            )
+            return
+        if rid.is_valid():
+            await sync_to_async(self.avatar.save)(
+                name=rid.filename, content=rid.image_file
+            )
 
     @staticmethod
     def merge_person(
