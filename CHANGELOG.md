@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.3.0...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.3.0...v0.4.0)
 
 - Adds the ability to cache a Person's avatar so that you don't need to hotlink their declared img URL. [Commit](https://github.com/andrlik/django-podcast-analyzer/commit/d5354db930f435924632ea5f72d20d264da10849)
 
