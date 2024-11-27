@@ -17,7 +17,7 @@
       <figure>
         <p>
           {% if person.img_url %}
-            <img src="{{ person.img_url }}" alt="Avatar for {{ person.name }}" height=200 width=200 />
+            <img src="{% if person.avatar %}{{ person.avatar.url }}{% else %}{{ person.img_url }}{% endif %}" alt="Avatar for {{ person.name }}" height=200 width=200 />
           {% endif %}
         </p>
         {% if person.url %}<p><a href="{{ person.url }}">{% translate "Website" %}</a></p>{% endif %}

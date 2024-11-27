@@ -131,15 +131,20 @@ class RemoteImageData:
     remote_url: str
     actual_mime_type: str | None
 
-    _allowed_mime_types = (
+    _allowed_mime_types = [
         "image/png",
         "image/jpeg",
         "image/gif",
         "image/webp",
-    )
+    ]
 
     def __init__(
-        self, img_data: BytesIO, remote_url: str, reported_mime_type: str | None = None
+        self,
+        img_data: BytesIO,
+        remote_url: str,
+        reported_mime_type: str | None = None,
+        *,
+        allowed_mime_types: list[str] | None = None,
     ) -> None:
         """
         Creates an instance of RemoteImageData and does some initial calculations.
@@ -153,6 +158,9 @@ class RemoteImageData:
         self.reported_mime_type = reported_mime_type
         filename: str = get_filename_from_url(self.remote_url)
         self.image_file = File(img_data, name=filename)
+        if allowed_mime_types is not None and len(allowed_mime_types) > 0:
+            # For when we start capturing other types of files.
+            self._allowed_mime_types = allowed_mime_types
         try:
             self.actual_mime_type = magic.from_buffer(img_data.read(2048), mime=True)
             logger.debug(f"Setting actual mime type to {self.actual_mime_type}")

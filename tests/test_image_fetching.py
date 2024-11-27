@@ -43,6 +43,28 @@ def test_image_data_initialization(
     assert rid.is_valid()
 
 
+@pytest.mark.parametrize(
+    "allowed_mime_types,expect_valid",
+    [
+        (["image/jpeg", "image/gif", "image/webp"], False),
+        (["image/jpeg", "image/gif", "image/png", "image/png"], True),
+    ],
+)
+def test_image_data_initialization_with_different_mime_type(
+    cover_art, allowed_mime_types, expect_valid
+):
+    img_bytes = BytesIO(cover_art)
+    url = "https://example.com/imgs/podcasts/20/cover_art.png"
+    rid = RemoteImageData(
+        img_data=img_bytes,
+        remote_url=url,
+        reported_mime_type="image/png",
+        allowed_mime_types=allowed_mime_types,
+    )
+    assert rid._allowed_mime_types == allowed_mime_types
+    assert expect_valid == rid.is_valid()
+
+
 @pytest.mark.django_db
 def test_image_data_initialization_with_invalid(rss_feed_datastream):
     rid = RemoteImageData(

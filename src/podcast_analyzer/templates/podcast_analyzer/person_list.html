@@ -13,7 +13,7 @@
         <article>
           <figure>
             <p>
-              <a href="{{ person.get_absolute_url }}">{% if person.img_url %}<img src="{{ person.img_url }}" alt="Avatar for {{ person.name }}"  width="200" height="200"/> {% endif %}{{ person.name }}</a>
+              <a href="{{ person.get_absolute_url }}">{% if person.img_url %}<img src="{% if person.avatar %}{{ person.avatar.url }}{% else %}{{ person.img_url }}{% endif %}" alt="Avatar for {{ person.name }}"  width="200" height="200"/> {% endif %}{{ person.name }}</a>
             </p>
           </figure>
         </article>
