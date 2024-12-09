@@ -45,7 +45,7 @@ from podcast_analyzer.utils import (
     update_file_extension_from_mime_type,
 )
 
-logger = logging.getLogger("podcast_analyzer")
+logger = logging.getLogger(__name__)
 
 
 KNOWN_GENERATOR_HOST_MAPPING: dict[str, str] = {

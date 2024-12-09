@@ -40,7 +40,7 @@ from podcast_analyzer.models import AnalysisGroup, Episode, Person, Podcast
 
 # Create your views here.
 
-logger = logging.getLogger("podcast_analyzer")
+logger = logging.getLogger(__name__)
 
 
 def messaging_enabled() -> bool:
