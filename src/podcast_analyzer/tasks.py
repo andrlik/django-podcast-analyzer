@@ -10,7 +10,7 @@ import logging
 
 from podcast_analyzer.models import Person, Podcast
 
-logger = logging.getLogger("podcast_analyzer")
+logger = logging.getLogger(__name__)
 
 
 def async_refresh_feed(podcast_id: str) -> None:

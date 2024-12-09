@@ -14,7 +14,7 @@ from django_q.tasks import async_task
 from podcast_analyzer.models import Person, Podcast
 from podcast_analyzer.tasks import async_refresh_feed
 
-logger = logging.getLogger("podcast_analyzer")
+logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Podcast)

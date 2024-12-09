@@ -173,7 +173,7 @@ LOGGING = {
         "podcast_analyzer": {
             "handlers": ["console"],
             "level": "DEBUG",
-            "propagate": True,
+            "propagate": False,
         },
     },
 }
