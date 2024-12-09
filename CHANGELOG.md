@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Minor logging improvements
+
 ## 0.4.0
 
 [Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.3.0...v0.4.0)
