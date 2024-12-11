@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.4.1
 
-[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.4.0...HEAD)
+[Compare the full difference](https://github.com/andrlik/django-podcast-analyzer/compare/v0.4.0...v0.4.1)
 
 - Minor logging improvements
 - Update classifiers
