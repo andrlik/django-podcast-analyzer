@@ -1,13 +1,15 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% translate "Edit" %} {{ person.name }} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
   <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a> </li>
   <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block content %}
   <h1>{% blocktranslate with name=person.name %}Edit {{ name }}{% endblocktranslate %}</h1>
   <form method="post">
@@ -25,4 +27,4 @@
     <a href="{{ person.get_absolute_url }}">{% translate "Return to person detail and discard changes" %}</a>
     <button type="submit">{% translate "Save changes" %}</button>
   </form>
-{% endblock %}
+{% endblock content %}

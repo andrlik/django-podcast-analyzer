@@ -1,15 +1,18 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{{ group.name }} - {% translate "Analysis Groups" %} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
   <li class='is-active'><a href="#" aria-current="page">{{ group.name }}</a> </li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
   <div><a href="{% url "podcast_analyzer:ag-edit" id=group.id %}">{% translate "Edit" %}</a></div>
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{{ group.name }}</h1>
   <p>{{ group.description|striptags|urlize }}</p>
@@ -128,4 +131,4 @@
 
   </div>
 
-{% endblock %}
+{% endblock content %}

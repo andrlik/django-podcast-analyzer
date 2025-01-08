@@ -1,11 +1,13 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% translate "Merge options" %} - {{ person.name }} - {% translate "People" %} - {% endblock %}
+
 {% block breadcrumbs %}
   <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
   <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a></li>
   <li class="is-active"><a href="#" aria-current="page">{% translate "Merge options" %}</a></li>
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block content %}
   <h1>{% translate "Merge options for" %} {{ person.name }}</h1>
   <p>{% translate "Select a person to merge this record into:" %}</p>
@@ -22,7 +24,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for target in  page_obj %}
+      {% for target in page_obj %}
         <tr>
           <td><a href="{% url 'podcast_analyzer:person-merge' id=person.id destination_id=target.id %}">{{ target.name }}</a></td>
           <td>{{ target.url|urlizetrunc:35 }}</td>
@@ -38,4 +40,4 @@
   </table>
 
   {% include "podcast_analyzer/includes/pagination.html" %}
-{% endblock %}
+{% endblock content %}

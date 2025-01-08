@@ -1,6 +1,7 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% if not podcast %}{% translate "Add podcast" %}{% else %}{% translate "Edit" %} {{ podcast.title }}{% endif %} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
@@ -10,7 +11,8 @@
     <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
     <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
   {% endif %}
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block content %}
   <h1>{% if not podcast %}{% translate "Add podcast" %}{% else %}{% blocktranslate with title=podcast.title %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>
   <form method="post">
@@ -34,4 +36,4 @@
       <button type="submit">{% translate "Save changes" %}</button>
     {% endif %}
   </form>
-{% endblock %}
+{% endblock content %}

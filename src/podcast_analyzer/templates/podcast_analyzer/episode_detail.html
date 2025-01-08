@@ -1,16 +1,19 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{{ episode.title }} - {% translate "Episodes" %} - {{ podcast.title }} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
-  <li><a href="{{ podcast.get_absolute_url}}">{{ podcast.title }}</a> </li>
+  <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
   <li><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "Episodes" %}</a></li>
   <li class="is-active"><a href="#" aria-current="page">{{ episode.title }}</a></li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{{ episode.title }}</h1>
   <p><small>{% translate "Released" %}: {{ episode.release_datetime|date:"F j, Y" }}</small></p>
@@ -82,4 +85,4 @@
     <div><a href="{% url 'podcast_analyzer:episode-edit' podcast_id=podcast.id id=episode.id %}">{% translate "Edit" %}</a></div>
     <div><a href="{% url 'podcast_analyzer:episode-delete' podcast_id=podcast.id id=episode.id %}">{% translate "Delete" %}</a></div>
   </div>
-{% endblock %}
+{% endblock content %}

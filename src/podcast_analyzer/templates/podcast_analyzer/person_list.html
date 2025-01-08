@@ -1,10 +1,12 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% translate "People" %} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li class="is-active"><a href="#" aria-current="page">{% translate "People" %}</a></li>
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block content %}
   <h1>{% translate "People" %}</h1>
   <ul>
@@ -25,4 +27,4 @@
 
   {% include "podcast_analyzer/includes/pagination.html" %}
 
-{% endblock %}
+{% endblock content %}

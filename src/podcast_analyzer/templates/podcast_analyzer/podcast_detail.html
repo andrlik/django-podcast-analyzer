@@ -1,16 +1,19 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{{ podcast.title }} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
   <li class='is-active'><a href="#" aria-current="page">{{ podcast.title }}</a> </li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
   <div><a href="{% url 'podcast_analyzer:episode-list' podcast_id=podcast.id %}">{% translate "See episodes" %}</a></div>
   <div><a href="{% url 'podcast_analyzer:podcast-edit' id=podcast.id %}">{% translate "Edit" %}</a></div>
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{{ podcast.title }}</h1>
   <div>
@@ -39,15 +42,15 @@
       <dt>{% translate "Type" %}</dt>
       <dd>{{ podcast.itunes_feed_type }}</dd>
       <dt>{% translate "Explicit" %}</dt>
-      <dd><span class="is-sr-only">{{ podcast.itunes_explicit|yesno:"Yes,No"}} </span>{{ podcast.itunes_explicit|yesno:"✅,🚫"}}</dd>
+      <dd><span class="is-sr-only">{{ podcast.itunes_explicit|yesno:"Yes,No" }} </span>{{ podcast.itunes_explicit|yesno:"✅,🚫" }}</dd>
       <dt>{% translate "Language" %}</dt>
       <dd>{{ podcast.language }}</dd>
       <dt>{% translate "Actively releasing?" %}</dt>
-      <dd><span class="is-sr-only">{{ podcast.dormant|yesno:"No,Yes"}} </span>{{ podcast.dormant|yesno:"🚫,✅"}}</dd>
+      <dd><span class="is-sr-only">{{ podcast.dormant|yesno:"No,Yes" }} </span>{{ podcast.dormant|yesno:"🚫,✅" }}</dd>
       <dt>{% translate "Site URL" %}</dt>
       <dd>{{ podcast.site_url|urlize }}</dd>
       <dt>{% translate "Funding URL" %}</dt>
-      <dd>{{ podcast.funding_url|urlize|default_if_none:"-"}}</dd>
+      <dd>{{ podcast.funding_url|urlize|default_if_none:"-" }}</dd>
 
 
       <dt>{% translate "iTunes Categories" %}</dt>
@@ -67,9 +70,9 @@
       <dt>{% translate "Probable Feed Host" %}</dt>
       <dd>{{ podcast.probable_feed_host }}</dd>
       <dt>{% translate "Uses 3rd party download tracking?" %}</dt>
-      <dd><span class="is-sr-only">{{ podcast.feed_contains_tracking_data|yesno:"Yes,No"}} </span>{{ podcast.feed_contains_tracking_data|yesno:"✅,🚫"}}</dd>
+      <dd><span class="is-sr-only">{{ podcast.feed_contains_tracking_data|yesno:"Yes,No" }} </span>{{ podcast.feed_contains_tracking_data|yesno:"✅,🚫" }}</dd>
       <dt>{% translate "Last release date" %}</dt>
-      <dd>{{ podcast.last_release_date|date:"r"}}</dd>
+      <dd>{{ podcast.last_release_date|date:"r" }}</dd>
 
 
     </dl>
@@ -160,4 +163,4 @@
 
   </div>
 
-{% endblock %}
+{% endblock content %}

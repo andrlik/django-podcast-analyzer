@@ -1,16 +1,19 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% translate "Analysis Groups" %} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li class="is-active"><a href="#" aria-current="page">{% translate "Analysis Groups" %}</a></li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
   <div>
     <a href="{% url 'podcast_analyzer:ag-create' %}">{% translate "Add analysis group" %}</a>
   </div>
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{% translate "Analysis Groups" %}</h1>
   <ul>
@@ -35,4 +38,4 @@
 
   {% include "podcast_analyzer/includes/pagination.html" %}
 
-{% endblock %}
+{% endblock content %}

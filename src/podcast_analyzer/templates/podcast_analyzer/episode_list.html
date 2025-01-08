@@ -1,15 +1,18 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% translate "Episodes" %} - {{ podcast.title }} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:podcast-list' %}">{% translate "Podcasts" %}</a></li>
   <li><a href="{{ podcast.get_absolute_url }}">{{ podcast.title }}</a> </li>
   <li class="is-active"><a href="#" aria-current="page">{% translate "Episodes" %}</a></li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{{ podcast.title }}</h1>
   <div>
@@ -64,4 +67,4 @@
 
   {% include "podcast_analyzer/includes/pagination.html" %}
 
-{% endblock %}
+{% endblock content %}

@@ -1,18 +1,21 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% translate "Podcasts" %} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li class="is-active"><a href="#" aria-current="page">{% if tag %}{% blocktranslate with tag_name=tag.name %}Podcasts tagged with {{ tag_name }}{% endblocktranslate %}{% else %}{% translate "Podcasts" %}{% endif %}</a></li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
   {% if not tag %}
     <div>
       <a href="{% url 'podcast_analyzer:podcast-create' %}">{% translate "Add podcast" %}</a>
     </div>
   {% endif %}
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{% translate "Podcasts" %}</h1>
   <ul>
@@ -44,4 +47,4 @@
 
   {% include "podcast_analyzer/includes/pagination.html" %}
 
-{% endblock %}
+{% endblock content %}

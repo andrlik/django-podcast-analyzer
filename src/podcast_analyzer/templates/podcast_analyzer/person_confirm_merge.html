@@ -1,11 +1,13 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% blocktranslate with source_name=source.name destination_name=destination.name %}Merge {{ source_name }} into {{ destination_name }}{% endblocktranslate %} - {% translate "People" %} - {% endblock %}
+
 {% block breadcrumbs %}
   <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
   <li><a href="{{ person.get_absolute_url }}">{{ person.name }}</a></li>
   <li class="is-active"><a href="#" aria-current="page">{% translate "Merge with" %} {{ destination.name }}</a></li>
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block content %}
   <h1>{% blocktranslate with source_name=source.name destination_name=destination.name %}Merge {{ source_name }} into {{ destination_name }}{% endblocktranslate %}</h1>
   <p>{% blocktranslate with source_name=source.name destination_name=destination.name %}{{ source_name }} would be merged into {{ destination_name }} for all existing episodes and any future episodes.{% endblocktranslate %}</p>
@@ -33,4 +35,4 @@
     <a href="{% url 'podcast_analyzer:person-merge-list' id=source.id %}">{% translate "No, return to merge options" %}</a>
     <button type="submit">{% translate "Merge records" %}</button>
   </form>
-{% endblock %}
+{% endblock content %}

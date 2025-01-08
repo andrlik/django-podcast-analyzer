@@ -1,15 +1,18 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{{ podcast.title }} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:person-list' %}">{% translate "People" %}</a></li>
   <li class='is-active'><a href="{{ person.get_absolute_url }}" aria-current="page">{{ person.name }}</a> </li>
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block extra_controls %}
   <div><a href="{% url 'podcast_analyzer:person-edit' id=person.id %}">{% translate "Edit" %}</a> | <a href="{% url 'podcast_analyzer:person-merge-list' id=person.id %}">{% translate "Merge with another record" %}</a></div>
-{% endblock %}
+{% endblock extra_controls %}
+
 {% block content %}
   <h1>{{ person.name }}</h1>
   <div>
@@ -93,4 +96,4 @@
 
   </div>
 
-{% endblock %}
+{% endblock content %}

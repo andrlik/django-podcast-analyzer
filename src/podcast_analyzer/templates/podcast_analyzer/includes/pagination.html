@@ -8,7 +8,7 @@
             <li><a class="pagination-link" href="?page=1">&laquo; 1</a></li>
           {% endif %}
           {% if page_obj.previous_page_number > 2 %}<li><span class="pagination-ellipsis">&hellip;</span></li>{% endif %}
-          <li><a class="pagination-link" href="?page={{page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
+          <li><a class="pagination-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
         {% endif %}
         <li>
           <a class="pagination-link is-current" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a>

@@ -1,6 +1,7 @@
 {% extends "podcast_analyzer/app_base.html" %}
 {% load i18n %}
 {% block extratitle %}{% if not group %}{% translate "Add analysis group" %}{% else %}{% translate "Edit" %} {{ group.name }}{% endif %} - {% endblock %}
+
 {% block breadcrumbs %}
 
   <li><a href="{% url 'podcast_analyzer:ag-list' %}">{% translate "Analysis Groups" %}</a></li>
@@ -11,7 +12,8 @@
     <li class='is-active'><a href="#" aria-current="page">{% translate "Edit" %}</a> </li>
   {% endif %}
 
-{% endblock %}
+{% endblock breadcrumbs %}
+
 {% block content %}
   <h1>{% if not group %}{% translate "Add analysis group" %}{% else %}{% blocktranslate with title=group.name %}Edit {{ title }}{% endblocktranslate %}{% endif %}</h1>
   <form method="post">
@@ -34,4 +36,4 @@
       <button type="submit">{% translate "Save changes" %}</button>
     {% endif %}
   </form>
-{% endblock %}
+{% endblock content %}
