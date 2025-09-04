@@ -2,6 +2,9 @@
 
 A simple [Django](https://www.djangoproject.com) app that allows you to follow the feeds of various podcasts and glean interesting information from them.
 
+> [!IMPORTANT]
+> This project has [migrated to Codeberg](https://codeberg.org/andrlik/django-podcast-analyzer) as of release 0.5.0. All updates, issues, and pull requests will occur there.
+
 [![PyPI](https://img.shields.io/pypi/v/django-podcast-analyzer)](https://pypi.org/project/django-podcast-analyzer/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/django-podcast-analyzer)
 ![PyPI - Versions from Framework Classifiers](https://img.shields.io/pypi/frameworkversions/django/django-podcast-analyzer)
